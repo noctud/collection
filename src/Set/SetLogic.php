@@ -76,7 +76,9 @@ trait SetLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableSet<mixed>
+	 * @template R
+	 * @param Closure(E, int):R $transform
+	 * @return ImmutableSet<R>
 	 */
 	#[NoDiscard]
 	public function map(Closure $transform): ImmutableSet
@@ -87,7 +89,9 @@ trait SetLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableSet<mixed>
+	 * @template R
+	 * @param Closure(E, int):(R|null) $transform
+	 * @return ImmutableSet<R>
 	 */
 	#[NoDiscard]
 	public function mapNotNull(Closure $transform): ImmutableSet
@@ -98,7 +102,9 @@ trait SetLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableSet<mixed>
+	 * @template R
+	 * @param Closure(E, int):iterable<R> $transform
+	 * @return ImmutableSet<R>
 	 */
 	#[NoDiscard]
 	public function flatMap(Closure $transform): ImmutableSet
