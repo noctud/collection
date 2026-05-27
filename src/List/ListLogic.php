@@ -197,7 +197,9 @@ trait ListLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableList<mixed>
+	 * @template R
+	 * @param Closure(E, int):R $transform
+	 * @return ImmutableList<R>
 	 */
 	#[NoDiscard]
 	public function map(Closure $transform): ImmutableList
@@ -208,7 +210,9 @@ trait ListLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableList<mixed>
+	 * @template R
+	 * @param Closure(E, int):(R|null) $transform
+	 * @return ImmutableList<R>
 	 */
 	#[NoDiscard]
 	public function mapNotNull(Closure $transform): ImmutableList
@@ -219,7 +223,9 @@ trait ListLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ImmutableList<mixed>
+	 * @template R
+	 * @param Closure(E, int):iterable<R> $transform
+	 * @return ImmutableList<R>
 	 */
 	#[NoDiscard]
 	public function flatMap(Closure $transform): ImmutableList

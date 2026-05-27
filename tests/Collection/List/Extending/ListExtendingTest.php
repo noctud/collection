@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection\List\Extending;
 
+use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -95,5 +96,21 @@ final class ListExtendingTest extends TestCase
 		self::assertInstanceOf(ManualLineItems::class, $swapped);
 		self::assertInstanceOf(ManualLineItems::class, $sorted);
 		self::assertCount(1, $swapped);
+	}
+
+	#[Test]
+	public function trait_transform_narrows_element_type(): void
+	{
+		$list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
+
+		$ids = $list->toIds();
+
+		// The shape changed, so the static type narrows to the base ImmutableList<int>
+		// (asserted by PHPStan via toIds()'s @return). At runtime the SelfPreserving
+		// factory still builds `new static`, so the object remains an ImmutableList.
+		self::assertInstanceOf(ImmutableList::class, $ids);
+		self::assertSame([1, 2], $ids->toArray());
+		self::assertSame([1], $list->swappedIds()->toArray());
+		self::assertSame([1, -1, 2, -2], $list->idsWithNegatives()->toArray());
 	}
 }

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Map\Extending;
 
+use Noctud\Collection\Map\ImmutableMap;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -84,5 +85,26 @@ final class MapExtendingTest extends TestCase
 		self::assertInstanceOf(ManualScoreBoard::class, $winners);
 		self::assertInstanceOf(ManualScoreBoard::class, $ranked);
 		self::assertCount(2, $winners);
+	}
+
+	#[Test]
+	public function trait_transform_narrows_key_and_value_types(): void
+	{
+		$board = new ScoreBoard(['alice' => 120, 'bob' => 80]);
+
+		$rekeyed = $board->rekeyByScore();
+		$scaled = $board->scaled();
+		$labels = $board->winnerLabels();
+
+		// The key/value type changed, so the static type narrows to the base
+		// ImmutableMap<NK,V> / ImmutableMap<K,NV> (asserted by PHPStan via these
+		// methods' @return). At runtime the SelfPreserving factory still builds
+		// `new static`, so the object remains an ImmutableMap.
+		self::assertInstanceOf(ImmutableMap::class, $rekeyed);
+		self::assertSame([120, 80], $rekeyed->keys->toArray());
+		self::assertSame(180.0, $scaled['alice']);
+		self::assertSame(120.0, $scaled['bob']);
+		self::assertCount(1, $labels);
+		self::assertSame('win', $labels['alice']);
 	}
 }

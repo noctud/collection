@@ -66,4 +66,26 @@ class TraitItemCollection implements ImmutableSet
 	{
 		return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
 	}
+
+	// Transform methods change the element type, so they return the base
+	// ImmutableSet<R> (not self). These assert R is inferred from the closure
+	// rather than collapsed to mixed — the issue #3 follow-up about map().
+
+	/** @return ImmutableSet<int> */
+	public function toIds(): ImmutableSet
+	{
+		return $this->map(static fn (SwappableItem $i): int => $i->id);
+	}
+
+	/** @return ImmutableSet<int> */
+	public function swappedIds(): ImmutableSet
+	{
+		return $this->mapNotNull(static fn (SwappableItem $i): ?int => $i->swapped ? $i->id : null);
+	}
+
+	/** @return ImmutableSet<int> */
+	public function idsWithNegatives(): ImmutableSet
+	{
+		return $this->flatMap(static fn (SwappableItem $i): array => [$i->id, -$i->id]);
+	}
 }

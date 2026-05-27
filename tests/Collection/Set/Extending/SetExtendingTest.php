@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection\Set\Extending;
 
+use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -109,5 +110,23 @@ final class SetExtendingTest extends TestCase
 		self::assertInstanceOf(ManualItemCollection::class, $sorted);
 		self::assertInstanceOf(ManualItemCollection::class, $swapped);
 		self::assertInstanceOf(ManualItemCollection::class, $rest);
+	}
+
+	#[Test]
+	public function trait_transform_narrows_element_type(): void
+	{
+		$collection = new TraitItemCollection([new SwappableItem(1, true), new SwappableItem(2, false)]);
+
+		$ids = $collection->toIds();
+		$swappedIds = $collection->swappedIds();
+		$withNegatives = $collection->idsWithNegatives();
+
+		// The shape changed, so the static type narrows to the base ImmutableSet<int>
+		// (asserted by PHPStan via toIds()'s @return). At runtime the SelfPreserving
+		// factory still builds `new static`, so the object remains an ImmutableSet.
+		self::assertInstanceOf(ImmutableSet::class, $ids);
+		self::assertEqualsCanonicalizing([1, 2], $ids->toArray());
+		self::assertEqualsCanonicalizing([1], $swappedIds->toArray());
+		self::assertEqualsCanonicalizing([1, -1, 2, -2], $withNegatives->toArray());
 	}
 }

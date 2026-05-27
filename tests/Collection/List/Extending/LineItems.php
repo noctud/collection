@@ -66,4 +66,26 @@ class LineItems implements ImmutableList
 	{
 		return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
 	}
+
+	// Transform methods change the element type, so they return the base
+	// ImmutableList<R> (not self). These assert R is inferred from the closure
+	// rather than collapsed to mixed — the issue #3 follow-up about map().
+
+	/** @return ImmutableList<int> */
+	public function toIds(): ImmutableList
+	{
+		return $this->map(static fn (SwappableItem $i): int => $i->id);
+	}
+
+	/** @return ImmutableList<int> */
+	public function swappedIds(): ImmutableList
+	{
+		return $this->mapNotNull(static fn (SwappableItem $i): ?int => $i->swapped ? $i->id : null);
+	}
+
+	/** @return ImmutableList<int> */
+	public function idsWithNegatives(): ImmutableList
+	{
+		return $this->flatMap(static fn (SwappableItem $i): array => [$i->id, -$i->id]);
+	}
 }
