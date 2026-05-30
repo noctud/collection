@@ -23,7 +23,7 @@ final class MutableMapValueCollectionTest extends AbstractCollectionTestCase
 	 */
 	public function collectionOf(iterable|Closure $data): Collection
 	{
-		return mutableMapOf($data)->values; // @phpstan-ignore argument.templateType
+		return mutableMapOf($data)->values;
 	}
 
 	/**

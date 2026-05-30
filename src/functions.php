@@ -47,13 +47,13 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * Creates a mutable list.
 	 * If the given data is Closure, the list will be lazily initialized when first accessed.
 	 *
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
+	 * @template E = mixed
+	 * @param iterable<E>|Closure():iterable<E>|null $data
 	 * @return MutableList<E>
 	 */
-	function mutableListOf(iterable|Closure $data = []): MutableList
+	function mutableListOf(iterable|Closure|null $data = null): MutableList
 	{
-		return new MutableArrayList($data);
+		return new MutableArrayList($data ?? []);
 	}
 
 	/**
@@ -75,13 +75,13 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * If the given data contains duplicate values, only the first occurrence is kept.
 	 * If the given data is Closure, the set will be lazily initialized when first accessed.
 	 *
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
+	 * @template E = mixed
+	 * @param iterable<E>|Closure():iterable<E>|null $data
 	 * @return MutableSet<E>
 	 */
-	function mutableSetOf(iterable|Closure $data = []): MutableSet
+	function mutableSetOf(iterable|Closure|null $data = null): MutableSet
 	{
-		return new MutableHashSet($data);
+		return new MutableHashSet($data ?? []);
 	}
 
 	/**
@@ -116,14 +116,14 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * Creates a mutable map.
 	 * If the given data is Closure, the map will be lazily initialized when first accessed.
 	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
+	 * @template K of string|int|bool|float|object = string|int|bool|float|object
+	 * @template V = mixed
+	 * @param iterable<K,V>|Closure():iterable<K,V>|null $data
 	 * @return MutableMap<K,V>
 	 */
-	function mutableMapOf(iterable|Closure $data = []): MutableMap
+	function mutableMapOf(iterable|Closure|null $data = null): MutableMap
 	{
-		return MutableHashMap::of($data);
+		return MutableHashMap::of($data ?? []);
 	}
 
 	/**
@@ -159,13 +159,13 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * Int keys are automatically cast to string during construction (handles PHP's numeric string casting).
 	 * If the given data is Closure, the map will be lazily initialized when first accessed.
 	 *
-	 * @template V
-	 * @param iterable<string|int,V>|Closure():iterable<string|int,V> $data
+	 * @template V = mixed
+	 * @param iterable<string|int,V>|Closure():iterable<string|int,V>|null $data
 	 * @return MutableMap<string,V>
 	 */
-	function mutableStringMapOf(iterable|Closure $data = []): MutableMap
+	function mutableStringMapOf(iterable|Closure|null $data = null): MutableMap
 	{
-		return new MutableStringMap($data);
+		return new MutableStringMap($data ?? []);
 	}
 
 	/**
@@ -187,12 +187,12 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
 	 * If the given data is Closure, the map will be lazily initialized when first accessed.
 	 *
-	 * @template V
-	 * @param iterable<int,V>|Closure():iterable<int,V> $data
+	 * @template V = mixed
+	 * @param iterable<int,V>|Closure():iterable<int,V>|null $data
 	 * @return MutableMap<int,V>
 	 */
-	function mutableIntMapOf(iterable|Closure $data = []): MutableMap
+	function mutableIntMapOf(iterable|Closure|null $data = null): MutableMap
 	{
-		return new MutableIntMap($data);
+		return new MutableIntMap($data ?? []);
 	}
 }

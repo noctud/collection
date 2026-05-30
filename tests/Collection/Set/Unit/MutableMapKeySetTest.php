@@ -27,7 +27,7 @@ final class MutableMapKeySetTest extends AbstractSetTestCase
 	 */
 	public function collectionOf(iterable|Closure $data): Set
 	{
-		return mutableMapOf($data)->flip(KeyCollisionStrategy::KeepLast)->keys; // @phpstan-ignore argument.templateType
+		return mutableMapOf($data)->flip(KeyCollisionStrategy::KeepLast)->keys;
 	}
 
 	/**

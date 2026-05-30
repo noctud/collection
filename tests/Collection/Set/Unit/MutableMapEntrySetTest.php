@@ -23,7 +23,7 @@ final class MutableMapEntrySetTest extends AbstractSetTestCase
 	 */
 	public function collectionOf(iterable|Closure $data): Set
 	{
-		return mutableMapOf($data)->entries->map(fn ($entry) => $entry->value); // @phpstan-ignore argument.templateType
+		return mutableMapOf($data)->entries->map(fn ($entry) => $entry->value);
 	}
 
 	/**
