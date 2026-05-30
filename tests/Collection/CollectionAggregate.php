@@ -67,12 +67,8 @@ trait CollectionAggregate
 	{
 		$collection = $this->collectionOf([]);
 
-		try {
-			$collection->avg();
-			$this->assertTrue(false, 'Expected UnsupportedOperationException not thrown'); /** @phpstan-ignore-line **/
-		} catch (UnsupportedOperationException) {
-			$this->assertTrue(true); /** @phpstan-ignore-line **/
-		}
+		$this->expectException(UnsupportedOperationException::class);
+		$collection->avg();
 	}
 
 	#[Test]
@@ -129,12 +125,8 @@ trait CollectionAggregate
 	{
 		$collection = $this->collectionOf([]);
 
-		try {
-			$collection->max();
-			$this->assertTrue(false, 'Expected NoSuchElementException not thrown'); /** @phpstan-ignore-line **/
-		} catch (NoSuchElementException) {
-			$this->assertTrue(true); /** @phpstan-ignore-line **/
-		}
+		$this->expectException(NoSuchElementException::class);
+		$collection->max();
 	}
 
 	#[Test]
@@ -199,12 +191,8 @@ trait CollectionAggregate
 	{
 		$collection = $this->collectionOf([]);
 
-		try {
-			$collection->min();
-			$this->assertTrue(false, 'Expected NoSuchElementException not thrown'); /** @phpstan-ignore-line **/
-		} catch (NoSuchElementException) {
-			$this->assertTrue(true); /** @phpstan-ignore-line **/
-		}
+		$this->expectException(NoSuchElementException::class);
+		$collection->min();
 	}
 
 	#[Test]
@@ -372,12 +360,8 @@ trait CollectionAggregate
 	{
 		$collection = $this->collectionOf([]);
 
-		try {
-			$collection->minOf(fn ($element) => $element);
-			$this->assertTrue(false, 'Expected NoSuchElementException not thrown'); /** @phpstan-ignore-line **/
-		} catch (NoSuchElementException) {
-			$this->assertTrue(true); /** @phpstan-ignore-line **/
-		}
+		$this->expectException(NoSuchElementException::class);
+		$collection->minOf(fn ($element) => $element);
 	}
 
 	#[Test]
@@ -421,12 +405,8 @@ trait CollectionAggregate
 	{
 		$collection = $this->collectionOf([]);
 
-		try {
-			$collection->maxOf(fn ($element) => $element);
-			$this->assertTrue(false, 'Expected NoSuchElementException not thrown'); /** @phpstan-ignore-line **/
-		} catch (NoSuchElementException) {
-			$this->assertTrue(true); /** @phpstan-ignore-line **/
-		}
+		$this->expectException(NoSuchElementException::class);
+		$collection->maxOf(fn ($element) => $element);
 	}
 
 	#[Test]

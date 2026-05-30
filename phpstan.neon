@@ -17,42 +17,14 @@ parameters:
 			message: '#MapEntry#'
 			path: src/CollectionLogic.php
 		-
-			identifier: booleanOr.alwaysFalse
-			path: src/CollectionLogic.php
-		-
-			identifier: smallerOrEqual.alwaysFalse
-			path: src/CollectionLogic.php
-		-
 			identifier: missingType.generics
 			path: src/CollectionLogic.php
 		-
 			identifier: deadCode.unreachable
 			path: src/CollectionLogic.php
-		# MapKeySet has E bounded to string|int|bool|float|object, so null/array
-		# checks in CollectionLogic/SetLogic are always-false/always-true in that context.
-		-
-			identifier: identical.alwaysFalse
-			path: src/CollectionLogic.php
-		-
-			identifier: function.impossibleType
-			path: src/CollectionLogic.php
-		# Domain collections that fix the element type to a concrete non-Stringable
-		# class (see tests/Collection/Set/Extending and real user subtypes) make the
-		# Stringable branch of joinToString() provably dead in that context.
-		-
-			identifier: instanceof.alwaysFalse
-			path: src/CollectionLogic.php
-		-
-			identifier: notIdentical.alwaysTrue
-			path: src/Set/SetLogic.php
 		-
 			identifier: return.type
 			path: src/Set/SetLogic.php
-		# Lists fixed to a concrete non-null element type (extension fixtures and real
-		# user subtypes) make the `!== null` guards in ListLogic always-true in context.
-		-
-			identifier: notIdentical.alwaysTrue
-			path: src/List/ListLogic.php
 		# Narrowing sections narrow Collection<E> → ImmutableList<E> / ImmutableSet<E> etc.
 		# in child return types, which PHPStan flags as incompatible.
 		-

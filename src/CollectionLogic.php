@@ -846,7 +846,15 @@ trait CollectionLogic
 		})());
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 *
+	 * The params are typed `int` (not the interface's `positive-int`) so the
+	 * defensive non-positive guard below stays a live runtime safety net.
+	 *
+	 * @param int $size
+	 * @param int $step
+	 */
 	#[NoDiscard]
 	public function windowed(int $size, int $step = 1, bool $partialWindows = false): ImmutableList
 	{
