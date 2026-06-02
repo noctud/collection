@@ -2,3 +2,21 @@
   width: 28px;
   height: 28px;
 }
+
+/*
+ * API reference rhythm: each method is a signature (code block) followed by a
+ * description paragraph. VitePress gives that paragraph equal margins top and
+ * bottom, so it floats midway between two signatures and ownership is unclear.
+ * Pull the description up to hug the signature it documents, and widen the gap
+ * before the next signature, so the pairing reads unambiguously top-down.
+ *
+ * Scoped to API reference pages only (those set `pageClass: api-reference` in
+ * frontmatter); guide pages keep the default code/prose rhythm.
+ */
+.api-reference .vp-doc div[class*="language-"] + p {
+  margin-top: -8px;
+}
+
+.api-reference .vp-doc p + div[class*="language-"] {
+  margin-top: 32px;
+}

@@ -1,3 +1,7 @@
+---
+pageClass: api-reference
+---
+
 # Factory Functions
 
 All factory functions are in the `Noctud\Collection` namespace. Import them with `use function`:

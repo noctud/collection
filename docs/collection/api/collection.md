@@ -1,3 +1,7 @@
+---
+pageClass: api-reference
+---
+
 # Collection API
 
 `Collection<E>` is the base interface for ordered element collections (List and Set). It extends `IteratorAggregate<int, E>` and `Countable`, and provides element access, querying, aggregation, transformation, and ordering methods.

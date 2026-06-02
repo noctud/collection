@@ -1,3 +1,7 @@
+---
+pageClass: api-reference
+---
+
 # Set API
 
 `Set<E>` extends `Collection<E>` for ordered collections of unique elements. Duplicate values are silently ignored on insertion. Sets do not support indexed access. See [Collection API](./collection) for inherited methods.

@@ -1,3 +1,7 @@
+---
+pageClass: api-reference
+---
+
 # Map API
 
 `Map<K,V>` is an ordered key-value associative collection with strict key handling. Unlike PHP arrays, keys are never silently cast. Extends `IteratorAggregate<K,V>`, `Countable`, and `ArrayAccess<K,V>`.

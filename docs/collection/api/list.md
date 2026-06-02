@@ -1,3 +1,7 @@
+---
+pageClass: api-reference
+---
+
 # List API
 
 `ListInterface<E>` extends `Collection<E>` and `ArrayAccess<int, E>` with positional access by integer index. See [Collection API](./collection) for inherited methods.

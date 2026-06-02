@@ -31,6 +31,7 @@ export default defineConfig({
             text: "Getting Started",
             link: "/collection/getting-started",
           },
+          { text: "Cheatsheet", link: "/collection/cheatsheet" },
           { text: "Design", link: "/collection/design" },
           { text: "FAQ", link: "/collection/faq" },
         ],
