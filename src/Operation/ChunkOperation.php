@@ -17,7 +17,7 @@ namespace Noctud\Collection\Operation;
 final class ChunkOperation extends AbstractOperation
 {
 	/**
-	 * @return array<int,array<int,V>>
+	 * @return list<list<V>>
 	 */
 	public function ofSize(int $size): array
 	{

@@ -39,7 +39,7 @@ final class TakeOperation extends AbstractOperation
 
 	/**
 	 * @param int $n
-	 * @return array<int,V>
+	 * @return list<V>
 	 */
 	public function last(int $n): array
 	{
@@ -68,7 +68,7 @@ final class TakeOperation extends AbstractOperation
 
 	/**
 	 * @param callable(V, int):bool $predicate
-	 * @return array<int,V>
+	 * @return list<V>
 	 */
 	public function lastByPredicate(callable $predicate): array
 	{

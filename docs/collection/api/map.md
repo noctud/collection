@@ -240,7 +240,7 @@ toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array
 Convert to PHP array. Only works with scalar keys. Throws `ConversionException` for object keys or key collisions.
 
 ```php
-toPairs(): array{0:K, 1:V}[]
+toPairs(): list<array{0:K, 1:V}>
 ```
 Convert to array of `[key, value]` pairs.
 

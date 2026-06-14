@@ -828,7 +828,7 @@ trait CollectionLogic
 		})());
 	}
 
-	/** @return array<int, E> */
+	/** @return list<E> */
 	public function jsonSerialize(): array
 	{
 		return $this->toArray();

@@ -349,7 +349,7 @@ final class HashKeyValueStore implements KeyValueStore
 	}
 
 	/**
-	 * @return array<int,array{0:K,1:V}>
+	 * @return list<array{0:K,1:V}>
 	 */
 	public function toPairs(): array
 	{

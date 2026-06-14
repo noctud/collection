@@ -334,7 +334,7 @@ final class IntKeyValueStore implements KeyValueStore
 	}
 
 	/**
-	 * @return array<int,array{0:int,1:V}>
+	 * @return list<array{0:int,1:V}>
 	 */
 	public function toPairs(): array
 	{

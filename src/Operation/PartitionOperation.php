@@ -18,7 +18,7 @@ final class PartitionOperation extends AbstractOperation
 {
 	/**
 	 * @param callable(V, int):bool $predicate
-	 * @return array{array<int,V>, array<int,V>}
+	 * @return array{list<V>, list<V>}
 	 */
 	public function byPredicate(callable $predicate): array
 	{

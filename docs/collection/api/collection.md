@@ -411,7 +411,7 @@ toSet(): ImmutableSet<E>
 Convert to an immutable set (duplicates removed).
 
 ```php
-toArray(): array<int, E>
+toArray(): list<E>
 ```
 Convert to a PHP array.
 

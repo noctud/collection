@@ -203,7 +203,7 @@ interface KeyValueStore extends IteratorAggregate
 	/**
 	 * Returns all entries as an array of [key, value] pairs.
 	 *
-	 * @return array<int,array{0:K,1:V}>
+	 * @return list<array{0:K,1:V}>
 	 */
 	public function toPairs(): array;
 

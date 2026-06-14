@@ -529,7 +529,7 @@ interface Map extends IteratorAggregate, Countable, ArrayAccess, JsonSerializabl
 	/**
 	 * Converts the map to an array of pairs like [[key1, value1], [key2, value2], ...].
 	 *
-	 * @return array{0:K,1:V}[]
+	 * @return list<array{0:K,1:V}>
 	 */
 	#[NoDiscard]
 	public function toPairs(): array;
