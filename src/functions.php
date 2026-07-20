@@ -22,6 +22,8 @@ use Noctud\Collection\Map\IntMap\MutableIntMap;
 use Noctud\Collection\Map\MutableMap;
 use Noctud\Collection\Map\StringMap\ImmutableStringMap;
 use Noctud\Collection\Map\StringMap\MutableStringMap;
+use Noctud\Collection\Sequence\GeneratorSequence;
+use Noctud\Collection\Sequence\Sequence;
 use Noctud\Collection\Set\HashSet\ImmutableHashSet;
 use Noctud\Collection\Set\HashSet\MutableHashSet;
 use Noctud\Collection\Set\ImmutableSet;
@@ -194,5 +196,25 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	function mutableIntMapOf(iterable|Closure|null $data = null): MutableMap
 	{
 		return new MutableIntMap($data ?? []);
+	}
+
+	/**
+	 * Creates a lazy sequence over the given source.
+	 * Nothing is pulled from the source before the sequence is iterated. Whether the
+	 * sequence can be iterated again depends on the source kind (see Sequence for the
+	 * full contract):
+	 *
+	 * - an array or an IteratorAggregate (e.g. a Collection): replayable;
+	 * - a Closure: a producer, re-invoked on every pass; it must return a fresh iterable
+	 *   on each call;
+	 * - a raw Iterator/Generator: single-pass, yields its remaining elements.
+	 *
+	 * @template E
+	 * @param iterable<E>|Closure():iterable<E> $source
+	 * @return Sequence<E>
+	 */
+	function sequenceOf(iterable|Closure $source = []): Sequence
+	{
+		return new GeneratorSequence($source);
 	}
 }
