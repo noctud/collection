@@ -99,7 +99,7 @@ count(): int
 Returns the number of entries in the map.
 
 ```php
-countWhere(Closure $predicate): int
+countWhere(Closure $predicate): int<0, max>
 ```
 Returns the number of entries matching the predicate `(V, K): bool`.
 
@@ -135,7 +135,7 @@ Filter by value predicate `(V): bool`.
 ```php
 filterValuesNotNull(): ImmutableMap<K,V>
 ```
-Exclude entries with `null` values.
+Exclude entries with `null` values. The value type narrows to exclude `null` — `Map<string, int|null>` becomes `Map<string, int>`. Keys are preserved.
 
 ```php
 filterValuesInstanceOf(string $type): ImmutableMap<K,T>
@@ -235,9 +235,9 @@ flatMap(Closure $transform): ImmutableList<R>
 Transform each entry with `(V, K): iterable<R>` and flatten all results into a single list.
 
 ```php
-toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array
+toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array<K,V>
 ```
-Convert to PHP array. Only works with scalar keys. Throws `ConversionException` for object keys or key collisions.
+Convert to PHP array. Only works with scalar keys. Throws `ConversionException` for object keys or key collisions. The key type is preserved when `K` is a valid array key — a `Map<string, int>` yields `array<string, int>`; a map with keys PHP cannot use natively falls back to `array<array-key, V>`.
 
 ```php
 toPairs(): list<array{0:K, 1:V}>

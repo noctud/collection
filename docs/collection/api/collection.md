@@ -101,7 +101,7 @@ count(): int
 Returns the number of elements in the collection.
 
 ```php
-countWhere(Closure $predicate): int
+countWhere(Closure $predicate): int<0, max>
 ```
 Returns the number of elements matching the predicate `(E, int): bool`.
 
@@ -135,7 +135,7 @@ Reduce, or `null` if empty.
 ```php
 sum(?Closure $selector = null): int|float
 ```
-Sum of all elements, or values returned by the selector `(E, int): int|float`.
+Sum of all elements, or values returned by the selector `(E, int): int|float`. The return type narrows to `int` when every summed value is an `int` — a `Collection<int>`, or a selector declared to return `int` — and stays `int|float` otherwise.
 
 ```php
 avg(?Closure $selector = null): float
@@ -168,22 +168,22 @@ maxOrNull(?Closure $selector = null): E|null
 Maximum element, or `null` if empty. Optional selector `(E, int): mixed`.
 
 ```php
-minOf(Closure $selector): mixed
+minOf(Closure $selector): R
 ```
-Returns the minimum value produced by the selector `(E, int): mixed`. Unlike `min()`, returns the **selector value** itself, not the element. Throws `NoSuchElementException` if empty.
+Returns the minimum value produced by the selector `(E, int): R`. Unlike `min()`, returns the **selector value** itself, not the element. The return type follows the selector — one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
 
 ```php
-minOfOrNull(Closure $selector): mixed
+minOfOrNull(Closure $selector): R|null
 ```
 Returns the minimum selector value, or `null` if empty.
 
 ```php
-maxOf(Closure $selector): mixed
+maxOf(Closure $selector): R
 ```
-Returns the maximum value produced by the selector `(E, int): mixed`. Unlike `max()`, returns the **selector value** itself, not the element. Throws `NoSuchElementException` if empty.
+Returns the maximum value produced by the selector `(E, int): R`. Unlike `max()`, returns the **selector value** itself, not the element. The return type follows the selector — one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
 
 ```php
-maxOfOrNull(Closure $selector): mixed
+maxOfOrNull(Closure $selector): R|null
 ```
 Returns the maximum selector value, or `null` if empty.
 
@@ -216,7 +216,7 @@ Filter by predicate `(E, int): bool`. Returns `ImmutableList` for lists, `Immuta
 ```php
 filterNotNull(): Collection<E>
 ```
-Filter out `null` elements.
+Filter out `null` elements. The element type narrows to exclude `null` — `Collection<string|null>` becomes `Collection<string>`.
 
 ```php
 filterInstanceOf(string $type): Collection<T>
@@ -239,9 +239,9 @@ flatMap(Closure $transform): Collection<R>
 Transform and flatten. Closure: `(E, int): iterable<R>`.
 
 ```php
-flatten(): Collection<mixed>
+flatten(): Collection<V>
 ```
-Flatten a collection of iterables.
+Flatten a collection of iterables, one level deep. Iterable elements contribute their own values (`V` is the element type of `E`); non-iterable elements are kept as-is. So `Collection<ImmutableList<int>>` becomes `Collection<int>`, `Collection<array<int>|string>` becomes `Collection<int|string>`, and `Collection<string>` stays `Collection<string>`. Only one level is removed — flattening `Collection<ImmutableList<ImmutableList<int>>>` yields `Collection<ImmutableList<int>>`.
 
 ```php
 takeFirst(int $n = 1): Collection<E>

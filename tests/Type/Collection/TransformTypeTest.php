@@ -30,7 +30,9 @@ assertType('Noctud\Collection\Collection<string>', $nullable->filterNotNull());
 assertType('Noctud\Collection\Collection<int>', $c->map(fn (string $x): int => (int) $x));
 assertType('Noctud\Collection\Collection<int>', $c->mapNotNull(fn (string $x): ?int => $x !== '' ? 1 : null));
 assertType('Noctud\Collection\Collection<int>', $c->flatMap(fn (string $x): array => [(int) $x]));
-assertType('Noctud\Collection\Collection<mixed>', $c->flatten());
+
+// flatten() keeps non-iterable elements as-is; see FlattenTypeTest for the nesting cases.
+assertType('Noctud\Collection\Collection<string>', $c->flatten());
 
 // Slicing preserves the element type.
 assertType('Noctud\Collection\Collection<string>', $c->takeFirst(2));
