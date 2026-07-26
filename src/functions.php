@@ -204,9 +204,9 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 * sequence can be iterated again depends on the source kind (see Sequence for the
 	 * full contract):
 	 *
-	 * - an array or an IteratorAggregate (e.g. a Collection): replayable;
-	 * - a Closure: a producer, re-invoked on every pass; it must return a fresh iterable
-	 *   on each call;
+	 * - an array: replayable;
+	 * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
+	 *   iterable on every pass; it must hand back a fresh iterator each time;
 	 * - a raw Iterator/Generator: single-pass, yields its remaining elements.
 	 *
 	 * @template E

@@ -20,6 +20,7 @@ use Noctud\Collection\Tests\Sequence\Fixture\GeneratorAggregate;
 use Noctud\Collection\Tests\Sequence\Fixture\SharedIteratorAggregate;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use WeakReference;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mutableListOf;
 use function Noctud\Collection\sequenceOf;
@@ -119,6 +120,29 @@ final class SequenceIterationTest extends TestCase
 	}
 
 	#[Test]
+	public function a_consumed_iterator_is_not_retained_by_the_sequence(): void
+	{
+		$weak = null;
+		$sequence = sequenceOf(static function () use (&$weak): Generator {
+			$generator = (static function (): Generator {
+				yield 1;
+			})();
+			$weak = WeakReference::create($generator);
+
+			return $generator;
+		});
+
+		$this->assertSame([1], $sequence->toArray());
+
+		gc_collect_cycles();
+
+		// The identity guard holds the previous pass's cursor weakly, so nothing keeps a
+		// consumed iterator - nor the handle or cursor behind it - alive.
+		$this->assertNull($weak?->get());
+		$this->assertSame([1], $sequence->toArray());
+	}
+
+	#[Test]
 	public function replay_sees_live_collection_mutations(): void
 	{
 		$list = mutableListOf([1, 2]);
@@ -175,7 +199,27 @@ final class SequenceIterationTest extends TestCase
 			return $generator;
 		});
 
-        $this->assertSame([1], $sequence->toArray());
+		$this->assertSame([1], $sequence->toArray());
+
+		$this->expectException(SequenceAlreadyIteratedException::class);
+		$this->expectExceptionMessageIsOrContains(
+			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
+		);
+
+        // phpcs:ignore
+        $_ = $sequence->toArray();
+	}
+
+	#[Test]
+	public function closure_returning_an_aggregate_holding_on_to_its_iterator_throws_on_second_pass(): void
+	{
+		$generator = (static function (): Generator {
+			yield 1;
+		})();
+		$aggregate = new SharedIteratorAggregate($generator);
+		$sequence = sequenceOf(static fn (): SharedIteratorAggregate => $aggregate);
+
+		$this->assertSame([1], $sequence->toArray());
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 		$this->expectExceptionMessageIsOrContains(
