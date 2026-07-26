@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Sequence;
 
 use ArrayIterator;
+use Exception;
 use Generator;
 use Noctud\Collection\Exception\InvalidSequenceSourceException;
 use Noctud\Collection\Exception\SequenceAlreadyIteratedException;
@@ -126,6 +127,33 @@ final class SequenceIterationTest extends TestCase
 		$this->expectExceptionMessageIsOrContains(
 			'The sequence\'s source closure returned the same iterator instance again - it must produce a fresh iterable on each call.',
 		);
+
+		$sequence->toArray();
+	}
+
+	#[Test]
+	public function producer_cycling_between_iterators_slips_past_the_guard_and_leaks_the_raw_php_error(): void
+	{
+		$first = (static function (): Generator {
+			yield 1;
+		})();
+		$second = (static function (): Generator {
+			yield 2;
+		})();
+		// The identity guard remembers only the previous pass's iterator, so a producer
+		// alternating between two exhausted generators bypasses it. Known accepted
+		// limitation: catching this would require tracking every produced iterator
+		// (unbounded memory), so the raw PHP error surfaces instead of ours.
+		$passes = 0;
+		$sequence = sequenceOf(static function () use ($first, $second, &$passes): Generator {
+			return ++$passes % 2 === 1 ? $first : $second;
+		});
+
+		$this->assertSame([1], $sequence->toArray());
+		$this->assertSame([2], $sequence->toArray());
+
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessageIsOrContains('Cannot traverse an already closed generator');
 
 		$sequence->toArray();
 	}
