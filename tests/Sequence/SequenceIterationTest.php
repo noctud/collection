@@ -140,13 +140,9 @@ final class SequenceIterationTest extends TestCase
 		$second = (static function (): Generator {
 			yield 2;
 		})();
-		// The identity guard remembers only the previous pass's iterator, so a producer
-		// alternating between two exhausted generators bypasses it. Known accepted
-		// limitation: catching this would require tracking every produced iterator
-		// (unbounded memory), so the raw PHP error surfaces instead of ours.
-		$passes = 0;
-		$sequence = sequenceOf(static function () use ($first, $second, &$passes): Generator {
-			return ++$passes % 2 === 1 ? $first : $second;
+		$n = 0;
+		$sequence = sequenceOf(static function () use ($first, $second, &$n): Generator {
+			return $n++ % 2 === 0 ? $first : $second;
 		});
 
 		$this->assertSame([1], $sequence->toArray());
