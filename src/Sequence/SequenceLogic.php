@@ -35,9 +35,9 @@ trait SequenceLogic
 	private bool $consumed = false;
 
 	/**
-	 * Iterator returned by the source closure on the previous pass. The reference is kept
-	 * (instead of spl_object_id, whose values can be reused after garbage collection) so
-	 * the identity guard in resolveSourceForThisPass() is collision-free.
+	 * Iterator the source produced on the previous pass. The reference is kept (instead of
+	 * spl_object_id, whose values can be reused after garbage collection) so the identity
+	 * guard in resolveProducedIterable() is collision-free.
 	 */
 	private ?Traversable $lastProduced = null;
 
@@ -87,12 +87,13 @@ trait SequenceLogic
 	}
 
 	/**
-	 * Resolves the source for one pass, enforcing the replayability contract: arrays and
-	 * IteratorAggregate sources replay freely, a Closure is a producer invoked once per
-	 * pass (and must return a fresh iterable each time), and any other Traversable is
-	 * single-pass - even when technically rewindable, matching Kotlin's Iterator.asSequence().
-	 * The guard runs here, at getIterator() call time, so a violation throws at the start
-	 * of the offending pass instead of silently yielding nothing.
+	 * Resolves the source for one pass, enforcing the replayability contract: an array
+	 * replays freely, a Closure and an IteratorAggregate are both producers asked for an
+	 * iterable once per pass (and must hand back a fresh one each time), and any other
+	 * Traversable is single-pass - even when technically rewindable, matching Kotlin's
+	 * Iterator.asSequence(). The guard runs here, at getIterator() call time, so a
+	 * violation throws at the start of the offending pass instead of silently yielding
+	 * nothing.
 	 *
 	 * @return iterable<E>
 	 */
@@ -108,19 +109,15 @@ trait SequenceLogic
 				throw InvalidSequenceSourceException::closureReturnedNonIterable($produced);
 			}
 
-			if ($produced instanceof Traversable) {
-				if ($produced === $this->lastProduced) {
-					throw SequenceAlreadyIteratedException::sourceClosureReturnedSameIterator();
-				}
-
-				$this->lastProduced = $produced;
-			}
-
-			return $produced;
+			return $this->resolveProducedIterable($produced);
 		}
 
-		if (is_array($source) || $source instanceof IteratorAggregate) {
+		if (is_array($source)) {
 			return $source;
+		}
+
+		if ($source instanceof IteratorAggregate) {
+			return $this->resolveProducedIterable($source->getIterator());
 		}
 
 		if ($this->consumed) {
@@ -130,6 +127,28 @@ trait SequenceLogic
 		$this->consumed = true;
 
 		return $source;
+	}
+
+	/**
+	 * Rejects a producer - a source Closure or an IteratorAggregate - handing back the
+	 * cursor of the previous pass: implementing IteratorAggregate promises nothing about
+	 * replayability, getIterator() is free to return a Generator the object keeps around,
+	 * and traversing that one again would yield nothing (or leak a raw PHP error).
+	 *
+	 * @param iterable<E> $produced
+	 * @return iterable<E>
+	 */
+	private function resolveProducedIterable(iterable $produced): iterable
+	{
+		if ($produced instanceof Traversable && !$produced instanceof IteratorAggregate) {
+			if ($produced === $this->lastProduced) {
+				throw SequenceAlreadyIteratedException::sourceReturnedSameIterator();
+			}
+
+			$this->lastProduced = $produced;
+		}
+
+		return $produced;
 	}
 
 	/**

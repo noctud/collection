@@ -11,7 +11,8 @@ namespace Noctud\Collection\Exception;
 
 /**
  * Thrown when a sequence backed by a non-replayable source is iterated a second time,
- * or when a sequence source closure returns the same iterator instance twice.
+ * or when a sequence source - a closure or an IteratorAggregate - hands back the same
+ * iterator instance twice.
  */
 final class SequenceAlreadyIteratedException extends UnsupportedOperationException
 {
@@ -22,10 +23,10 @@ final class SequenceAlreadyIteratedException extends UnsupportedOperationExcepti
 		);
 	}
 
-	public static function sourceClosureReturnedSameIterator(): self
+	public static function sourceReturnedSameIterator(): self
 	{
 		return new self(
-			'The sequence\'s source closure returned the same iterator instance again - it must produce a fresh iterable on each call.',
+			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
 		);
 	}
 }

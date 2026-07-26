@@ -22,13 +22,13 @@ use NoDiscard;
  * terminal operation). A sequence guarantees at least one pass; whether it can be
  * iterated again depends on its source:
  *
- * - an array or an IteratorAggregate (e.g. a Collection): the sequence replays,
- *   pulling fresh elements every pass;
- * - a Closure: a producer, re-invoked on every pass. Whatever the closure does to
- *   build its iterable runs again each time - if it fires a SQL query, that query is
- *   re-executed on every iteration of the sequence. It must return a fresh iterable
- *   on each call; returning the same iterator instance again throws
- *   SequenceAlreadyIteratedException;
+ * - an array: the sequence replays, pulling fresh elements every pass;
+ * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
+ *   iterable on every pass. Whatever it does to build that iterable runs again each
+ *   time - if it fires a SQL query, that query is re-executed on every iteration of
+ *   the sequence. It must hand back a fresh iterator on each call; handing back the
+ *   iterator of the previous pass (a getIterator() returning a Generator it keeps
+ *   around, for instance) throws SequenceAlreadyIteratedException;
  * - a raw Iterator/Generator: the sequence is single-pass and any further iteration
  *   throws SequenceAlreadyIteratedException (a partial pass counts as consumed).
  *

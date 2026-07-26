@@ -14,7 +14,10 @@ use Exception;
 use Generator;
 use Noctud\Collection\Exception\InvalidSequenceSourceException;
 use Noctud\Collection\Exception\SequenceAlreadyIteratedException;
+use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Sequence\GeneratorSequence;
+use Noctud\Collection\Tests\Sequence\Fixture\GeneratorAggregate;
+use Noctud\Collection\Tests\Sequence\Fixture\SharedIteratorAggregate;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use function Noctud\Collection\listOf;
@@ -64,6 +67,54 @@ final class SequenceIterationTest extends TestCase
 
 		$this->assertSame([1, 2], $sequence->toArray());
 		$this->assertSame([1, 2], $sequence->toArray());
+	}
+
+	#[Test]
+	public function aggregate_source_returning_a_fresh_generator_replays(): void
+	{
+		$sequence = sequenceOf(new GeneratorAggregate([1, 2, 3]));
+
+		$this->assertSame([1, 2, 3], $sequence->toArray());
+		$this->assertSame([1, 2, 3], $sequence->toArray());
+	}
+
+	#[Test]
+	public function aggregate_source_holding_on_to_its_iterator_throws_on_second_pass(): void
+	{
+		$generator = (static function (): Generator {
+			yield 1;
+		})();
+		$sequence = sequenceOf(new SharedIteratorAggregate($generator));
+
+		$this->assertSame([1], $sequence->toArray());
+
+		$this->expectException(SequenceAlreadyIteratedException::class);
+		$this->expectExceptionMessageIsOrContains(
+			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
+		);
+
+		$sequence->toArray();
+	}
+
+	#[Test]
+	public function aggregate_source_delegating_to_an_inner_collection_replays(): void
+	{
+		// The same inner aggregate every pass is legitimate: it is itself a producer,
+		// re-invoked by the foreach that unwraps it.
+		$sequence = sequenceOf(new SharedIteratorAggregate(listOf([1, 2, 3])));
+
+		$this->assertSame([1, 2, 3], $sequence->toArray());
+		$this->assertSame([1, 2, 3], $sequence->toArray());
+	}
+
+	#[Test]
+	public function closure_returning_the_same_collection_replays(): void
+	{
+		$list = listOf([1, 2, 3]);
+		$sequence = sequenceOf(static fn (): ImmutableList => $list);
+
+		$this->assertSame([1, 2, 3], $sequence->toArray());
+		$this->assertSame([1, 2, 3], $sequence->toArray());
 	}
 
 	#[Test]
@@ -125,7 +176,7 @@ final class SequenceIterationTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 		$this->expectExceptionMessageIsOrContains(
-			'The sequence\'s source closure returned the same iterator instance again - it must produce a fresh iterable on each call.',
+			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
 		);
 
 		$sequence->toArray();
