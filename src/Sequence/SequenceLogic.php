@@ -18,6 +18,7 @@ use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Operation\FilterOperation;
 use Noctud\Collection\Operation\MapKeyValueOperation;
 use Noctud\Collection\Set\ImmutableSet;
+use NoDiscard;
 use Traversable;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\setOf;
@@ -57,30 +58,35 @@ trait SequenceLogic
 	}
 
 	/** {@inheritDoc} */
+	#[NoDiscard]
 	public function filter(Closure $predicate): Sequence
 	{
 		return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->byPredicate($predicate));
 	}
 
 	/** {@inheritDoc} */
+	#[NoDiscard]
 	public function map(Closure $transform): Sequence
 	{
 		return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->items($transform));
 	}
 
 	/** {@inheritDoc} */
+	#[NoDiscard]
 	public function toList(): ImmutableList
 	{
 		return listOf($this);
 	}
 
 	/** {@inheritDoc} */
+	#[NoDiscard]
 	public function toSet(): ImmutableSet
 	{
 		return setOf($this);
 	}
 
 	/** {@inheritDoc} */
+	#[NoDiscard]
 	public function toArray(): array
 	{
 		return iterator_to_array($this, false);

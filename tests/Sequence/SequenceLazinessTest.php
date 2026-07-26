@@ -102,6 +102,7 @@ final class SequenceLazinessTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 
-		$sequence->toArray();
+        // phpcs:ignore
+		$_ = $sequence->toArray();
 	}
 }

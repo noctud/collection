@@ -93,7 +93,8 @@ final class SequenceIterationTest extends TestCase
 			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
 		);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -138,14 +139,15 @@ final class SequenceIterationTest extends TestCase
 		})();
 		$sequence = sequenceOf($generator);
 
-		$sequence->toArray();
+		self::assertSame([1], $sequence->toArray());
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 		$this->expectExceptionMessageIsOrContains(
 			'This sequence is backed by a non-replayable source and has already been iterated. Create a new sequence from a fresh source to iterate again.',
 		);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -157,7 +159,8 @@ final class SequenceIterationTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -172,14 +175,15 @@ final class SequenceIterationTest extends TestCase
 			return $generator;
 		});
 
-		$sequence->toArray();
+        $this->assertSame([1], $sequence->toArray());
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 		$this->expectExceptionMessageIsOrContains(
 			'The sequence\'s source returned the same iterator instance again - a source closure or an IteratorAggregate must produce a fresh iterator on each pass.',
 		);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -202,7 +206,8 @@ final class SequenceIterationTest extends TestCase
 		$this->expectException(Exception::class);
 		$this->expectExceptionMessageIsOrContains('Cannot traverse an already closed generator');
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -214,7 +219,8 @@ final class SequenceIterationTest extends TestCase
 		$this->expectException(InvalidSequenceSourceException::class);
 		$this->expectExceptionMessageIsOrContains('The sequence\'s source closure must return an iterable, got int.');
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -231,7 +237,8 @@ final class SequenceIterationTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -255,7 +262,8 @@ final class SequenceIterationTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 
-		$sequence->toArray();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 
 	#[Test]
@@ -270,6 +278,7 @@ final class SequenceIterationTest extends TestCase
 
 		$this->expectException(SequenceAlreadyIteratedException::class);
 
-		$sequence->getIterator();
+        // phpcs:ignore
+        $_ = $sequence->toArray();
 	}
 }
