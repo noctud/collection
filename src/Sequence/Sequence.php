@@ -11,10 +11,12 @@ namespace Noctud\Collection\Sequence;
 
 use Closure;
 use IteratorAggregate;
+use Noctud\Collection\Exception\ConversionException;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Exception\InvalidSequenceSourceException;
 use Noctud\Collection\Exception\NonReplayableSourceException;
 use Noctud\Collection\Exception\NoSuchElementException;
+use Noctud\Collection\Exception\UnsupportedOperationException;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Set\ImmutableSet;
 use NoDiscard;
@@ -417,6 +419,188 @@ interface Sequence extends IteratorAggregate
 	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
 	 */
 	public function countWhere(Closure $predicate): int;
+
+	// --- Aggregation ---
+
+	/**
+	 * Left fold. Accumulates a result starting from the initial value by applying the operation
+	 * to each element sequentially. Drains the sequence.
+	 *
+	 * @template R
+	 * @param R $initial
+	 * @param Closure(R, E):R $operation
+	 * @return R
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function fold(mixed $initial, Closure $operation): mixed;
+
+	/**
+	 * Reduce with a binary operation, draining the sequence.
+	 *
+	 * @param Closure(E, E):E $operation
+	 * @return E
+	 * @throws UnsupportedOperationException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function reduce(Closure $operation);
+
+	/**
+	 * Reduces the sequence using a binary operation, or returns null if it is empty.
+	 * Drains the sequence.
+	 *
+	 * @param Closure(E, E):E $operation
+	 * @return E|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function reduceOrNull(Closure $operation): mixed;
+
+	/**
+	 * Returns the sum of all elements or values returned by the selector. Drains the sequence.
+	 *
+	 * @template TSum
+	 * @param (Closure(E, int):TSum)|null $selector
+	 * @return ($selector is null ? (E is int ? int : int|float) : (TSum is int ? int : int|float))
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function sum(?Closure $selector = null): int|float;
+
+	/**
+	 * Returns the average of all elements or values returned by the selector, draining the
+	 * sequence. Throws if it is empty.
+	 *
+	 * @param Closure(E, int):(int|float)|null $selector
+	 * @throws UnsupportedOperationException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function avg(?Closure $selector = null): float;
+
+	/**
+	 * Returns the average of all elements or values returned by the selector, or null if the
+	 * sequence is empty. Drains the sequence.
+	 *
+	 * @param Closure(E, int):(int|float)|null $selector
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function avgOrNull(?Closure $selector = null): float|null;
+
+	/**
+	 * Returns the element with the minimum value, draining the sequence.
+	 * When a selector is given, returns the element whose selector value is minimum.
+	 *
+	 * @param Closure(E, int):mixed|null $selector
+	 * @return E
+	 * @throws NoSuchElementException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function min(?Closure $selector = null): mixed;
+
+	/**
+	 * Returns the element with the minimum value, or null if the sequence is empty.
+	 * Drains the sequence.
+	 *
+	 * @param Closure(E, int):mixed|null $selector
+	 * @return E|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function minOrNull(?Closure $selector = null): mixed;
+
+	/**
+	 * Returns the element with the maximum value, draining the sequence.
+	 * When a selector is given, returns the element whose selector value is maximum.
+	 *
+	 * @param Closure(E, int):mixed|null $selector
+	 * @return E
+	 * @throws NoSuchElementException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function max(?Closure $selector = null): mixed;
+
+	/**
+	 * Returns the element with the maximum value, or null if the sequence is empty.
+	 * Drains the sequence.
+	 *
+	 * @param Closure(E, int):mixed|null $selector
+	 * @return E|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function maxOrNull(?Closure $selector = null): mixed;
+
+	/**
+	 * Returns the minimum value produced by the selector, draining the sequence.
+	 *
+	 * @template R of mixed
+	 * @param Closure(E, int):R $selector
+	 * @return R
+	 * @throws NoSuchElementException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function minOf(Closure $selector): mixed;
+
+	/**
+	 * Returns the minimum value produced by the selector, or null if the sequence is empty.
+	 * Drains the sequence.
+	 *
+	 * @template R of mixed
+	 * @param Closure(E, int):R $selector
+	 * @return R|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function minOfOrNull(Closure $selector): mixed;
+
+	/**
+	 * Returns the maximum value produced by the selector, draining the sequence.
+	 *
+	 * @template R of mixed
+	 * @param Closure(E, int):R $selector
+	 * @return R
+	 * @throws NoSuchElementException If the sequence is empty
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function maxOf(Closure $selector): mixed;
+
+	/**
+	 * Returns the maximum value produced by the selector, or null if the sequence is empty.
+	 * Drains the sequence.
+	 *
+	 * @template R of mixed
+	 * @param Closure(E, int):R $selector
+	 * @return R|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function maxOfOrNull(Closure $selector): mixed;
+
+	/**
+	 * Joins elements into a string with the given separator, prefix, postfix, and optional
+	 * transform.
+	 *
+	 * The one aggregation that can stop early: a non-negative $limit stops pulling once that many
+	 * elements have been joined, so joining the head of a long stream costs only that head.
+	 * Without a limit it drains.
+	 *
+	 * When no transform is provided, elements are converted to strings using (string) cast.
+	 * Scalars, null, and Stringable objects are supported. Non-stringable objects and arrays
+	 * will throw a ConversionException.
+	 *
+	 * @param Closure(E, int):string|null $transform Optional transform to apply to each element
+	 * @throws ConversionException When an element cannot be converted to string and no transform is provided
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function joinToString(string $separator = ', ', string $prefix = '', string $postfix = '', int $limit = -1, string $truncated = '...', ?Closure $transform = null): string;
 
 	// --- Conversion ---
 
