@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection\Set\Extending;
 
+use InvalidArgumentException;
 use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\ImmutableSet;
 use Noctud\Collection\Set\SelfPreservingImmutableSetLogic;
@@ -18,6 +19,8 @@ use Noctud\Collection\Set\SelfPreservingImmutableSetLogic;
  *
  * The shape-preserving API returns this exact type with no per-method annotation
  * and no newCollectionOf override — only a constructor that accepts an iterable.
+ * The constructor enforces an element invariant: it proves that transforms
+ * (map, flatMap, ...) never rebuild the subtype from transformed elements.
  *
  * @implements ImmutableSet<SwappableItem>
  * @phpstan-consistent-constructor
@@ -30,7 +33,14 @@ class TraitItemCollection implements ImmutableSet
 	/** @param iterable<SwappableItem> $data */
 	public function __construct(iterable $data = [])
 	{
-		$this->store = new HashElementStore($data);
+		$items = is_array($data) ? $data : iterator_to_array($data, false);
+		foreach ($items as $item) {
+			if (!$item instanceof SwappableItem) {
+				throw new InvalidArgumentException('TraitItemCollection only holds SwappableItem instances');
+			}
+		}
+
+		$this->store = new HashElementStore($items);
 	}
 
 	// Each method below is a compile-time assertion that the narrowed return type

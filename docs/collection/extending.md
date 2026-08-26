@@ -137,6 +137,10 @@ Self-preservation applies only where the result is still a collection of the sam
 The base immutable mutations widen their type — `add(NE): ImmutableSet<E|NE>`. The self-preserving variant is strict instead — `add(E): static` — because a fixed-type collection cannot widen its element type while still being itself.
 :::
 
+::: tip Constructor invariants are safe
+The right column is not just a static-type matter: transforms that produce new element values (`map`, `mapNotNull`, `flatMap`, `flatten`, and the Map key/value transforms) build a plain base collection at runtime as well. Your constructor is only ever re-entered with elements of your own type, so it can safely validate an invariant (e.g. "every element is an `OrderItem`").
+:::
+
 ::: tip Why immutable only?
 There is no `SelfPreserving` variant for mutable collections. Their mutation methods (`add`, `remove`, …) already return `static`, and their transformation methods (`filter`, `map`, …) always return **immutable** results — so "return my own mutable type" never applies. Self-preservation is meaningful only for immutable collections.
 :::

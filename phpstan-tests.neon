@@ -34,8 +34,5 @@ parameters:
 			identifier: instanceof.alwaysTrue
 			path: tests/Map/*
 		-
-			identifier: argument.type
-			path: tests/Map/*
-		-
 			identifier: missingType.generics
 			path: tests/Map/*

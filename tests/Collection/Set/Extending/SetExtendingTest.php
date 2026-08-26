@@ -122,9 +122,13 @@ final class SetExtendingTest extends TestCase
 		$withNegatives = $collection->idsWithNegatives();
 
 		// The shape changed, so the static type narrows to the base ImmutableSet<int>
-		// (asserted by PHPStan via toIds()'s @return). At runtime the SelfPreserving
-		// factory still builds `new static`, so the object remains an ImmutableSet.
+		// (asserted by PHPStan via toIds()'s @return). At runtime the result is a plain
+		// base set too: the subtype constructor (which enforces the SwappableItem
+		// invariant) is never re-entered with transformed elements.
 		self::assertInstanceOf(ImmutableSet::class, $ids);
+		self::assertNotInstanceOf(TraitItemCollection::class, $ids);
+		self::assertNotInstanceOf(TraitItemCollection::class, $swappedIds);
+		self::assertNotInstanceOf(TraitItemCollection::class, $withNegatives);
 		self::assertEqualsCanonicalizing([1, 2], $ids->toArray());
 		self::assertEqualsCanonicalizing([1], $swappedIds->toArray());
 		self::assertEqualsCanonicalizing([1, -1, 2, -2], $withNegatives->toArray());

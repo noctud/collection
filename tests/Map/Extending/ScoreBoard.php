@@ -9,12 +9,16 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Map\Extending;
 
+use InvalidArgumentException;
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\SelfPreservingImmutableMapLogic;
 
 /**
  * Extension style #1 (Map): the SelfPreservingImmutableMapLogic trait.
+ *
+ * The constructor enforces an entry invariant: it proves that transforms
+ * (mapKeys, mapValues, flip, ...) never rebuild the subtype from transformed entries.
  *
  * @implements ImmutableMap<string, int>
  * @phpstan-consistent-constructor
@@ -27,7 +31,21 @@ class ScoreBoard implements ImmutableMap
 	/** @param iterable<string, int> $data */
 	public function __construct(iterable $data = [])
 	{
-		$this->store = HashKeyValueStore::fromAssoc($data);
+		$entries = is_array($data) ? $data : iterator_to_array($data);
+		foreach ($entries as $name => $score) {
+			self::assertEntry($name, $score);
+		}
+
+		$this->store = HashKeyValueStore::fromAssoc($entries);
+	}
+
+	// mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
+	// to catch internal rebuilds that would bypass the declared entry types.
+	private static function assertEntry(mixed $name, mixed $score): void
+	{
+		if (!is_string($name) || !is_int($score)) {
+			throw new InvalidArgumentException('ScoreBoard only holds string => int entries');
+		}
 	}
 
 	public function winners(): self

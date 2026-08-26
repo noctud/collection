@@ -106,9 +106,11 @@ final class ListExtendingTest extends TestCase
 		$ids = $list->toIds();
 
 		// The shape changed, so the static type narrows to the base ImmutableList<int>
-		// (asserted by PHPStan via toIds()'s @return). At runtime the SelfPreserving
-		// factory still builds `new static`, so the object remains an ImmutableList.
+		// (asserted by PHPStan via toIds()'s @return). At runtime the result is a plain
+		// base list too: the subtype constructor (which enforces the SwappableItem
+		// invariant) is never re-entered with transformed elements.
 		self::assertInstanceOf(ImmutableList::class, $ids);
+		self::assertNotInstanceOf(LineItems::class, $ids);
 		self::assertSame([1, 2], $ids->toArray());
 		self::assertSame([1], $list->swappedIds()->toArray());
 		self::assertSame([1, -1, 2, -2], $list->idsWithNegatives()->toArray());

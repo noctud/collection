@@ -42,7 +42,10 @@ use NoDiscard;
  * - Key/value-changing methods (mapKeys, mapValues, mapValuesNotNull,
  *   filterValuesInstanceOf, flip, the keys/values/entries views, sortedWith over
  *   MapEntry, and the to* conversions) are **not** narrowed; they still return the
- *   base type, because their result is no longer a map of `K => V`.
+ *   base type, because their result is no longer a map of `K => V`. Transforms that
+ *   produce new keys or values (mapKeys, mapValues, mapValuesNotNull, flip) also
+ *   build a plain base map at runtime, so a constructor invariant on the subtype
+ *   never sees transformed entries.
  *
  * Each override delegates to the base implementation; the per-method return-type
  * suppression is sound because `newMapOf()` returns `new static(...)` at runtime.

@@ -42,7 +42,10 @@ use NoDiscard;
  * - Type-changing methods (map, flatMap, flatten, filterInstanceOf, groupBy, the
  *   set operations intersect/union/subtract — which produce a Set — and the to*
  *   conversions) are **not** narrowed; they still return the base type, because
- *   their result is no longer a list of `E`.
+ *   their result is no longer a list of `E`. Transforms that produce new element
+ *   values (map, mapNotNull, flatMap, flatten) also build a plain base list at
+ *   runtime, so a constructor invariant on the subtype never sees transformed
+ *   elements.
  *
  * Each override delegates to the base implementation; the per-method return-type
  * suppression is sound because `newCollectionOf()` returns `new static(...)` at runtime.

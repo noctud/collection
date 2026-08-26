@@ -204,7 +204,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function map(Closure $transform): ImmutableList
 	{
-		return $this->newCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
+		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
 	}
 
 	/**
@@ -217,7 +217,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function mapNotNull(Closure $transform): ImmutableList
 	{
-		return $this->newCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
+		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
 	}
 
 	/**
@@ -231,7 +231,7 @@ trait ListLogic
 	public function flatMap(Closure $transform): ImmutableList
 	{
 		$i = 0;
-		return $this->newCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
+		return $this->newTransformedCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
 			return $transform($v, $i++);
 		}));
 	}
@@ -244,7 +244,7 @@ trait ListLogic
 	#[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound, return.unresolvableType (in classes with a concrete E the conditional subject is already substituted and stays unevaluated)
 	public function flatten(): ImmutableList
 	{
-		return $this->newCollectionOf(new FlattenOperation($this->store)->items());
+		return $this->newTransformedCollectionOf(new FlattenOperation($this->store)->items());
 	}
 
 	/**
@@ -533,6 +533,22 @@ trait ListLogic
 	 * @return ImmutableList<NE>
 	 */
 	protected function newCollectionOf(iterable $data): ImmutableList
+	{
+		return listOf($data);
+	}
+
+	/**
+	 * Creates the result of an element-type-changing operation (map, flatMap, flatten).
+	 *
+	 * Not routed through newCollectionOf: a self-preserving subtype rebuilds itself
+	 * there, and a transform result no longer holds elements of E — it must not go
+	 * through the subtype's constructor.
+	 *
+	 * @template NE
+	 * @param iterable<NE> $data
+	 * @return ImmutableList<NE>
+	 */
+	protected function newTransformedCollectionOf(iterable $data): ImmutableList
 	{
 		return listOf($data);
 	}

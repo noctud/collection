@@ -98,9 +98,13 @@ final class MapExtendingTest extends TestCase
 
 		// The key/value type changed, so the static type narrows to the base
 		// ImmutableMap<NK,V> / ImmutableMap<K,NV> (asserted by PHPStan via these
-		// methods' @return). At runtime the SelfPreserving factory still builds
-		// `new static`, so the object remains an ImmutableMap.
+		// methods' @return). At runtime the result is a plain base map too: the
+		// subtype constructor (which enforces the string => int invariant) is never
+		// re-entered with transformed entries.
 		self::assertInstanceOf(ImmutableMap::class, $rekeyed);
+		self::assertNotInstanceOf(ScoreBoard::class, $rekeyed);
+		self::assertNotInstanceOf(ScoreBoard::class, $scaled);
+		self::assertNotInstanceOf(ScoreBoard::class, $labels);
 		self::assertSame([120, 80], $rekeyed->keys->toArray());
 		self::assertSame(180.0, $scaled['alice']);
 		self::assertSame(120.0, $scaled['bob']);

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection\List\Extending;
 
+use InvalidArgumentException;
 use Noctud\Collection\List\ArrayList\ArrayIndexStore;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\SelfPreservingImmutableListLogic;
@@ -16,6 +17,9 @@ use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
 
 /**
  * Extension style #1 (List): the SelfPreservingImmutableListLogic trait.
+ *
+ * The constructor enforces an element invariant: it proves that transforms
+ * (map, flatMap, ...) never rebuild the subtype from transformed elements.
  *
  * @implements ImmutableList<SwappableItem>
  * @phpstan-consistent-constructor
@@ -28,7 +32,14 @@ class LineItems implements ImmutableList
 	/** @param iterable<SwappableItem> $data */
 	public function __construct(iterable $data = [])
 	{
-		$this->store = new ArrayIndexStore($data);
+		$items = is_array($data) ? $data : iterator_to_array($data, false);
+		foreach ($items as $item) {
+			if (!$item instanceof SwappableItem) {
+				throw new InvalidArgumentException('LineItems only holds SwappableItem instances');
+			}
+		}
+
+		$this->store = new ArrayIndexStore($items);
 	}
 
 	public function onlySwapped(): self
