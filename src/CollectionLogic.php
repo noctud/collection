@@ -957,9 +957,8 @@ trait CollectionLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @template U
-	 * @param iterable<U> $other
-	 * @return ImmutableSet<E&U>
+	 * @param iterable<mixed> $other
+	 * @return ImmutableSet<E>
 	 */
 	#[NoDiscard]
 	public function intersect(iterable $other): ImmutableSet

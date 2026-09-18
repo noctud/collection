@@ -430,8 +430,7 @@ trait SelfPreservingImmutableSetLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @template V
-	 * @param iterable<V> $other
+	 * @param iterable<mixed> $other
 	 * @return static
 	 */
 	#[NoDiscard]

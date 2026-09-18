@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Type\Set;
 
 use Noctud\Collection\Set\Set;
+use Noctud\Collection\Tests\Collection\Fixture\DetailedHashableUser;
+use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
 use stdClass;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mutableSetOf;
@@ -43,10 +45,10 @@ assertType('Noctud\Collection\Set\ImmutableSet<stdClass>', $imm->filterInstanceO
 // flatten() extracts the element type of iterable elements (one level).
 assertType('Noctud\Collection\Set\ImmutableSet<int>', setOf([listOf([1, 2]), listOf([3])])->flatten());
 
-// Cross-typed set operations follow the same E&V / E|V / E rules as on Collection.
+// Cross-typed set operations retain E for intersect and subtract, and widen for union.
 /** @var iterable<string> $strings */
 $strings = ['a', 'b'];
-assertType('Noctud\Collection\Set\Set<*NEVER*>', $imm->intersect($strings)); // @phpstan-ignore method.unresolvableReturnType
+assertType('Noctud\Collection\Set\Set<int>', $imm->intersect($strings));
 assertType('Noctud\Collection\Set\Set<int|string>', $imm->union($strings));
 assertType('Noctud\Collection\Set\Set<int>', $imm->subtract($strings));
 
@@ -56,3 +58,9 @@ $set = setOf([1, 2, 3]);
 assertType('Noctud\Collection\Set\Set<int>', $set->filter(fn (int $x): bool => $x > 0));
 assertType('Noctud\Collection\Set\Set<bool>', $set->map(fn (int $x): bool => $x > 0));
 assertType('Noctud\Collection\Set\Set<int>', $set->sorted());
+
+/** @var Set<HashableUser> $users */
+$users = setOf([new HashableUser('42')]);
+/** @var iterable<DetailedHashableUser> $detailedUsers */
+$detailedUsers = [new DetailedHashableUser('42', 'user@example.com')];
+assertType('Noctud\Collection\Set\Set<Noctud\Collection\Tests\Collection\Fixture\HashableUser>', $users->intersect($detailedUsers));

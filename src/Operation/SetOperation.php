@@ -20,9 +20,8 @@ use Noctud\Collection\KeyHasher;
 final class SetOperation extends AbstractOperation
 {
 	/**
-	 * @template U
-	 * @param iterable<U> $other
-	 * @return Generator<V&U>
+	 * @param iterable<mixed> $other
+	 * @return Generator<V>
 	 */
 	public function intersect(iterable $other): Generator
 	{
@@ -36,8 +35,7 @@ final class SetOperation extends AbstractOperation
 			$hash = KeyHasher::hashSetKey($v);
 			if (isset($otherSet[$hash]) && !isset($seen[$hash])) {
 				$seen[$hash] = true;
-				// Hash membership in $otherSet means the value also occurs in $other.
-				yield $v; // @phpstan-ignore generator.valueType
+				yield $v;
 			}
 		}
 	}
