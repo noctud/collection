@@ -154,6 +154,15 @@ final class ListExtendingTest extends TestCase
 	}
 
 	#[Test]
+	public function manual_array_access_allows_omitting_native_return_type(): void
+	{
+		$item = new SwappableItem(1);
+		$list = new ManualLineItems([$item]);
+
+		self::assertSame($item, $list[0]);
+	}
+
+	#[Test]
 	public function manual_transform_returns_base_type(): void
 	{
 		$list = new ManualLineItems([new SwappableItem(1), new SwappableItem(2)]);

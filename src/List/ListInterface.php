@@ -15,6 +15,7 @@ use Noctud\Collection\Collection;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Map\ImmutableMap;
 use NoDiscard;
+use ReturnTypeWillChange;
 
 /**
  * Ordered collection of elements.
@@ -45,12 +46,14 @@ interface ListInterface extends Collection, ArrayAccess
 	/**
 	 * Returns the element at the specified index, or throws if out of bounds.
 	 * Alias of get() for array access syntax `$list[0]`.
+	 * The native return type is omitted for compatibility with existing implementations.
 	 *
 	 * @param int $offset
 	 * @return E
 	 * @throws IndexOutOfBoundsException
 	 */
-	public function offsetGet(mixed $offset): mixed;
+	#[ReturnTypeWillChange]
+	public function offsetGet(mixed $offset);
 
 	/**
 	 * Returns the element at the specified index, or the default value if out of bounds.

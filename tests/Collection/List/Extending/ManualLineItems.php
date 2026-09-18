@@ -15,6 +15,7 @@ use Noctud\Collection\List\ArrayList\ArrayIndexStore;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\ImmutableListLogic;
 use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
+use ReturnTypeWillChange;
 
 /**
  * Extension style #2 (List): base ImmutableListLogic + class-level `@method self`
@@ -44,6 +45,18 @@ class ManualLineItems implements ImmutableList
 		}
 
 		$this->store = new ArrayIndexStore($items);
+	}
+
+	/**
+	 * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
+	 *
+	 * @param int $offset
+	 * @return SwappableItem
+	 */
+	#[ReturnTypeWillChange]
+	public function offsetGet(mixed $offset)
+	{
+		return $this->get($offset);
 	}
 
 	/** @param iterable<SwappableItem> $data */

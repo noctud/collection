@@ -128,6 +128,14 @@ final class MapExtendingTest extends TestCase
 	}
 
 	#[Test]
+	public function manual_array_access_allows_omitting_native_return_type(): void
+	{
+		$board = new ManualScoreBoard(['alice' => 120]);
+
+		self::assertSame(120, $board['alice']);
+	}
+
+	#[Test]
 	public function manual_transform_returns_base_type(): void
 	{
 		$board = new ManualScoreBoard(['alice' => 120, 'bob' => 80]);
