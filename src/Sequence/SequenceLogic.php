@@ -18,6 +18,7 @@ use Noctud\Collection\Exception\NonReplayableSourceException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\IterableTerminalsLogic;
 use Noctud\Collection\List\ImmutableList;
+use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Operation\DistinctOperation;
 use Noctud\Collection\Operation\DropOperation;
 use Noctud\Collection\Operation\FilterOperation;
@@ -32,6 +33,7 @@ use NoDiscard;
 use Traversable;
 use WeakReference;
 use function Noctud\Collection\listOf;
+use function Noctud\Collection\mapOf;
 use function Noctud\Collection\setOf;
 
 /**
@@ -217,6 +219,14 @@ trait SequenceLogic
 
 			return $v;
 		}));
+	}
+
+	/** {@inheritDoc} */
+	public function forEach(Closure $action): void
+	{
+		foreach ($this as $i => $v) {
+			$action($v, $i);
+		}
 	}
 
 	// --- Element Access ---
@@ -430,6 +440,17 @@ trait SequenceLogic
 	public function toArray(): array
 	{
 		return iterator_to_array($this, false);
+	}
+
+	/** {@inheritDoc} */
+	#[NoDiscard]
+	public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
+	{
+		return mapOf((function () use ($keySelector, $valueTransform) {
+			foreach ($this as $i => $v) {
+				yield $keySelector($v, $i) => $valueTransform === null ? $v : $valueTransform($v, $i);
+			}
+		})());
 	}
 
 	/**

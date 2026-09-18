@@ -13,6 +13,7 @@ use Countable;
 use JsonSerializable;
 use Noctud\Collection\Collection;
 use Noctud\Collection\List\ImmutableList;
+use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -103,6 +104,37 @@ final class SequenceFactoryTest extends TestCase
 
 		$this->assertInstanceOf(ImmutableSet::class, $set);
 		$this->assertSame([1, 2, 3], $set->toArray());
+	}
+
+	#[Test]
+	public function toMap_builds_a_map_from_the_key_selector(): void
+	{
+		$map = sequenceOf(['a', 'bb', 'ccc'])->toMap(static fn (string $v): int => strlen($v));
+
+		$this->assertInstanceOf(ImmutableMap::class, $map);
+		$this->assertSame([1 => 'a', 2 => 'bb', 3 => 'ccc'], $map->toArray());
+	}
+
+	#[Test]
+	public function toMap_applies_the_value_transform_and_the_positional_index(): void
+	{
+		$map = sequenceOf(['a', 'b'])->toMap(
+			static fn (string $v, int $i): string => "$i:$v",
+			static fn (string $v): string => strtoupper($v),
+		);
+
+		$this->assertSame(['0:a' => 'A', '1:b' => 'B'], $map->toArray());
+	}
+
+	#[Test]
+	public function toMap_matches_its_collection_counterpart(): void
+	{
+		$data = ['a', 'bb', 'ccc'];
+		$key = static fn (string $v): int => strlen($v);
+
+		// The one materialization the sequence was missing: going through toList() first
+		// would build a whole ImmutableList only to throw it away.
+		$this->assertSame(listOf($data)->toMap($key)->toArray(), sequenceOf($data)->toMap($key)->toArray());
 	}
 
 	#[Test]

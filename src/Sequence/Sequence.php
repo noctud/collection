@@ -18,6 +18,7 @@ use Noctud\Collection\Exception\NonReplayableSourceException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Exception\UnsupportedOperationException;
 use Noctud\Collection\List\ImmutableList;
+use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Set\ImmutableSet;
 use NoDiscard;
 
@@ -222,6 +223,20 @@ interface Sequence extends IteratorAggregate
 	#[NoDiscard]
 	public function onEach(Closure $action): Sequence;
 
+	/**
+	 * Runs the given action once per element and returns nothing, consuming one pass.
+	 *
+	 * The terminal counterpart of onEach: onEach taps a pipeline still being built, forEach
+	 * is what makes it run. It returns no sequence, so it ends the chain instead of looking
+	 * like it could continue - a deliberate divergence from Collection::forEach(), which
+	 * still hands the collection back.
+	 *
+	 * @param Closure(E, int):void $action
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function forEach(Closure $action): void;
+
 	// --- Element Access ---
 
 	/**
@@ -330,6 +345,29 @@ interface Sequence extends IteratorAggregate
 	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
 	 */
 	public function expect(Closure $predicate);
+
+	/**
+	 * Returns the last element matching the predicate, or null if none does.
+	 * Drains the sequence: the last match is only known once the source runs out.
+	 *
+	 * @param Closure(E, int):bool $predicate
+	 * @return E|null
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function findLast(Closure $predicate): mixed;
+
+	/**
+	 * Returns the last element matching the predicate, throwing if none does.
+	 * Drains the sequence: the last match is only known once the source runs out.
+	 *
+	 * @param Closure(E, int):bool $predicate
+	 * @return E
+	 * @throws NoSuchElementException If no element matches the predicate
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	public function expectLast(Closure $predicate);
 
 	// --- Querying ---
 
@@ -633,4 +671,18 @@ interface Sequence extends IteratorAggregate
 	 */
 	#[NoDiscard]
 	public function toArray(): array;
+
+	/**
+	 * Convert to Map using key and value selectors, consuming one pass of the sequence.
+	 *
+	 * @template K of string|int|bool|float|object
+	 * @template V = E
+	 * @param Closure(E, int):K $keySelector
+	 * @param ?Closure(E, int):V $valueTransform
+	 * @return ImmutableMap<K,V>
+	 * @throws NonReplayableSourceException If a non-replayable source has already been consumed
+	 * @throws InvalidSequenceSourceException If a Closure source returns a non-iterable
+	 */
+	#[NoDiscard]
+	public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
 }

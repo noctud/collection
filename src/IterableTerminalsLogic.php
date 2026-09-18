@@ -104,6 +104,40 @@ trait IterableTerminalsLogic
 		throw new NoSuchElementException('No element matching the predicate was found');
 	}
 
+	/** {@inheritDoc} */
+	public function findLast(Closure $predicate): mixed
+	{
+		$result = null;
+
+		foreach ($this as $i => $v) {
+			if ($predicate($v, $i)) {
+				$result = $v;
+			}
+		}
+
+		return $result;
+	}
+
+	/** {@inheritDoc} */
+	public function expectLast(Closure $predicate)
+	{
+		$found = false;
+		$result = null;
+
+		foreach ($this as $i => $v) {
+			if ($predicate($v, $i)) {
+				$result = $v;
+				$found = true;
+			}
+		}
+
+		if (!$found) { // @phpstan-ignore booleanNot.alwaysTrue
+			throw new NoSuchElementException('No element matching the predicate was found');
+		}
+
+		return $result; // @phpstan-ignore return.type
+	}
+
 	// --- Querying ---
 
 	/** {@inheritDoc} */

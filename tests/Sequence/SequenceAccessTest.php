@@ -234,6 +234,29 @@ final class SequenceAccessTest extends TestCase
 	}
 
 	#[Test]
+	public function findLast_returns_the_last_match_or_null(): void
+	{
+		$this->assertSame(4, sequenceOf([1, 2, 3, 4])->findLast(static fn (int $v): bool => $v % 2 === 0));
+		$this->assertNull(sequenceOf([1, 3])->findLast(static fn (int $v): bool => $v % 2 === 0));
+	}
+
+	#[Test]
+	public function expectLast_returns_the_last_match(): void
+	{
+		$this->assertSame(4, sequenceOf([1, 2, 3, 4])->expectLast(static fn (int $v): bool => $v % 2 === 0));
+	}
+
+	#[Test]
+	public function expectLast_throws_when_nothing_matches(): void
+	{
+		$this->expectException(NoSuchElementException::class);
+		$this->expectExceptionMessageIsOrContains('No element matching the predicate was found');
+
+		// phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
+		$_ = sequenceOf([1, 3])->expectLast(static fn (int $v): bool => $v % 2 === 0);
+	}
+
+	#[Test]
 	public function element_access_matches_its_collection_counterpart(): void
 	{
 		$data = [3, 1, 4, 1, 5];
@@ -247,6 +270,8 @@ final class SequenceAccessTest extends TestCase
 		$this->assertSame(listOf($data)->expect($even), sequenceOf($data)->expect($even));
 		$this->assertSame(listOf([7])->single(), sequenceOf([7])->single());
 		$this->assertSame(listOf($data)->singleOrNull(), sequenceOf($data)->singleOrNull());
+		$this->assertSame(listOf($data)->findLast($even), sequenceOf($data)->findLast($even));
+		$this->assertSame(listOf($data)->expectLast($even), sequenceOf($data)->expectLast($even));
 	}
 
 	#[Test]
@@ -302,6 +327,23 @@ final class SequenceAccessTest extends TestCase
 
 		$this->assertSame(2, $sequence->find(static fn (int $v): bool => $v % 2 === 0));
 		$this->assertSame([1, 2], $pulled);
+	}
+
+	#[Test]
+	public function findLast_drains_the_source_where_find_stops_early(): void
+	{
+		$pulled = [];
+		$sequence = sequenceOf(static function () use (&$pulled): Generator {
+			foreach ([1, 2, 3, 4] as $value) {
+				$pulled[] = $value;
+
+				yield $value;
+			}
+		});
+
+		// find() returns at its first match; the *last* match is only known at the end.
+		$this->assertSame(2, $sequence->findLast(static fn (int $v): bool => $v < 3));
+		$this->assertSame([1, 2, 3, 4], $pulled);
 	}
 
 	#[Test]

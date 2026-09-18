@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Noctud\Collection;
 
 use Closure;
-use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Exception\UnsupportedOperationException;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\MutableList;
@@ -69,40 +68,6 @@ trait CollectionLogic
 	public function lastOrNull(): mixed
 	{
 		return $this->store->last();
-	}
-
-	/** {@inheritDoc} */
-	public function findLast(Closure $predicate): mixed
-	{
-		$result = null;
-
-		foreach ($this as $i => $v) {
-			if ($predicate($v, $i)) {
-				$result = $v;
-			}
-		}
-
-		return $result;
-	}
-
-	/** {@inheritDoc} */
-	public function expectLast(Closure $predicate)
-	{
-		$found = false;
-		$result = null;
-
-		foreach ($this as $i => $v) {
-			if ($predicate($v, $i)) {
-				$result = $v;
-				$found = true;
-			}
-		}
-
-		if (!$found) { // @phpstan-ignore booleanNot.alwaysTrue
-			throw new NoSuchElementException('No element matching the predicate was found');
-		}
-
-		return $result; // @phpstan-ignore return.type
 	}
 
 	/** {@inheritDoc} */

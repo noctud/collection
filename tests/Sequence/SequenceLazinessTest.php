@@ -96,6 +96,53 @@ final class SequenceLazinessTest extends TestCase
 	}
 
 	#[Test]
+	public function forEach_runs_the_action_once_per_element(): void
+	{
+		$seen = [];
+		sequenceOf(['a', 'b', 'c'])->forEach(static function (string $v, int $i) use (&$seen): void {
+			$seen[] = "$i:$v";
+		});
+
+		$this->assertSame(['0:a', '1:b', '2:c'], $seen);
+	}
+
+	#[Test]
+	public function forEach_is_the_terminal_that_makes_a_lazy_pipeline_run(): void
+	{
+		$mapped = [];
+		$sequence = sequenceOf([1, 2, 3])->map(static function (int $v) use (&$mapped): int {
+			$mapped[] = $v;
+
+			return $v * 2;
+		});
+
+		// Building the chain runs nothing - onEach would have left it just as cold.
+		$this->assertSame([], $mapped);
+
+		$doubled = [];
+		$sequence->forEach(static function (int $v) use (&$doubled): void {
+			$doubled[] = $v;
+		});
+
+		$this->assertSame([1, 2, 3], $mapped);
+		$this->assertSame([2, 4, 6], $doubled);
+	}
+
+	#[Test]
+	public function forEach_receives_the_positions_of_its_own_stage(): void
+	{
+		$seen = [];
+		sequenceOf(['a', 'b', 'c'])
+			->filter(static fn (string $v): bool => $v !== 'a')
+			->forEach(static function (string $v, int $i) use (&$seen): void {
+				$seen[] = "$i:$v";
+			});
+
+		// The filter reindexed: the positions are this stage's, not the source's.
+		$this->assertSame(['0:b', '1:c'], $seen);
+	}
+
+	#[Test]
 	public function takeFirst_pulls_exactly_n_elements_from_the_source(): void
 	{
 		$pulled = [];

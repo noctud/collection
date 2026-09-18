@@ -21,12 +21,14 @@ assertType('string', $s->first());
 assertType('string', $s->last());
 assertType('string', $s->single());
 assertType('string', $s->expect(static fn (string $v): bool => $v !== 'a'));
+assertType('string', $s->expectLast(static fn (string $v): bool => $v !== 'a'));
 
 // Their OrNull counterparts widen it with null, find() included.
 assertType('string|null', $s->firstOrNull());
 assertType('string|null', $s->lastOrNull());
 assertType('string|null', $s->singleOrNull());
 assertType('string|null', $s->find(static fn (string $v): bool => $v !== 'a'));
+assertType('string|null', $s->findLast(static fn (string $v): bool => $v !== 'a'));
 
 // Index access carries the element type, and widens with null in the OrNull variant.
 assertType('string', $s->elementAt(1));
