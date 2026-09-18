@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\ImmutableMapLogic;
+use ReturnTypeWillChange;
 
 /**
  * Extension style #2 (Map): base ImmutableMapLogic + class-level `@method self`
@@ -52,6 +53,18 @@ class ManualScoreBoard implements ImmutableMap
 		if (!is_string($name) || !is_int($score)) {
 			throw new InvalidArgumentException('ManualScoreBoard must only hold string => int entries');
 		}
+	}
+
+	/**
+	 * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
+	 *
+	 * @param string $offset
+	 * @return int
+	 */
+	#[ReturnTypeWillChange]
+	public function offsetGet(mixed $offset)
+	{
+		return $this->get($offset);
 	}
 
 	/** @param iterable<string, int> $data */
