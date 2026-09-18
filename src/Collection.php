@@ -587,11 +587,11 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
 
 	/**
-	 * Returns a set containing only elements present in both this collection and the given iterable.
+	 * Returns a set containing elements from this collection whose hashes match elements in the given iterable.
+	 * Matching elements retain the instances and types from this collection.
 	 *
-	 * @template V
-	 * @param iterable<V> $other
-	 * @return Set<E&V>
+	 * @param iterable<mixed> $other
+	 * @return Set<E>
 	 */
 	#[NoDiscard]
 	public function intersect(iterable $other): Set;
