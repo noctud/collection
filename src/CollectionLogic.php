@@ -532,7 +532,7 @@ trait CollectionLogic
 	#[NoDiscard]
 	public function filterInstanceOf(string $type): ImmutableCollection
 	{
-		return $this->newCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type));
+		return $this->newTransformedCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type));
 	}
 
 	/** {@inheritDoc} */
@@ -1020,7 +1020,7 @@ trait CollectionLogic
 	}
 
 	/**
-	 * Creates the result of an element-type-changing operation (map, flatMap, flatten).
+	 * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
 	 *
 	 * Kept separate from newCollectionOf so that concrete Logic traits can bypass a
 	 * self-preserving newCollectionOf override: a transform result no longer holds

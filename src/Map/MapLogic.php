@@ -237,7 +237,7 @@ trait MapLogic
 	#[NoDiscard]
 	public function filterValuesInstanceOf(string $type): ImmutableMap
 	{
-		return $this->newMapOf( // @phpstan-ignore return.type
+		return $this->newValueTransformedMapOf( // @phpstan-ignore return.type
 			new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)
 		);
 	}
@@ -738,7 +738,7 @@ trait MapLogic
 	}
 
 	/**
-	 * Creates the result of a value-type-changing operation (mapValues, mapValuesNotNull).
+	 * Creates the result of a value-type-changing operation (mapValues, mapValuesNotNull, filterValuesInstanceOf).
 	 *
 	 * Same rationale as newTransformedMapOf, but kept apart because the keys are
 	 * untouched: a map bound to a key type (int, string) can keep its own store.

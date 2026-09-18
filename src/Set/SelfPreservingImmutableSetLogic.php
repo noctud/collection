@@ -45,9 +45,9 @@ use NoDiscard;
  *   to* conversions) are **not** narrowed — they still return the base type, because
  *   their result is no longer a collection of `E`. (`groupBy` additionally cannot be
  *   narrowed because `ImmutableMap`'s value parameter is invariant.) Transforms that
- *   produce new element values (map, mapNotNull, flatMap, flatten) also build a plain
- *   base set at runtime, so a constructor invariant on the subtype never sees
- *   transformed elements.
+ *   change the element type (map, mapNotNull, flatMap, flatten, filterInstanceOf)
+ *   also build a plain base set at runtime, so the object matches its declared type
+ *   and a constructor invariant on the subtype never sees transformed elements.
  *
  * Each override delegates to the base implementation; the per-method return-type
  * suppression is sound for the narrowed methods because `newCollectionOf()` returns

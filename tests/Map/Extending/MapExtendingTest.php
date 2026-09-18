@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Map\Extending;
 use Noctud\Collection\Map\ImmutableMap;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Verifies that extending a Map self-preserves the subtype at runtime.
@@ -113,6 +114,17 @@ final class MapExtendingTest extends TestCase
 		self::assertCount(1, $labels);
 		self::assertSame('win', $labels['alice']);
 		self::assertSame([120 => 'alice', 80 => 'bob'], $flipped->toArray());
+	}
+
+	#[Test]
+	public function trait_filter_values_instance_of_returns_base_type(): void
+	{
+		$board = new ScoreBoard(['alice' => 120]);
+
+		$filtered = $board->filterValuesInstanceOf(stdClass::class);
+
+		self::assertNotInstanceOf(ScoreBoard::class, $filtered);
+		self::assertCount(1, $filtered->put('bob', new stdClass()));
 	}
 
 	#[Test]

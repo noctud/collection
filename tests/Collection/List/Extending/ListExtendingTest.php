@@ -13,6 +13,7 @@ use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Verifies that extending a List self-preserves the subtype at runtime.
@@ -137,6 +138,19 @@ final class ListExtendingTest extends TestCase
 		self::assertNotInstanceOf(LineItems::class, $ids['y']);
 		self::assertSame([1], $ids['y']->toArray());
 		self::assertSame([2], $ids['n']->toArray());
+	}
+
+	#[Test]
+	public function trait_filter_instance_of_returns_base_type(): void
+	{
+		$list = new LineItems([new SwappableItem(1), new SwappableItem(2)]);
+
+		$filtered = $list->filterInstanceOf(SwappableItem::class);
+
+		// The declared type is the base ImmutableList<T>, so the object must be one
+		// too: a widening add() is allowed by the type and must not hit the subtype guard.
+		self::assertNotInstanceOf(LineItems::class, $filtered);
+		self::assertCount(3, $filtered->add(new stdClass()));
 	}
 
 	#[Test]

@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Collection\Set\Extending;
 use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Verifies that extending a Set self-preserves the subtype at runtime.
@@ -148,6 +149,17 @@ final class SetExtendingTest extends TestCase
 		self::assertInstanceOf(TraitItemCollection::class, $groups['y']);
 		self::assertNotInstanceOf(TraitItemCollection::class, $ids['y']);
 		self::assertSame([1], $ids['y']->toArray());
+	}
+
+	#[Test]
+	public function trait_filter_instance_of_returns_base_type(): void
+	{
+		$collection = new TraitItemCollection([new SwappableItem(1), new SwappableItem(2)]);
+
+		$filtered = $collection->filterInstanceOf(SwappableItem::class);
+
+		self::assertNotInstanceOf(TraitItemCollection::class, $filtered);
+		self::assertCount(3, $filtered->add(new stdClass()));
 	}
 
 	#[Test]

@@ -138,7 +138,7 @@ The base immutable mutations widen their type — `add(NE): ImmutableSet<E|NE>`.
 :::
 
 ::: tip Constructor invariants are safe
-For the value-producing transforms in the right column (`map`, `mapNotNull`, `flatMap`, `flatten`, `groupBy` with a value transform, and the Map key/value transforms) this is not just a static-type matter: they build a plain base collection at runtime as well. Your constructor is only ever re-entered with elements of your own type, so it can safely validate an invariant (e.g. "every element is an `OrderItem`").
+For the type-changing transforms in the right column (`map`, `mapNotNull`, `flatMap`, `flatten`, `filterInstanceOf`, `groupBy` with a value transform, and the Map key/value transforms) this is not just a static-type matter: they build a plain base collection at runtime as well, so the object never lies about its declared type. Your constructor is only ever re-entered with elements of your own type, so it can safely validate an invariant (e.g. "every element is an `OrderItem`").
 :::
 
 ::: tip Why immutable only?

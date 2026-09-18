@@ -191,7 +191,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function filterInstanceOf(string $type): ImmutableList
 	{
-		return $this->newCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
+		return $this->newTransformedCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
 	}
 
 	/**
@@ -542,7 +542,7 @@ trait ListLogic
 	}
 
 	/**
-	 * Creates the result of an element-type-changing operation (map, flatMap, flatten).
+	 * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
 	 *
 	 * Not routed through newCollectionOf: a self-preserving subtype rebuilds itself
 	 * there, and a transform result no longer holds elements of E — it must not go
