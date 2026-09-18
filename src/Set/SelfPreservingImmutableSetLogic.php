@@ -44,10 +44,14 @@ use NoDiscard;
  * - Type-changing methods (map, flatMap, flatten, filterInstanceOf, groupBy, the
  *   to* conversions) are **not** narrowed — they still return the base type, because
  *   their result is no longer a collection of `E`. (`groupBy` additionally cannot be
- *   narrowed because `ImmutableMap`'s value parameter is invariant.)
+ *   narrowed because `ImmutableMap`'s value parameter is invariant.) Transforms that
+ *   change the element type (map, mapNotNull, flatMap, flatten, filterInstanceOf)
+ *   also build a plain base set at runtime, so the object matches its declared type
+ *   and a constructor invariant on the subtype never sees transformed elements.
  *
  * Each override delegates to the base implementation; the per-method return-type
- * suppression is sound because `newCollectionOf()` returns `new static(...)` at runtime.
+ * suppression is sound for the narrowed methods because `newCollectionOf()` returns
+ * `new static(...)` at runtime.
  *
  * @template E
  * @implements ImmutableSet<E>
@@ -426,8 +430,7 @@ trait SelfPreservingImmutableSetLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @template V
-	 * @param iterable<V> $other
+	 * @param iterable<mixed> $other
 	 * @return static
 	 */
 	#[NoDiscard]

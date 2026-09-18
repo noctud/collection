@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Type\Collection;
 
 use Noctud\Collection\Collection;
+use Noctud\Collection\Tests\Collection\Fixture\DetailedHashableUser;
+use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
 use stdClass;
 use function Noctud\Collection\listOf;
 use function PHPStan\Testing\assertType;
@@ -86,11 +88,16 @@ $ints = [1, 2];
 /** @var iterable<mixed> $anything */
 $anything = [1, 'a'];
 
-// intersect narrows to E&V: only values that can belong to both sides.
-assertType('Noctud\Collection\Set\Set<int>', $scalars->intersect($ints));
+// intersect retains the element type from the left collection.
+assertType('Noctud\Collection\Set\Set<int|string>', $scalars->intersect($ints));
 assertType('Noctud\Collection\Set\Set<string>', $c->intersect($anything));
-// Intersecting disjoint types is reported as an unresolvable return type.
-assertType('Noctud\Collection\Set\Set<*NEVER*>', $c->intersect($ints)); // @phpstan-ignore method.unresolvableReturnType
+assertType('Noctud\Collection\Set\Set<string>', $c->intersect($ints));
+
+/** @var Collection<HashableUser> $users */
+$users = listOf([new HashableUser('42')]);
+/** @var iterable<DetailedHashableUser> $detailedUsers */
+$detailedUsers = [new DetailedHashableUser('42', 'user@example.com')];
+assertType('Noctud\Collection\Set\Set<Noctud\Collection\Tests\Collection\Fixture\HashableUser>', $users->intersect($detailedUsers));
 
 // union widens to E|V: elements of both sides end up in the result.
 assertType('Noctud\Collection\Set\Set<int|string>', $c->union($ints));

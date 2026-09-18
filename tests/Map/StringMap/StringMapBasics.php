@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests\Map\StringMap;
 
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Map\ImmutableMap;
+use Noctud\Collection\Map\StringMap\ImmutableStringMap;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -223,7 +224,20 @@ trait StringMapBasics
 
 		$mapped = $map->mapValues(fn (int $v) => $v * 10);
 
+		// Only the values change, so the result keeps its key-typed store
+		$this->assertInstanceOf(ImmutableStringMap::class, $mapped);
 		$this->assertSame(['a' => 10, 'b' => 20, 'c' => 30], $mapped->toArray());
+	}
+
+	#[Test]
+	public function map_values_not_null(): void
+	{
+		$map = $this->mapOf(['a' => 1, 'b' => null, 'c' => 3]);
+
+		$mapped = $map->mapValuesNotNull(fn (?int $v) => $v === null ? null : $v * 10);
+
+		$this->assertInstanceOf(ImmutableStringMap::class, $mapped);
+		$this->assertSame(['a' => 10, 'c' => 30], $mapped->toArray());
 	}
 
 	#[Test]

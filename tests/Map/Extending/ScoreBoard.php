@@ -9,12 +9,16 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Map\Extending;
 
+use InvalidArgumentException;
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\SelfPreservingImmutableMapLogic;
 
 /**
  * Extension style #1 (Map): the SelfPreservingImmutableMapLogic trait.
+ *
+ * The constructor enforces an entry invariant: it proves that transforms
+ * (mapKeys, mapValues, flip, ...) never rebuild the subtype from transformed entries.
  *
  * @implements ImmutableMap<string, int>
  * @phpstan-consistent-constructor
@@ -27,7 +31,23 @@ class ScoreBoard implements ImmutableMap
 	/** @param iterable<string, int> $data */
 	public function __construct(iterable $data = [])
 	{
-		$this->store = HashKeyValueStore::fromAssoc($data);
+		// Buffered into pairs: iterator_to_array() crashes on non-scalar keys before the guard runs
+		$pairs = [];
+		foreach ($data as $name => $score) {
+			self::assertEntry($name, $score);
+			$pairs[] = [$name, $score];
+		}
+
+		$this->store = HashKeyValueStore::fromPairs($pairs);
+	}
+
+	// mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
+	// to catch internal rebuilds that would bypass the declared entry types.
+	private static function assertEntry(mixed $name, mixed $score): void
+	{
+		if (!is_string($name) || !is_int($score)) {
+			throw new InvalidArgumentException('ScoreBoard must only hold string => int entries');
+		}
 	}
 
 	public function winners(): self
@@ -60,9 +80,10 @@ class ScoreBoard implements ImmutableMap
 		return $this->sortedByValueDesc()->takeFirst(1);
 	}
 
-	// mapKeys / mapValues / mapValuesNotNull change the key or value type, so they
-	// return the base ImmutableMap<NK,V> / ImmutableMap<K,NV> (not self). These assert
-	// the new key/value type is inferred from the closure rather than collapsed to mixed.
+	// mapKeys / mapValues / mapValuesNotNull / flip change the key or value type, so
+	// they return the base ImmutableMap<NK,V> / ImmutableMap<K,NV> (not self). These
+	// assert the new key/value type is inferred from the closure rather than collapsed
+	// to mixed.
 
 	/** @return ImmutableMap<int, int> */
 	public function rekeyByScore(): ImmutableMap
@@ -80,5 +101,11 @@ class ScoreBoard implements ImmutableMap
 	public function winnerLabels(): ImmutableMap
 	{
 		return $this->mapValuesNotNull(static fn (int $score): ?string => $score >= 100 ? 'win' : null);
+	}
+
+	/** @return ImmutableMap<int, string> */
+	public function flipped(): ImmutableMap
+	{
+		return $this->flip();
 	}
 }

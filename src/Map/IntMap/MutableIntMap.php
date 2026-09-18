@@ -90,6 +90,16 @@ final class MutableIntMap implements MutableMap
 		return intMapOf($data);
 	}
 
+	/**
+	 * @template NV
+	 * @param iterable<int,NV> $data
+	 * @return ImmutableMap<int,NV>
+	 */
+	protected function newValueTransformedMapOf(iterable $data): ImmutableMap
+	{
+		return intMapOf($data);
+	}
+
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function toImmutable(): ImmutableMap

@@ -162,21 +162,21 @@ trait CollectionLogic
 	#[NoDiscard]
 	public function filterInstanceOf(string $type): ImmutableCollection
 	{
-		return $this->newCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type));
+		return $this->newTransformedCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function map(Closure $transform): ImmutableCollection
 	{
-		return $this->newCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
+		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function mapNotNull(Closure $transform): ImmutableCollection
 	{
-		return $this->newCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
+		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
 	}
 
 	/** {@inheritDoc} */
@@ -184,7 +184,7 @@ trait CollectionLogic
 	public function flatMap(Closure $transform): ImmutableCollection
 	{
 		$i = 0;
-		return $this->newCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
+		return $this->newTransformedCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
 			return $transform($v, $i++);
 		}));
 	}
@@ -193,7 +193,7 @@ trait CollectionLogic
 	#[NoDiscard]
 	public function flatten(): ImmutableCollection
 	{
-		return $this->newCollectionOf(new FlattenOperation($this->store)->items());
+		return $this->newTransformedCollectionOf(new FlattenOperation($this->store)->items());
 	}
 
 	/** {@inheritDoc} */
@@ -581,9 +581,8 @@ trait CollectionLogic
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @template U
-	 * @param iterable<U> $other
-	 * @return ImmutableSet<E&U>
+	 * @param iterable<mixed> $other
+	 * @return ImmutableSet<E>
 	 */
 	#[NoDiscard]
 	public function intersect(iterable $other): ImmutableSet
@@ -641,6 +640,24 @@ trait CollectionLogic
 	protected function newMapOf(iterable $data = []): ImmutableMap
 	{
 		return mapOf($data);
+	}
+
+	/**
+	 * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
+	 *
+	 * Kept separate from newCollectionOf so that concrete Logic traits can bypass a
+	 * self-preserving newCollectionOf override: a transform result no longer holds
+	 * elements of E and must not go through the subtype's constructor. A class built
+	 * on this trait directly that overrides newCollectionOf() to rebuild itself has
+	 * to override this one as well.
+	 *
+	 * @template NE
+	 * @param iterable<NE> $data
+	 * @return ImmutableCollection<NE>
+	 */
+	protected function newTransformedCollectionOf(iterable $data): ImmutableCollection
+	{
+		return $this->newCollectionOf($data);
 	}
 
 	// --- Internal ---

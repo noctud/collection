@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests\Map\IntMap;
 
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Map\ImmutableMap;
+use Noctud\Collection\Map\IntMap\ImmutableIntMap;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -223,7 +224,20 @@ trait IntMapBasics
 
 		$mapped = $map->mapValues(fn (int $v) => $v * 2);
 
+		// Only the values change, so the result keeps its key-typed store
+		$this->assertInstanceOf(ImmutableIntMap::class, $mapped);
 		$this->assertSame([1 => 20, 2 => 40, 3 => 60], $mapped->toArray());
+	}
+
+	#[Test]
+	public function map_values_not_null(): void
+	{
+		$map = $this->mapOf([1 => 10, 2 => null, 3 => 30]);
+
+		$mapped = $map->mapValuesNotNull(fn (?int $v) => $v === null ? null : $v * 2);
+
+		$this->assertInstanceOf(ImmutableIntMap::class, $mapped);
+		$this->assertSame([1 => 20, 3 => 60], $mapped->toArray());
 	}
 
 	#[Test]

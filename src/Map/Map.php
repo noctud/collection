@@ -21,6 +21,7 @@ use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Set\Set;
 use NoDiscard;
+use ReturnTypeWillChange;
 
 /**
  * Key-value associative collection with strict key handling.
@@ -82,12 +83,14 @@ interface Map extends IteratorAggregate, Countable, ArrayAccess, JsonSerializabl
 	/**
 	 * Retrieves the value associated with the given key, or throws if absent.
 	 * Alias of get() for array access syntax `$map['key']`.
+	 * The native return type is omitted for compatibility with existing implementations.
 	 *
 	 * @param K $offset
 	 * @return V
 	 * @throws NoSuchElementException
 	 */
-	public function offsetGet(mixed $offset): mixed;
+	#[ReturnTypeWillChange]
+	public function offsetGet(mixed $offset);
 
 	/**
 	 * Retrieves the value associated with the given key.

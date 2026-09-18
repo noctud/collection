@@ -337,9 +337,9 @@ groupBy(Closure $keySelector, ?Closure $valueTransform = null): Map<K, Collectio
 Group elements by key selector `(E, int): K`. When a `$valueTransform` `(E, int): V` is provided, each element is transformed before being added to its group — the result is `Map<K, ImmutableList<V>>`.
 
 ```php
-intersect(iterable<V> $other): ImmutableSet<E&V>
+intersect(iterable<mixed> $other): ImmutableSet<E>
 ```
-Elements present in both this collection and the iterable. Returns a set (duplicates removed). The element type narrows to `E&V` — only values that can belong to both sides.
+Elements from this collection whose hashes match elements in the iterable. Returns a set (duplicates removed), retaining the elements and element type `E` from this collection. Objects with equal `Hashable` identities may have different classes, so matching does not narrow the result to the iterable's element type.
 
 ```php
 union(iterable<NE> $other): ImmutableSet<E|NE>

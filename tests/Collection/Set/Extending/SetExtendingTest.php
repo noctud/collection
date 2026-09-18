@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Collection\Set\Extending;
 use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Verifies that extending a Set self-preserves the subtype at runtime.
@@ -120,13 +121,55 @@ final class SetExtendingTest extends TestCase
 		$ids = $collection->toIds();
 		$swappedIds = $collection->swappedIds();
 		$withNegatives = $collection->idsWithNegatives();
+		$flattened = $collection->flattened();
 
 		// The shape changed, so the static type narrows to the base ImmutableSet<int>
-		// (asserted by PHPStan via toIds()'s @return). At runtime the SelfPreserving
-		// factory still builds `new static`, so the object remains an ImmutableSet.
+		// (asserted by PHPStan via toIds()'s @return). At runtime the result is a plain
+		// base set too: the subtype constructor (which enforces the SwappableItem
+		// invariant) is never re-entered with transformed elements.
 		self::assertInstanceOf(ImmutableSet::class, $ids);
+		self::assertNotInstanceOf(TraitItemCollection::class, $ids);
+		self::assertNotInstanceOf(TraitItemCollection::class, $swappedIds);
+		self::assertNotInstanceOf(TraitItemCollection::class, $withNegatives);
+		self::assertNotInstanceOf(TraitItemCollection::class, $flattened);
 		self::assertEqualsCanonicalizing([1, 2], $ids->toArray());
 		self::assertEqualsCanonicalizing([1], $swappedIds->toArray());
 		self::assertEqualsCanonicalizing([1, -1, 2, -2], $withNegatives->toArray());
+		self::assertEqualsCanonicalizing($collection->toArray(), $flattened->toArray());
+	}
+
+	#[Test]
+	public function trait_group_by_with_value_transform_returns_base_type(): void
+	{
+		$collection = new TraitItemCollection([new SwappableItem(1, true), new SwappableItem(2, false)]);
+
+		$groups = $collection->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n');
+		$ids = $collection->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n', static fn (SwappableItem $i): int => $i->id);
+
+		self::assertInstanceOf(TraitItemCollection::class, $groups['y']);
+		self::assertNotInstanceOf(TraitItemCollection::class, $ids['y']);
+		self::assertSame([1], $ids['y']->toArray());
+	}
+
+	#[Test]
+	public function trait_filter_instance_of_returns_base_type(): void
+	{
+		$collection = new TraitItemCollection([new SwappableItem(1), new SwappableItem(2)]);
+
+		$filtered = $collection->filterInstanceOf(SwappableItem::class);
+
+		self::assertNotInstanceOf(TraitItemCollection::class, $filtered);
+		self::assertCount(3, $filtered->add(new stdClass()));
+	}
+
+	#[Test]
+	public function manual_transform_returns_base_type(): void
+	{
+		$collection = new ManualItemCollection([new SwappableItem(1), new SwappableItem(2)]);
+
+		$ids = $collection->toIds();
+
+		self::assertNotInstanceOf(ManualItemCollection::class, $ids);
+		self::assertEqualsCanonicalizing([1, 2], $ids->toArray());
 	}
 }

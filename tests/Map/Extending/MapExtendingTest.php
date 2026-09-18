@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Map\Extending;
 use Noctud\Collection\Map\ImmutableMap;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Verifies that extending a Map self-preserves the subtype at runtime.
@@ -95,16 +96,53 @@ final class MapExtendingTest extends TestCase
 		$rekeyed = $board->rekeyByScore();
 		$scaled = $board->scaled();
 		$labels = $board->winnerLabels();
+		$flipped = $board->flipped();
 
 		// The key/value type changed, so the static type narrows to the base
 		// ImmutableMap<NK,V> / ImmutableMap<K,NV> (asserted by PHPStan via these
-		// methods' @return). At runtime the SelfPreserving factory still builds
-		// `new static`, so the object remains an ImmutableMap.
+		// methods' @return). At runtime the result is a plain base map too: the
+		// subtype constructor (which enforces the string => int invariant) is never
+		// re-entered with transformed entries.
 		self::assertInstanceOf(ImmutableMap::class, $rekeyed);
+		self::assertNotInstanceOf(ScoreBoard::class, $rekeyed);
+		self::assertNotInstanceOf(ScoreBoard::class, $scaled);
+		self::assertNotInstanceOf(ScoreBoard::class, $labels);
+		self::assertNotInstanceOf(ScoreBoard::class, $flipped);
 		self::assertSame([120, 80], $rekeyed->keys->toArray());
 		self::assertSame(180.0, $scaled['alice']);
 		self::assertSame(120.0, $scaled['bob']);
 		self::assertCount(1, $labels);
 		self::assertSame('win', $labels['alice']);
+		self::assertSame([120 => 'alice', 80 => 'bob'], $flipped->toArray());
+	}
+
+	#[Test]
+	public function trait_filter_values_instance_of_returns_base_type(): void
+	{
+		$board = new ScoreBoard(['alice' => 120]);
+
+		$filtered = $board->filterValuesInstanceOf(stdClass::class);
+
+		self::assertNotInstanceOf(ScoreBoard::class, $filtered);
+		self::assertCount(1, $filtered->put('bob', new stdClass()));
+	}
+
+	#[Test]
+	public function manual_array_access_allows_omitting_native_return_type(): void
+	{
+		$board = new ManualScoreBoard(['alice' => 120]);
+
+		self::assertSame(120, $board['alice']);
+	}
+
+	#[Test]
+	public function manual_transform_returns_base_type(): void
+	{
+		$board = new ManualScoreBoard(['alice' => 120, 'bob' => 80]);
+
+		$scaled = $board->scaled();
+
+		self::assertNotInstanceOf(ManualScoreBoard::class, $scaled);
+		self::assertSame(['alice' => 180.0, 'bob' => 120.0], $scaled->toArray());
 	}
 }

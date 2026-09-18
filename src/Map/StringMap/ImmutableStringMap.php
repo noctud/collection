@@ -197,6 +197,16 @@ final class ImmutableStringMap implements ImmutableMap
 		return stringMapOf($data);
 	}
 
+	/**
+	 * @template NV
+	 * @param iterable<string,NV> $data
+	 * @return ImmutableMap<string,NV>
+	 */
+	protected function newValueTransformedMapOf(iterable $data): ImmutableMap
+	{
+		return stringMapOf($data);
+	}
+
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function toImmutable(): ImmutableMap

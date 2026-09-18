@@ -247,7 +247,7 @@ trait MapLogic
 	#[NoDiscard]
 	public function filterValuesInstanceOf(string $type): ImmutableMap
 	{
-		return $this->newMapOf( // @phpstan-ignore return.type
+		return $this->newValueTransformedMapOf( // @phpstan-ignore return.type
 			new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)
 		);
 	}
@@ -283,7 +283,7 @@ trait MapLogic
 	#[NoDiscard] // @phpstan-ignore generics.notSubtype
 	public function mapKeys(Closure $transform): ImmutableMap
 	{
-		return $this->newMapOf(new MapKeyValueOperation($this->store)->keys($transform)); // @phpstan-ignore return.type, argument.templateType
+		return $this->newTransformedMapOf(new MapKeyValueOperation($this->store)->keys($transform)); // @phpstan-ignore return.type, argument.templateType
 	}
 
 	/**
@@ -296,7 +296,7 @@ trait MapLogic
 	#[NoDiscard]
 	public function mapValues(Closure $transform): ImmutableMap
 	{
-		return $this->newMapOf(new MapKeyValueOperation($this->store)->values($transform));
+		return $this->newValueTransformedMapOf(new MapKeyValueOperation($this->store)->values($transform));
 	}
 
 	/**
@@ -309,7 +309,7 @@ trait MapLogic
 	#[NoDiscard]
 	public function mapValuesNotNull(Closure $transform): ImmutableMap
 	{
-		return $this->newMapOf(new MapKeyValueOperation($this->store)->valuesNotNull($transform));
+		return $this->newValueTransformedMapOf(new MapKeyValueOperation($this->store)->valuesNotNull($transform));
 	}
 
 	/**
@@ -320,7 +320,7 @@ trait MapLogic
 	#[NoDiscard] // @phpstan-ignore generics.notSubtype
 	public function flip(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): ImmutableMap
 	{
-		return $this->newMapOf( // @phpstan-ignore return.type, argument.templateType
+		return $this->newTransformedMapOf( // @phpstan-ignore return.type, argument.templateType
 			new FlipKeyValueOperation($this->store)->items($onCollision) // @phpstan-ignore argument.type
 		);
 	}
@@ -726,6 +726,38 @@ trait MapLogic
 	 * @return ImmutableMap<NK,NV>
 	 */
 	protected function newMapOf(iterable $data): ImmutableMap
+	{
+		return mapOf($data);
+	}
+
+	/**
+	 * Creates the result of a key-type-changing operation (mapKeys, flip).
+	 *
+	 * Not routed through newMapOf: a self-preserving subtype rebuilds itself there,
+	 * and a transformed result no longer holds K/V entries — it must not go through
+	 * the subtype's constructor.
+	 *
+	 * @template NK of string|int|bool|float|object
+	 * @template NV
+	 * @param iterable<NK,NV> $data
+	 * @return ImmutableMap<NK,NV>
+	 */
+	protected function newTransformedMapOf(iterable $data): ImmutableMap
+	{
+		return mapOf($data);
+	}
+
+	/**
+	 * Creates the result of a value-type-changing operation (mapValues, mapValuesNotNull, filterValuesInstanceOf).
+	 *
+	 * Same rationale as newTransformedMapOf, but kept apart because the keys are
+	 * untouched: a map bound to a key type (int, string) can keep its own store.
+	 *
+	 * @template NV
+	 * @param iterable<K,NV> $data
+	 * @return ImmutableMap<K,NV>
+	 */
+	protected function newValueTransformedMapOf(iterable $data): ImmutableMap
 	{
 		return mapOf($data);
 	}

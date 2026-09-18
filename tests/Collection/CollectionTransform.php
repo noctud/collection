@@ -11,6 +11,8 @@ namespace Noctud\Collection\Tests\Collection;
 
 use Noctud\Collection\Set\ImmutableSet;
 use Noctud\Collection\Set\Set as SetInterface;
+use Noctud\Collection\Tests\Collection\Fixture\DetailedHashableUser;
+use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
 use PHPUnit\Framework\Attributes\Test;
 
 trait CollectionTransform
@@ -147,6 +149,15 @@ trait CollectionTransform
 	{
 		$collection = $this->collectionOf([1, 2, 3]);
 		$this->assertSame([2, 3], $collection->intersect([2, 3, 4])->toArray());
+	}
+
+	#[Test]
+	public function intersect_retains_the_left_hashable_object(): void
+	{
+		$left = new HashableUser('42');
+		$right = new DetailedHashableUser('42', 'user@example.com');
+
+		$this->assertSame([$left], $this->collectionOf([$left])->intersect([$right])->toArray());
 	}
 
 	#[Test]
