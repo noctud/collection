@@ -92,7 +92,7 @@ trait SetMutateWrite
 		$set = $this->collectionOf([1, 2, 3]);
 
 		if ($set instanceof MutableSet) {
-			$set->addFirst(2);
+			$this->assertSame($set, $set->addFirst(2));
 			$this->assertSame(3, $set->count());
 			$this->assertSame([2, 1, 3], $set->toArray());
 		} else {

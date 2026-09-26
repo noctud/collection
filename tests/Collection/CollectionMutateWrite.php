@@ -59,7 +59,7 @@ trait CollectionMutateWrite
 		$collection = $this->collectionOf([]);
 
 		if ($collection instanceof MutableCollection) {
-			$collection->addFirst(42);
+			$this->assertSame($collection, $collection->addFirst(42));
 			$this->assertSame([42], $collection->toArray());
 		} else {
 			$result = $collection->addFirst(42);
@@ -232,7 +232,7 @@ trait CollectionMutateWrite
 		$collection = $this->collectionOf(['a', 'b', 'c', 'd']);
 
 		if ($collection instanceof MutableCollection) {
-			$collection->removeIf(fn ($v, $i) => $i % 2 === 0);
+			$this->assertSame($collection, $collection->removeIf(fn ($v, $i) => $i % 2 === 0));
 			$this->assertSame(['b', 'd'], $collection->toArray());
 		} else {
 			$result = $collection->removeIf(fn ($v, $i) => $i % 2 === 0);
@@ -297,7 +297,7 @@ trait CollectionMutateWrite
 		$collection = $this->collectionOf([1, 2, 3]);
 
 		if ($collection instanceof MutableCollection) {
-			$collection->removeAll([]);
+			$this->assertSame($collection, $collection->removeAll([]));
 			$this->assertSame([1, 2, 3], $collection->toArray());
 		} else {
 			$result = $collection->removeAll([]);
@@ -348,7 +348,7 @@ trait CollectionMutateWrite
 		$collection = $this->collectionOf($data);
 
 		if ($collection instanceof MutableCollection) {
-			$collection->removeElement(2);
+			$this->assertSame($collection, $collection->removeElement(2));
 			$this->assertTrue(array_is_list($collection->toArray()));
 		} else {
 			$result = $collection->removeElement(2);
@@ -363,7 +363,7 @@ trait CollectionMutateWrite
 		$collection = $this->collectionOf($data);
 
 		if ($collection instanceof MutableCollection) {
-			$collection->add(2);
+			$this->assertSame($collection, $collection->add(2));
 			$this->assertTrue(array_is_list($collection->toArray()));
 		} else {
 			$result = $collection->add(2);
