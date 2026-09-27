@@ -14,7 +14,6 @@ use NoDiscard;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\ImmutableCollection;
 use Noctud\Collection\Map\ImmutableMap;
-use OutOfBoundsException;
 
 /**
  * @template E
@@ -67,7 +66,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
 	 *
 	 * @param int $index The index of the element to remove
 	 * @return ImmutableList<E> A new list without the element at the specified index
-	 * @throws OutOfBoundsException If the index is out of bounds
+	 * @throws IndexOutOfBoundsException If the index is out of bounds
 	 */
 	#[NoDiscard]
 	public function removeAt(int $index): ImmutableList;

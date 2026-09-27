@@ -107,7 +107,7 @@ Remove all occurrences of the element. Returns `$this`.
 ```php
 removeAt(int $index): MutableList<E>
 ```
-Remove element at index. Throws `OutOfBoundsException`. Returns `$this`.
+Remove element at index. Throws `IndexOutOfBoundsException` if out of bounds. Returns `$this`.
 
 ## ImmutableList Methods
 

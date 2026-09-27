@@ -14,7 +14,6 @@ use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\WritableCollection;
 use NoDiscard;
-use OutOfBoundsException;
 
 /**
  * Writable list provides basic methods for read/write operations on a list.
@@ -63,7 +62,7 @@ interface WritableList extends ListInterface, WritableCollection
 	 *
 	 * @param int $index The index of the element to remove
 	 * @return WritableList<E> The list itself for chaining
-	 * @throws OutOfBoundsException If the index is out of bounds
+	 * @throws IndexOutOfBoundsException If the index is out of bounds
 	 */
 	public function removeAt(int $index): WritableList;
 

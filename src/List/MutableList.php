@@ -13,7 +13,6 @@ use Closure;
 use NoDiscard;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\MutableCollection;
-use OutOfBoundsException;
 
 /**
  * @template E
@@ -226,7 +225,7 @@ interface MutableList extends WritableList, MutableCollection
 	 *
 	 * @param int $index The index of the element to remove
 	 * @return MutableList<E> The list itself for chaining
-	 * @throws OutOfBoundsException If the index is out of bounds
+	 * @throws IndexOutOfBoundsException If the index is out of bounds
 	 */
 	public function removeAt(int $index): MutableList;
 

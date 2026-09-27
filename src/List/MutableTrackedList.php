@@ -13,7 +13,6 @@ use Closure;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\MutableTrackedCollection;
 use Noctud\Collection\TrackedResult;
-use OutOfBoundsException;
 
 /**
  * A mutable list that tracks whether the last mutation operation changed the list.
@@ -206,7 +205,7 @@ interface MutableTrackedList extends MutableList, WritableTrackedList, MutableTr
 	 *
 	 * @param int $index The index of the element to remove
 	 * @return MutableTrackedList<E>&TrackedResult The list itself for chaining
-	 * @throws OutOfBoundsException If the index is out of bounds
+	 * @throws IndexOutOfBoundsException If the index is out of bounds
 	 */
 	public function removeAt(int $index): MutableTrackedList&TrackedResult;
 
