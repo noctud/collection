@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests\Collection;
 
 use Noctud\Collection\Set\Set;
 use PHPUnit\Framework\Attributes\Test;
+use stdClass;
 
 trait CollectionSlice
 {
@@ -244,6 +245,24 @@ trait CollectionSlice
 		$result = $collection->distinctBy(fn ($v) => strlen($v));
 
 		$this->assertSame(['aa', 'c', 'ddd'], $result->toArray());
+	}
+
+	#[Test]
+	public function distinctBy_selector_returning_new_objects(): void
+	{
+		$collection = $this->collectionOf([1, 2, 3, 4, 5, 6]);
+		$result = $collection->distinctBy(fn ($v) => new stdClass());
+
+		$this->assertSame([1, 2, 3, 4, 5, 6], $result->toArray());
+	}
+
+	#[Test]
+	public function distinctBy_selector_returning_null(): void
+	{
+		$collection = $this->collectionOf([1, 2, 3]);
+		$result = $collection->distinctBy(fn ($v) => null);
+
+		$this->assertSame([1], $result->toArray());
 	}
 
 	#[Test]

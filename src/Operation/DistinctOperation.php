@@ -27,8 +27,9 @@ final class DistinctOperation extends AbstractOperation
 		$set = [];
 		foreach ($this->data as $v) {
 			$nk = KeyHasher::hashSetKey($v);
-			if (!isset($set[$nk])) {
-				$set[$nk] = true;
+			if (!array_key_exists($nk, $set)) {
+				// Holding the value keeps objects alive, so their spl_object_id() can't be reused by a later object
+				$set[$nk] = $v;
 				yield $v;
 			}
 		}
@@ -43,9 +44,11 @@ final class DistinctOperation extends AbstractOperation
 	{
 		$set = [];
 		foreach ($this->data as $i => $v) {
-			$nk = KeyHasher::hashSetKey($selector($v, $i));
-			if (!isset($set[$nk])) {
-				$set[$nk] = true;
+			$key = $selector($v, $i);
+			$nk = KeyHasher::hashSetKey($key);
+			if (!array_key_exists($nk, $set)) {
+				// Holding the key keeps objects alive, so their spl_object_id() can't be reused by a later object
+				$set[$nk] = $key;
 				yield $v;
 			}
 		}
