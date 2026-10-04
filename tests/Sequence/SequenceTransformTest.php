@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SplStack;
+use stdClass;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
 
@@ -293,6 +294,27 @@ final class SequenceTransformTest extends TestCase
 		$this->assertSame(
 			listOf($data)->distinctBy($selector)->toArray(),
 			sequenceOf($data)->distinctBy($selector)->toArray(),
+		);
+	}
+
+	#[Test]
+	public function distinct_keeps_streamed_objects_that_are_no_longer_referenced(): void
+	{
+		$result = sequenceOf([0, 1, 2, 3, 4, 5])
+			->map(static fn (int $i): stdClass => (object) ['i' => $i])
+			->distinct()
+			->map(static fn (stdClass $o): int => $o->i)
+			->toArray();
+
+		$this->assertSame([0, 1, 2, 3, 4, 5], $result);
+	}
+
+	#[Test]
+	public function distinctBy_keeps_elements_whose_selector_returns_new_objects(): void
+	{
+		$this->assertSame(
+			[1, 2, 3],
+			sequenceOf([1, 2, 3])->distinctBy(static fn (int $v): stdClass => new stdClass())->toArray(),
 		);
 	}
 
