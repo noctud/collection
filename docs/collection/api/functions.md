@@ -26,6 +26,13 @@ use function Noctud\Collection\intMapOf;
 use function Noctud\Collection\mutableIntMapOf;
 ```
 
+For lazy sequences:
+
+```php
+use function Noctud\Collection\sequenceOf;
+use function Noctud\Collection\generateSequence;
+```
+
 ## List
 
 ### listOf
@@ -39,7 +46,7 @@ Creates an immutable list. If the given data is a `Closure`, the list is lazily 
 ```php
 listOf([1, 2, 3]); // ImmutableList<int>
 listOf(); // empty ImmutableList
-listOf(fn() => loadElements()); // lazy ImmutableList
+listOf(fn() => loadElements()); // lazy-init ImmutableList
 ```
 
 ### mutableListOf
@@ -53,7 +60,7 @@ Creates a mutable list. Supports lazy initialization via `Closure`.
 ```php
 mutableListOf([1, 2, 3]); // MutableList<int>
 mutableListOf(); // empty MutableList
-mutableListOf(fn() => loadElements()); // lazy MutableList
+mutableListOf(fn() => loadElements()); // lazy-init MutableList
 ```
 
 ## Set
@@ -70,7 +77,7 @@ Creates an immutable set. Duplicate values are discarded (first occurrence kept)
 setOf(['a', 'b', 'c']); // ImmutableSet<string>
 setOf([1, 2, 2, 3]); // ImmutableSet {1, 2, 3}
 setOf(); // empty ImmutableSet
-setOf(fn() => loadUniqueIds()); // lazy ImmutableSet
+setOf(fn() => loadUniqueIds()); // lazy-init ImmutableSet
 ```
 
 ### mutableSetOf
@@ -99,7 +106,7 @@ Creates an immutable map. Supports lazy initialization via `Closure`.
 ```php
 mapOf(['a' => 1, 'b' => 2]); // ImmutableMap<string, int>
 mapOf(); // empty ImmutableMap
-mapOf(fn() => loadConfig()); // lazy ImmutableMap
+mapOf(fn() => loadConfig()); // lazy-init ImmutableMap
 ```
 
 ::: warning
@@ -157,7 +164,7 @@ Creates an immutable map optimized for string keys. Uses single-array storage wi
 ```php
 stringMapOf(['rodney' => 38, 'sheppard' => 40]); // ImmutableMap<string, int>
 stringMapOf(); // empty ImmutableMap
-stringMapOf(fn() => loadUsers()); // lazy ImmutableMap
+stringMapOf(fn() => loadUsers()); // lazy-init ImmutableMap
 ```
 
 ### mutableStringMapOf
@@ -184,7 +191,7 @@ Creates an immutable map optimized for integer keys. Uses single-array storage w
 ```php
 intMapOf([1 => 'a', 2 => 'b']); // ImmutableMap<int, string>
 intMapOf(); // empty ImmutableMap
-intMapOf(fn() => loadScores()); // lazy ImmutableMap
+intMapOf(fn() => loadScores()); // lazy-init ImmutableMap
 ```
 
 ### mutableIntMapOf
@@ -204,6 +211,52 @@ mutableIntMapOf(); // empty MutableMap
 Use `stringMapOf` / `intMapOf` when you know all keys will be strings or integers. They offer ~50% less memory usage and faster operations compared to `mapOf`. Use `mapOf` when you need mixed key types (objects, float, bool). IntMap strictly enforces int keys; StringMap enforces string keys on `put()` but accepts PHP's natural key casting during construction.
 :::
 
+## Sequence
+
+### sequenceOf
+
+```php
+function sequenceOf(
+    iterable|Closure $source = [],
+    bool $constrainOnce = false,
+): Sequence
+```
+
+Creates a lazy [Sequence](../sequence). Nothing is pulled from the source until a terminal operation runs. Whether the sequence can be iterated more than once depends on the source:
+
+```php
+sequenceOf([1, 2, 3]); // Sequence<int>, replayable
+sequenceOf(fn() => readLines($path)); // called on every pass
+sequenceOf($list); // reads the list again on every pass
+sequenceOf($generator); // single pass only
+sequenceOf(); // empty Sequence
+```
+
+::: warning A closure is a producer here
+Unlike `listOf(fn() => ...)`, which calls the closure once and keeps the result, `sequenceOf(fn() => ...)` keeps nothing — the closure runs at the start of every pass and must return a fresh iterable each time. Set `constrainOnce: true` to limit any source to a single pass:
+
+```php
+sequenceOf(fn() => $api->fetchEvents(), constrainOnce: true);
+```
+:::
+
+### generateSequence
+
+```php
+function generateSequence(mixed $seed, Closure $next): Sequence
+```
+
+Creates a sequence that starts with `$seed` and computes each next element from the previous one with `$next` `(E): E|null`. It ends at the first `null`. When `$next` never returns `null`, the sequence is infinite — end it with `takeFirst()`, `takeWhile()` or a terminal operation that stops early. Every pass starts again from the seed.
+
+```php
+generateSequence(1, fn($n) => $n * 2)
+    ->takeFirst(4)
+    ->toList(); // [1, 2, 4, 8]
+
+generateSequence($category, fn($c) => $c->parent); // up to the root
+generateSequence(null, fn($n) => $n); // empty Sequence
+```
+
 ## Summary
 
 | Function | Returns | Key handling |
@@ -220,5 +273,7 @@ Use `stringMapOf` / `intMapOf` when you know all keys will be strings or integer
 | `mutableStringMapOf` | `MutableMap<string,V>` | String keys only, optimized |
 | `intMapOf` | `ImmutableMap<int,V>` | Int keys only, optimized |
 | `mutableIntMapOf` | `MutableMap<int,V>` | Int keys only, optimized |
+| `sequenceOf` | `Sequence<E>` | N/A |
+| `generateSequence` | `Sequence<E>` | N/A |
 
-All functions accept an empty argument for creating empty collections, and a `Closure` for lazy initialization.
+All collection functions accept an empty argument for creating empty collections, and a `Closure` for lazy initialization. `sequenceOf()` accepts both too, but calls the `Closure` on every pass.

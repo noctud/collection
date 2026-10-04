@@ -18,6 +18,7 @@ composer require noctud/collection
 - **Object keys**: Use objects as map keys out of the box. Implement `Hashable` for custom identity semantics.
 - **Mutable & Immutable**: Choose the right variant. Immutable methods are marked with `#[NoDiscard]`.
 - **Lazy Init**: Construct collections from closures. Uses PHP 8.4 lazy objects — materialized only on first access.
+- **Lazy Sequences**: Process large or infinite data element by element. Chains stop as soon as the result is known.
 - **Interface-driven**: Every type is an interface. Factory functions return contracts, not concrete classes.
 - **Expressive**: Rich set of higher-order functions — map, filter, sorted, flatMap, groupBy, partition, and more.
 - **Chainable**: Mutating methods return a collection — read result like `$set->tracked()->add('a')->changed`.
@@ -37,6 +38,8 @@ Collection<E>               → Ordered elements, read-only
 Map<K,V>                    → Ordered key-value pairs, array access
 ├── MutableMap<K,V>         → Mutating methods (write & sort)
 └── ImmutableMap<K,V>       → Mutation returns new with #[NoDiscard]
+
+Sequence<E>                 → Lazy pipeline, not a collection
 ```
 Full architecture is [shown in docs](https://noctud.dev/collection/getting-started#architecture), there are also Writable interfaces for easy third party implementations.
 
@@ -182,8 +185,8 @@ $map = mapOf((function() {
 ```
 Map will always preserve original keys, you have to only worry about constructing the map.
 
-### 💤 [Lazy Initialization](https://noctud.dev/collection/lazy-collections)
-Construct from a closure — the callback executes only on first access. Under the hood, lazy collections use PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) — the internal store is a ghost proxy materialized only when first accessed.
+### 💤 [Lazy Initialization](https://noctud.dev/collection/lazy-init)
+Construct from a closure — the callback executes only on first access. Under the hood, lazy initialization uses PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) — the internal store is a ghost proxy materialized only when first accessed.
 ```php
 // The query runs only if $users is actually read
 $template->users = listOf(fn() => $repository->getAllUsers());
@@ -194,7 +197,27 @@ $lazyMap = mapOf(fn () => $generator); // ✅ Good, callback returning Generator
 $lazyMap->values; // still lazy, no code executed yet
 $lazyMap->count(); // first read - executes the callback, materializes the map
 ```
-Lazy collections behave identically to eager ones — there is no way to tell from outside. Always construct lazy collections using closures, not Generator objects directly.
+Lazily initialized collections behave identically to regular ones — there is no way to tell from outside. Always pass closures, not Generator objects directly.
+
+### 🌊 [Sequences](https://noctud.dev/collection/sequence)
+Collection transformations are eager — every step builds a new collection. A `Sequence` runs the chain element by element instead, and stops as soon as the result is known. Use it for large, streamed or infinite data.
+```php
+// profile() runs only once - for the first active user
+$users->asSequence()
+    ->filter(fn($u) => $u->isActive())
+    ->map(fn($u) => $api->profile($u))
+    ->first();
+
+// readLines() is your own generator - stops after 10 errors
+sequenceOf(fn() => readLines('app.log'))
+    ->filter(fn($line) => str_contains($line, 'ERROR'))
+    ->takeFirst(10)
+    ->toList();
+
+// Infinite, but only the first 10 elements are ever computed
+generateSequence(1, fn($n) => $n * 2)->takeFirst(10)->toList();
+```
+A sequence stores nothing, so each terminal operation (`first()`, `toList()`, …) runs the chain from the source again: a closure source is called again, a `Generator` can be iterated only once.
 
 ### ㊙️ [Objects as keys](https://noctud.dev/collection/map#objects-as-keys)
 
@@ -248,6 +271,7 @@ Generics are fully supported by PHPStan and Psalm. PhpStorm has known limitation
 - [List](https://noctud.dev/collection/list) / [Set](https://noctud.dev/collection/set) / [Map](https://noctud.dev/collection/map) — Type guides with examples
 - [Mutability](https://noctud.dev/collection/mutability) — Mutable vs immutable, change tracking, copy-on-write
 - [Sorting](https://noctud.dev/collection/sorting) — Full sorting reference with quick-reference table
-- [Lazy collections](https://noctud.dev/collection/lazy-collections) — Deferred initialization
+- [Lazy initialization](https://noctud.dev/collection/lazy-init) — Deferred initialization
+- [Sequence](https://noctud.dev/collection/sequence) — Lazy, element-by-element pipelines
 - [Extending](https://noctud.dev/collection/extending) — Custom implementations, stores, traits
 - [API reference](https://noctud.dev/collection/api/collection) — All method signatures

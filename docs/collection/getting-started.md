@@ -10,7 +10,7 @@ Requires **PHP 8.4** or later.
 
 ## Architecture
 
-Three core types, each in mutable and immutable variants:
+Three core types in mutable and immutable variants, plus a lazy `Sequence`:
 
 :::tabs
 == Simplified
@@ -26,6 +26,8 @@ Collection<E>            → Ordered elements, read-only
 Map<K,V>                 → Ordered key-value pairs, array access
 ├── ImmutableMap<K,V>    → Mutation returns new
 └── MutableMap<K,V>      → Mutation returns itself
+
+Sequence<E>              → Lazy pipeline, not a collection
 ```
 == Full hierarchy
 ```
@@ -46,6 +48,8 @@ Map<K,V>                     → Ordered key-value pairs, array access
 ├── ImmutableMap<K,V>
 └── WritableMap<K,V>
     └── MutableMap<K,V>
+
+Sequence<E>                  → Lazy pipeline, not a collection
 ```
 :::
 
@@ -131,6 +135,19 @@ $result = mutableListOf([1, 2, 3, 4, 5])
     ->reversed(); // ImmutableList
 ```
 
+::: tip Large data or early exit?
+Each step above builds a new list. `asSequence()` makes the chain lazy — elements flow through one at a time, and the work stops as soon as the result is known:
+
+```php
+$first = $hugeList->asSequence()
+    ->filter(fn($n) => $n > 2)
+    ->map(fn($n) => $n * 10)
+    ->first(); // pulls only up to the first match
+```
+
+See [Sequence](./sequence) for when it pays off.
+:::
+
 ## Iterating
 
 All collections are `Traversable`, there are 2 ways to iterate:
@@ -146,10 +163,11 @@ $set->forEach(fn($el) => process($el));
 
 ## What's Next
 
-- [List guide](./list) — indexed sequences
+- [List guide](./list) — indexed collections
 - [Set guide](./set) — unique element collections
 - [Map guide](./map) — key-value pairs with type-safe keys
 - [Mutability](./mutability) — mutable vs immutable patterns
 - [Lazy Initialization](./lazy-init) — deferred initialization
+- [Sequence](./sequence) — lazy, element-by-element pipelines
 - [Sorting](./sorting) — comprehensive sorting reference
 - [API Reference](./api/collection) — complete method listing

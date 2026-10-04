@@ -39,6 +39,16 @@ singleOrNull(): E|null
 Returns the single element. Returns `null` if empty or more than one element.
 
 ```php
+elementAt(int $index): E
+```
+Returns the element at the given position in iteration order. Throws `IndexOutOfBoundsException` if the index is negative or out of bounds. Lists use random access; other collections walk their elements up to the position.
+
+```php
+elementAtOrNull(int $index): E|null
+```
+Returns the element at the given position, or `null` if there is none — a negative index included.
+
+```php
 find(Closure $predicate): E|null
 ```
 Returns the first element matching the predicate `(E, int): bool`, or `null` if no element matches. Uses early termination.
@@ -403,6 +413,11 @@ forEach(Closure $action): void
 Execute action `(E, int): void` for each element. Returns nothing — use `onEach()` when the collection is still needed.
 
 ## Conversion
+
+```php
+asSequence(): Sequence<E>
+```
+Returns a lazy [Sequence](./sequence) over this collection. Nothing is copied: every pass reads the collection as it is at that moment, and chained operations run element by element instead of building a new collection at every step.
 
 ```php
 toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap<K, V>

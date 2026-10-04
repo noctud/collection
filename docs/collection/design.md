@@ -191,10 +191,33 @@ In many libraries, `first()` doubles as a search method when you pass a callback
 
 The one exception is optional selectors — methods like `sum(?Closure $selector)`, `min(?Closure $selector)`, or `sortedByKey(?Closure $selector)`. Without the selector they operate on the raw value, with it they extract a comparable value first. The method's purpose doesn't change (sum still sums, sort still sorts), the selector just controls *what* gets summed or sorted. Splitting these into `sum()` / `sumBy()` would double the method count for little clarity.
 
+## No Hidden Materialization
+
+A [Sequence](./sequence) promises to process elements one at a time, without loading the source into memory. Every intermediate operation keeps that promise — it belongs on `Sequence` only if it can yield its first element before it has read the whole source.
+
+That rules out `sorted()`, `reversed()`, `shuffled()` and `takeLast()`. Each of them has to read the whole source before it can yield anything, so on a sequence they would be lazy in signature only. Kotlin ships some of them anyway; here, the materialization is spelled out in your code:
+
+```php
+$sequence->toList()->sorted(); // the cost is right there
+```
+
+A few more collection methods — `dropLast()`, `random()` and the set operations — are left out as well. They are clearer on a materialized collection, and `toList()` or `toSet()` is one call away.
+
+The same rule decides which interfaces `Sequence` does **not** implement:
+
+- **No `Countable`** — `count($sequence)` reads like a cheap property lookup, but a sequence has to drain the source to answer. The explicit `$sequence->count()` method exists, while the native `count()` stays a `TypeError`.
+- **No `JsonSerializable`** — `json_encode()` would quietly load everything into memory. Call `toList()` or `toArray()` first.
+
+Terminal operations that do need everything — `toList()`, `groupBy()`, `partition()` — are fine: they end the pipeline and hand back an immutable collection, so nothing pretends to be lazy.
+
+This is also why `forEach()` returns `void`. On a sequence, it is the terminal operation that runs the pipeline — returning the sequence would invite a second pass, which a single-pass source can't give. `onEach()` is the chainable variant, on sequences and collections alike.
+
 ## Under the Hood
 
 Each collection delegates to an internal store (`ArrayIndexStore`, `HashElementStore`, `HashKeyValueStore`, etc.) that handles data storage. This is how `StringMap` and `IntMap` can use optimized stores while exposing the same `Map` interface.
 
-Transformation logic lives in reusable operation classes (`FilterOperation`, `MapOperation`, `SortOperation`, etc.) shared across all collection types. Logic traits (`CollectionLogic`, `MapLogic`, etc.) wire operations to stores, so adding a new collection variant doesn't require much code.
+Transformation logic lives in reusable operation classes (`FilterOperation`, `MapKeyValueOperation`, `ChunkOperation`, etc.) shared across all collection types. Logic traits (`CollectionLogic`, `MapLogic`, etc.) wire operations to stores, so adding a new collection variant doesn't require much code.
 
-`toMutable()`, `toImmutable()`, and factory conversions use copy-on-write — memory is only duplicated when either side is actually modified. Lazy collection variants use PHP 8.4 lazy objects, so materialization is deferred until first access with no wrapper overhead.
+Most operations yield their results through generators. Collections collect each step into a new store, while `SequenceLogic` chains the same generators — so sequences reuse the operations without materializing anything.
+
+`toMutable()`, `toImmutable()`, and factory conversions use copy-on-write — memory is only duplicated when either side is actually modified. Lazy initialization uses PHP 8.4 lazy objects, so materialization is deferred until first access with no wrapper overhead.

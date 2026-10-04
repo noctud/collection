@@ -10,6 +10,7 @@
 - All mutating methods return the collection instance for chaining. Mutable collections provide a `tracked()` method that returns a wrapper whose mutation methods expose a `$changed` property indicating whether the operation actually modified the data.
 - **Every collection is ordered.** There is no `HashSet` vs `LinkedHashSet` distinction — all collections preserve insertion order.
 - **Callback parameter order follows PHP convention** — value first, key/index second (`$value, $key`), same as `array_filter`, `array_walk`, and every major PHP library. Specialized methods like `removeIfKey(fn($k) => ...)` and `filterKeys(fn($k) => ...)` exist so you never have to write `fn($v, $k) => condition($k)`.
+- **`Sequence` only has intermediate operations that stay lazy.** Kotlin's `Sequence` also offers `sorted()` and a few others that read the whole source before yielding anything. Here you write `toList()->sorted()` instead — see [No Hidden Materialization](./design#no-hidden-materialization).
 
 ```
 Collection<E>                → Ordered elements, read-only
@@ -29,7 +30,32 @@ Map<K,V>                     → Ordered key-value pairs, array access
 ├── ImmutableMap<K,V>
 └── WritableMap<K,V>
     └── MutableMap<K,V>
+
+Sequence<E>                  → Lazy pipeline, not a collection
 ```
+
+## Are there lazy collections, like Laravel's `LazyCollection`?
+
+Yes — [`Sequence`](./sequence). Don't confuse it with lazy initialization, which also takes a closure but does something else.
+
+Lazy initialization defers **when** a collection is loaded. The closure runs once, on first read, and from then on it's a regular in-memory collection — `listOf(fn() => ...)` is still a `List`.
+
+A `Sequence` changes **how** a chain runs. Elements flow through `filter()`, `map()` and the rest one at a time, intermediate results are never stored, and a closure source runs again on every pass.
+
+| | `listOf(fn() => ...)` | `sequenceOf(fn() => ...)` |
+|---|---|---|
+| Closure runs | Once, on first read | On every pass |
+| Keeps the data | Yes | Never |
+| `filter()`, `map()` | Eager, new list | Lazy, new sequence |
+| `count()` | O(1) | O(n), drains |
+
+See [Lazy Initialization](./lazy-init) and [Sequence](./sequence).
+
+## Why does my sequence run the query twice?
+
+A sequence stores nothing, so every terminal operation — and every `foreach` — pulls from the source again. A closure source is called again, along with the query or request inside it. A `Generator` passed directly can't be rewound, so there the second pass throws `NonReplayableSourceException` instead.
+
+When you need the data more than once, materialize it with `toList()`. When a second pass would be a bug, add `constrainOnce: true` to `sequenceOf()` so it fails loudly. See [Iterating More Than Once](./sequence#iterating-more-than-once).
 
 ## Why are there no runtime type checks?
 

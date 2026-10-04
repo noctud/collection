@@ -90,6 +90,8 @@ $list = listOf(loadElementsGenerator());
 
 Generators are consumed immediately when the collection is created. Closures defer execution until the first access to the collection.
 
+Sequences are the exception — `sequenceOf($generator)` stays lazy, but can be iterated only once. See [Sequence](./sequence#iterating-more-than-once).
+
 ## Use Views for Aggregation
 
 Map views (`$keys`, `$values`, `$entries`) are full collection objects. Use them instead of manual loops:
@@ -133,6 +135,37 @@ $result = $users->toMutable()
     ->distinct()
     ->joinToString(', ');
 ```
+
+When the chain needs no sorting, or ends early with `first()`, `find()` or `takeFirst()`, a [sequence](./sequence) skips the intermediate collections altogether:
+
+```php
+$result = $users->asSequence()
+    ->filter(fn($user) => $user->isActive())
+    ->map(fn($user) => $user->name)
+    ->distinct()
+    ->joinToString(', ');
+```
+
+## Materialize Sequences You Read Twice
+
+A sequence stores nothing — every terminal operation runs the whole pipeline again, including the query behind it. Keep the lazy part for what shrinks the data, then materialize it once:
+
+```php
+// Bad - two terminal operations, the query runs twice
+$paid = sequenceOf(fn() => $db->cursor('SELECT * FROM orders'))
+    ->filter(fn($order) => $order['status'] === 'paid');
+$total = $paid->sum(fn($order) => $order['amount']);
+$count = $paid->count();
+
+// Good - one pass, only the paid orders are kept in memory
+$paid = sequenceOf(fn() => $db->cursor('SELECT * FROM orders'))
+    ->filter(fn($order) => $order['status'] === 'paid')
+    ->toList();
+$total = $paid->sum(fn($order) => $order['amount']);
+$count = $paid->count(); // O(1) on a list
+```
+
+When a second pass would always be a bug, pass `constrainOnce: true` to `sequenceOf()` — the second terminal operation then throws instead of quietly running the query again.
 
 ## Don't Discard Immutable Results
 
