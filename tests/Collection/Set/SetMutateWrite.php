@@ -117,4 +117,19 @@ trait SetMutateWrite
 			$this->assertSame([1, 2, 3, 4, 5], $result->toArray());
 		}
 	}
+
+	#[Test]
+	public function removeFirst_keeps_int_elements_findable(): void
+	{
+		$set = $this->collectionOf([5, 7, 9]);
+		$result = $set->removeFirst();
+
+		if (!$set instanceof MutableSet) {
+			$this->assertTrue($set->contains(5));
+		}
+
+		$this->assertTrue($result->contains(7));
+		$this->assertTrue($result->contains(9));
+		$this->assertSame([7, 9], $result->add(7)->toArray());
+	}
 }
