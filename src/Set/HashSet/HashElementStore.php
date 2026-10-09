@@ -76,6 +76,13 @@ final class HashElementStore extends AbstractElementStore implements ReadWriteEl
 		return array_key_exists(KeyHasher::hashSetKey($element), $this->elements);
 	}
 
+	public function removeFirst(): void
+	{
+		if (!$this->isEmpty()) {
+			unset($this->elements[array_key_first($this->elements)]);
+		}
+	}
+
 	public function removeIf(callable $predicate): void
 	{
 		foreach ($this->elements as $hash => $element) {
