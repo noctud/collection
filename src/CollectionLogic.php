@@ -13,6 +13,7 @@ use Closure;
 use LogicException;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\List\ImmutableList;
+use Noctud\Collection\List\ListInterface;
 use Noctud\Collection\List\MutableList;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Sequence\Sequence;
@@ -519,7 +520,10 @@ trait CollectionLogic
 		return $this->toArray();
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 * @return ImmutableList<ListInterface<E>>
+	 */
 	#[NoDiscard]
 	public function chunked(int $size): ImmutableList
 	{
@@ -539,6 +543,7 @@ trait CollectionLogic
 	 *
 	 * @param int $size
 	 * @param int $step
+	 * @return ImmutableList<ListInterface<E>>
 	 */
 	#[NoDiscard]
 	public function windowed(int $size, int $step = 1, bool $partialWindows = false): ImmutableList
@@ -551,14 +556,22 @@ trait CollectionLogic
 		})());
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 * @template U
+	 * @param iterable<U> $other
+	 * @return ImmutableList<array{E, U}>
+	 */
 	#[NoDiscard]
 	public function zip(iterable $other): ImmutableList
 	{
 		return $this->newListOf(new ZipOperation($this->store)->with($other));
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 * @return ImmutableList<array{E, E}>
+	 */
 	#[NoDiscard]
 	public function zipWithNext(): ImmutableList
 	{
@@ -588,7 +601,7 @@ trait CollectionLogic
 	 * @template V
 	 * @param Closure(E, int):K $keySelector
 	 * @param (Closure(E, int):V)|null $valueTransform
-	 * @return ImmutableMap<K, ImmutableCollection<E>>
+	 * @return ($valueTransform is null ? ImmutableMap<K, ImmutableCollection<E>> : ImmutableMap<K, ImmutableList<V>>)
 	 */
 	#[NoDiscard]
 	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
