@@ -18,6 +18,7 @@ use Noctud\Collection\MutableCollection;
  * @template E
  * @extends WritableList<E>
  * @extends MutableCollection<E>
+ * @method MutableList<E> onEach(Closure(E, int):void $action) Executes the given action for each element and returns the collection itself for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
  */
 interface MutableList extends WritableList, MutableCollection
 {

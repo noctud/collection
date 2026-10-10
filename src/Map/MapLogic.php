@@ -665,6 +665,42 @@ trait MapLogic
 		return $this;
 	}
 
+	/**
+	 * Executes the given action for each entry and returns the map for chaining.
+	 *
+	 * Declared through a `@method` tag on each interface for now, so that classes implementing
+	 * them without this trait keep working; 0.2 declares it natively and turns forEach()
+	 * into a `: void` method.
+	 *
+	 * @param Closure(V, K):void $action
+	 */
+	public function onEach(Closure $action): static
+	{
+		return $this->forEach($action);
+	}
+
+	/**
+	 * Executes the given action for each key and returns the map for chaining.
+	 * 0.2 turns forEachKey() into a `: void` method; see onEach().
+	 *
+	 * @param Closure(K):void $action
+	 */
+	public function onEachKey(Closure $action): static
+	{
+		return $this->forEachKey($action);
+	}
+
+	/**
+	 * Executes the given action for each value and returns the map for chaining.
+	 * 0.2 turns forEachValue() into a `: void` method; see onEach().
+	 *
+	 * @param Closure(V):void $action
+	 */
+	public function onEachValue(Closure $action): static
+	{
+		return $this->forEachValue($action);
+	}
+
 	// --- Conversion ---
 
 	/**

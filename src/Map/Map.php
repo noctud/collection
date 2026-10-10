@@ -32,6 +32,9 @@ use ReturnTypeWillChange;
  * @template V
  * @extends IteratorAggregate<K,V>
  * @extends ArrayAccess<K,V>
+ * @method Map<K,V> onEach(Closure(V, K):void $action) Executes the given action for each entry and returns the map for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
+ * @method Map<K,V> onEachKey(Closure(K):void $action) Executes the given action for each key and returns the map for chaining. Use it instead of forEachKey() wherever the result is used - forEachKey() returns void since 0.2.
+ * @method Map<K,V> onEachValue(Closure(V):void $action) Executes the given action for each value and returns the map for chaining. Use it instead of forEachValue() wherever the result is used - forEachValue() returns void since 0.2.
  */
 interface Map extends IteratorAggregate, Countable, ArrayAccess, JsonSerializable
 {
