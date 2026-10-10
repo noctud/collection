@@ -93,10 +93,7 @@ trait MutableMapLogic
 
 	// --- Mutation: Remove ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 */
+	/** {@inheritDoc} */
 	public function remove(string|int|bool|float|object $key): MutableMap
 	{
 		$this->store->remove($key); // @phpstan-ignore argument.type

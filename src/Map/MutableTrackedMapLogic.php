@@ -130,10 +130,7 @@ trait MutableTrackedMapLogic
 
 	// --- Mutation: Remove ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 */
+	/** {@inheritDoc} */
 	public function remove(string|int|bool|float|object $key): MutableTrackedMap&TrackedResult
 	{
 		$this->_changed = $this->store->containsKey($key); // @phpstan-ignore argument.type
