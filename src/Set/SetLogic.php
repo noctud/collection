@@ -21,6 +21,7 @@ use Noctud\Collection\Operation\GroupOperation;
 use Noctud\Collection\Operation\MapKeyValueOperation;
 use Noctud\Collection\Operation\SetOperation;
 use Noctud\Collection\Operation\TakeOperation;
+use Noctud\Collection\Store\AbstractElementStore;
 use NoDiscard;
 use function Noctud\Collection\mutableSetOf;
 use function Noctud\Collection\setOf;
@@ -134,7 +135,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function takeFirst(int $n = 1): ImmutableSet
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->first($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->first($n));
 	}
 
 	/**
@@ -145,7 +146,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function dropFirst(int $n = 1): ImmutableSet
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->first($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->first($n));
 	}
 
 	/**
@@ -156,7 +157,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function takeLast(int $n = 1): ImmutableSet
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->last($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->last($n));
 	}
 
 	/**
@@ -167,7 +168,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function dropLast(int $n = 1): ImmutableSet
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->last($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->last($n));
 	}
 
 	/**
@@ -200,7 +201,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function takeLastWhile(Closure $predicate): ImmutableSet
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/**
@@ -211,7 +212,7 @@ trait SetLogic
 	#[NoDiscard]
 	public function dropLastWhile(Closure $predicate): ImmutableSet
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/**
@@ -273,7 +274,7 @@ trait SetLogic
 	public function sortedBy(Closure $selector): ImmutableSet
 	{
 		$arr = $this->store->toArray();
-		usort($arr, static fn ($a, $b) => $selector($a) <=> $selector($b));
+		$arr = array_values(AbstractElementStore::orderedBy($arr, $selector));
 		return $this->newCollectionOf($arr);
 	}
 
@@ -286,7 +287,7 @@ trait SetLogic
 	public function sortedByDesc(Closure $selector): ImmutableSet
 	{
 		$arr = $this->store->toArray();
-		usort($arr, static fn ($a, $b) => $selector($b) <=> $selector($a));
+		$arr = array_values(AbstractElementStore::orderedBy($arr, $selector, descending: true));
 		return $this->newCollectionOf($arr);
 	}
 

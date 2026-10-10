@@ -19,10 +19,24 @@ use Generator;
 final class DropOperation extends AbstractOperation
 {
 	/**
-	 * @param int $n
+	 * An array is sliced, and a collection takes the slice over as is. Any other source is
+	 * streamed, so that a lazy caller only pulls what it needs.
+	 *
+	 * @return iterable<V>
+	 */
+	public function first(int $n): iterable
+	{
+		if (is_array($this->data)) {
+			return array_slice($this->data, max(0, $n));
+		}
+
+		return $this->streamFirst($n);
+	}
+
+	/**
 	 * @return Generator<V>
 	 */
-	public function first(int $n): Generator
+	private function streamFirst(int $n): Generator
 	{
 		$i = 0;
 		foreach ($this->data as $v) {

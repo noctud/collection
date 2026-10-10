@@ -62,6 +62,7 @@ trait CollectionSlice
 	{
 		$collection = $this->collectionOf([1, 2, 3]);
 		$this->assertSame([1, 2, 3], $collection->dropFirst(0)->toArray());
+		$this->assertSame([1, 2, 3], $collection->dropFirst(-1)->toArray());
 	}
 
 	#[Test]

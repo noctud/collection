@@ -241,6 +241,19 @@ trait StringMapBasics
 	}
 
 	#[Test]
+	public function take_and_drop_keep_the_keys(): void
+	{
+		// PHP turns the key '1' into an int: the slices must still hand it back as a string.
+		$map = $this->mapOf(['e' => 'a', 'c' => 'b'])->put('1', 'c')->put('a', 'd');
+
+		$this->assertInstanceOf(ImmutableStringMap::class, $map->takeFirst(2));
+		$this->assertSame(['e' => 'a', 'c' => 'b'], $map->takeFirst(2)->toArray());
+		$this->assertSame(['1', 'a'], $map->takeLast(2)->keys->toArray());
+		$this->assertSame(['c', '1', 'a'], $map->dropFirst(1)->keys->toArray());
+		$this->assertSame(['e' => 'a'], $map->dropLast(3)->toArray());
+	}
+
+	#[Test]
 	public function sorted_by_key(): void
 	{
 		$map = $this->mapOf(['c' => 3, 'a' => 1, 'b' => 2]);

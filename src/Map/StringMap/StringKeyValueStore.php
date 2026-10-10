@@ -98,7 +98,7 @@ final class StringKeyValueStore implements KeyValueStore
 	 */
 	public function contains(mixed $value): bool
 	{
-		return array_any($this->data, fn ($v) => $v === $value);
+		return in_array($value, $this->data, true);
 	}
 
 	/**
@@ -308,6 +308,29 @@ final class StringKeyValueStore implements KeyValueStore
 	}
 
 	/** @inheritDoc */
+	public function sortBy(callable $selector, bool $descending = false): void
+	{
+		$selected = [];
+		foreach ($this->data as $k => $v) {
+			$selected[$k] = $selector($v, (string) $k);
+		}
+
+		if ($descending) {
+			arsort($selected);
+		} else {
+			asort($selected);
+		}
+
+		$this->data = array_replace($selected, $this->data);
+	}
+
+	/** @inheritDoc */
+	public function slice(int $offset, ?int $length = null): void
+	{
+		$this->data = array_slice($this->data, $offset, $length, preserve_keys: true);
+	}
+
+	/** @inheritDoc */
 	public function reverse(): void
 	{
 		$this->data = array_reverse($this->data, true);
@@ -336,6 +359,22 @@ final class StringKeyValueStore implements KeyValueStore
 		}
 
 		return $out;
+	}
+
+	/**
+	 * PHP turns numeric string keys into ints: they are cast back.
+	 *
+	 * @inheritDoc
+	 */
+	public function keys(): array
+	{
+		return array_map(strval(...), array_keys($this->data));
+	}
+
+	/** @inheritDoc */
+	public function values(): array
+	{
+		return array_values($this->data);
 	}
 
 	/**

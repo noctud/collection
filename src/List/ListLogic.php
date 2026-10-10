@@ -271,7 +271,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function takeFirst(int $n = 1): ImmutableList
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->first($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->first($n));
 	}
 
 	/**
@@ -282,7 +282,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function dropFirst(int $n = 1): ImmutableList
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->first($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->first($n));
 	}
 
 	/**
@@ -293,7 +293,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function takeLast(int $n = 1): ImmutableList
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->last($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->last($n));
 	}
 
 	/**
@@ -304,7 +304,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function dropLast(int $n = 1): ImmutableList
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->last($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->last($n));
 	}
 
 	/**
@@ -337,7 +337,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function takeLastWhile(Closure $predicate): ImmutableList
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/**
@@ -348,7 +348,7 @@ trait ListLogic
 	#[NoDiscard]
 	public function dropLastWhile(Closure $predicate): ImmutableList
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/**
@@ -413,7 +413,7 @@ trait ListLogic
 	{
 		/** @var ReadWriteElementStore<E> $store */
 		$store = clone $this->store;
-		$store->sort(static fn ($a, $b) => $selector($a) <=> $selector($b));
+		$store->sortBy($selector);
 		return $this->newCollectionOf($store);
 	}
 
@@ -427,7 +427,7 @@ trait ListLogic
 	{
 		/** @var ReadWriteElementStore<E> $store */
 		$store = clone $this->store;
-		$store->sort(static fn ($a, $b) => $selector($b) <=> $selector($a));
+		$store->sortBy($selector, descending: true);
 		return $this->newCollectionOf($store);
 	}
 

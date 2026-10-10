@@ -12,7 +12,7 @@ namespace Noctud\Collection\Set;
 use Closure;
 use Noctud\Collection\Operation\FilterOperation;
 use Noctud\Collection\Store\ReadWriteElementStore;
-use Traversable;
+use Noctud\Collection\StrictElementLookup;
 
 /**
  * @template E
@@ -74,8 +74,8 @@ trait ImmutableSetLogic
 	/** {@inheritDoc} */
 	public function removeAll(iterable $elements): ImmutableSet
 	{
-		$itemsArray = $elements instanceof Traversable ? iterator_to_array($elements, false) : array_values($elements);
-		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue(fn ($v) => !in_array($v, $itemsArray, true)));
+		$lookup = new StrictElementLookup($elements, $this->store->count());
+		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate(negate: true)));
 	}
 
 	/** {@inheritDoc} */
@@ -105,7 +105,7 @@ trait ImmutableSetLogic
 	/** {@inheritDoc} */
 	public function retainAll(iterable $elements): ImmutableSet
 	{
-		$itemsArray = $elements instanceof Traversable ? iterator_to_array($elements, false) : array_values($elements);
-		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue(fn ($v) => in_array($v, $itemsArray, true)));
+		$lookup = new StrictElementLookup($elements, $this->store->count());
+		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate()));
 	}
 }

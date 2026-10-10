@@ -148,7 +148,7 @@ final class HashKeyValueStore implements KeyValueStore
 	 */
 	public function contains(mixed $value): bool
 	{
-		return array_any($this->values, fn ($v) => $v === $value);
+		return in_array($value, $this->values, true);
 	}
 
 	/**
@@ -347,6 +347,35 @@ final class HashKeyValueStore implements KeyValueStore
 	}
 
 	/** @inheritDoc */
+	public function sortBy(callable $selector, bool $descending = false): void
+	{
+		$selected = [];
+		foreach ($this->values as $nk => $v) {
+			$selected[$nk] = $selector($v, $this->keys[$nk]);
+		}
+
+		if ($descending) {
+			arsort($selected);
+		} else {
+			asort($selected);
+		}
+
+		/** @var array<int|string,K> $keys */
+		$keys = array_replace($selected, $this->keys);
+		/** @var array<int|string,V> $values */
+		$values = array_replace($selected, $this->values);
+		$this->keys = $keys;
+		$this->values = $values;
+	}
+
+	/** @inheritDoc */
+	public function slice(int $offset, ?int $length = null): void
+	{
+		$this->keys = array_slice($this->keys, $offset, $length, preserve_keys: true);
+		$this->values = array_slice($this->values, $offset, $length, preserve_keys: true);
+	}
+
+	/** @inheritDoc */
 	public function reverse(): void
 	{
 		$this->keys = array_reverse($this->keys, true);
@@ -379,6 +408,18 @@ final class HashKeyValueStore implements KeyValueStore
 		}
 
 		return $out;
+	}
+
+	/** @inheritDoc */
+	public function keys(): array
+	{
+		return array_values($this->keys);
+	}
+
+	/** @inheritDoc */
+	public function values(): array
+	{
+		return array_values($this->values);
 	}
 
 	/**

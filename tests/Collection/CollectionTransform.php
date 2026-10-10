@@ -14,6 +14,8 @@ use Noctud\Collection\Set\Set as SetInterface;
 use Noctud\Collection\Tests\Collection\Fixture\DetailedHashableUser;
 use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
 use PHPUnit\Framework\Attributes\Test;
+use function Noctud\Collection\mutableSetOf;
+use function Noctud\Collection\setOf;
 
 trait CollectionTransform
 {
@@ -198,6 +200,23 @@ trait CollectionTransform
 	{
 		$collection = $this->collectionOf([1, 2, 3]);
 		$this->assertInstanceOf(ImmutableSet::class, $collection->intersect([2, 3]));
+	}
+
+	#[Test]
+	public function set_operations_read_a_set_argument_as_is(): void
+	{
+		$collection = $this->collectionOf([1, 2, 3]);
+
+		foreach ([setOf([2, 3, 4]), mutableSetOf([2, 3, 4])] as $other) {
+			$this->assertSame([2, 3], $collection->intersect($other)->toArray());
+			$this->assertSame([1, 2, 3, 4], $collection->union($other)->toArray());
+			$this->assertSame([1], $collection->subtract($other)->toArray());
+		}
+
+		$left = new HashableUser('42');
+		$right = new DetailedHashableUser('42', 'user@example.com');
+		$this->assertSame([$left], $this->collectionOf([$left])->union(setOf([$right]))->toArray());
+		$this->assertSame([$left], $this->collectionOf([$left])->intersect(setOf([$right]))->toArray());
 	}
 
 	// --- union ---

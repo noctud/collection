@@ -61,4 +61,15 @@ trait CollectionContains
 		$this->assertTrue($collection->containsAll([]));
 		$this->assertFalse($collection->containsAll([1]));
 	}
+
+	#[Test]
+	public function containsAll_with_many_elements_compares_strictly(): void
+	{
+		// Enough elements on both sides for the lookup to be indexed by hash.
+		$collection = $this->collectionOf(range(0, 299));
+
+		$this->assertTrue($collection->containsAll(range(299, 0, -1)));
+		$this->assertFalse($collection->containsAll([...range(0, 298), '299']));
+		$this->assertFalse($collection->containsAll([...range(0, 298), 299.0]));
+	}
 }

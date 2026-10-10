@@ -181,6 +181,19 @@ interface KeyValueStore extends IteratorAggregate
 	public function sortByPairs(callable $comparator): void;
 
 	/**
+	 * Sorts entries in-place by the value the selector returns for each of them, compared with <=>.
+	 * Entries with equal values keep their order. The selector runs once per entry.
+	 *
+	 * @param callable(V,K):mixed $selector
+	 */
+	public function sortBy(callable $selector, bool $descending = false): void;
+
+	/**
+	 * Keeps only the entries array_slice() would keep with the same offset and length.
+	 */
+	public function slice(int $offset, ?int $length = null): void;
+
+	/**
 	 * Reverses the order of entries in-place.
 	 */
 	public function reverse(): void;
@@ -206,6 +219,20 @@ interface KeyValueStore extends IteratorAggregate
 	 * @return list<array{0:K,1:V}>
 	 */
 	public function toPairs(): array;
+
+	/**
+	 * Returns all keys, in order.
+	 *
+	 * @return list<K>
+	 */
+	public function keys(): array;
+
+	/**
+	 * Returns all values, in order.
+	 *
+	 * @return list<V>
+	 */
+	public function values(): array;
 
 	// --- Internal ---
 

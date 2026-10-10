@@ -241,6 +241,18 @@ trait IntMapBasics
 	}
 
 	#[Test]
+	public function take_and_drop_keep_the_keys(): void
+	{
+		$map = $this->mapOf([5 => 'a', 3 => 'b', 9 => 'c', 1 => 'd']);
+
+		$this->assertInstanceOf(ImmutableIntMap::class, $map->takeFirst(2));
+		$this->assertSame([5 => 'a', 3 => 'b'], $map->takeFirst(2)->toArray());
+		$this->assertSame([9 => 'c', 1 => 'd'], $map->takeLast(2)->toArray());
+		$this->assertSame([3 => 'b', 9 => 'c', 1 => 'd'], $map->dropFirst(1)->toArray());
+		$this->assertSame([5 => 'a'], $map->dropLast(3)->toArray());
+	}
+
+	#[Test]
 	public function sorted_by_key(): void
 	{
 		$map = $this->mapOf([3 => 'c', 1 => 'a', 2 => 'b']);

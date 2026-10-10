@@ -17,6 +17,7 @@ use Noctud\Collection\List\MutableList;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Sequence\Sequence;
 use Noctud\Collection\Set\ImmutableSet;
+use Noctud\Collection\Set\Set;
 use Noctud\Collection\Operation\ChunkOperation;
 use Noctud\Collection\Operation\DistinctOperation;
 use Noctud\Collection\Operation\DropOperation;
@@ -33,6 +34,7 @@ use Noctud\Collection\Store\ReadWriteElementStore;
 use Noctud\Collection\Operation\WindowOperation;
 use Noctud\Collection\Operation\ZipOperation;
 use Noctud\Collection\Operation\ZipWithNextOperation;
+use Noctud\Collection\Store\AbstractElementStore;
 use Noctud\Collection\Store\ReadOnlyElementStore;
 use Traversable;
 use NoDiscard;
@@ -144,8 +146,21 @@ trait CollectionLogic
 	/** {@inheritDoc} */
 	public function containsAll(iterable $elements): bool
 	{
-		foreach ($elements as $x) {
-			if (!$this->contains($x)) {
+		if ($this instanceof Set) {
+			foreach ($elements as $x) {
+				if (!$this->contains($x)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		// contains() scans the whole store here: look the elements up in it once instead.
+		$wanted = $elements instanceof Traversable ? iterator_to_array($elements, false) : array_values($elements);
+		$lookup = new StrictElementLookup($this->store->toArray(), count($wanted));
+		foreach ($wanted as $x) {
+			if (!$lookup->contains($x)) {
 				return false;
 			}
 		}
@@ -241,28 +256,28 @@ trait CollectionLogic
 	#[NoDiscard]
 	public function takeFirst(int $n = 1): ImmutableCollection
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->first($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->first($n));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function dropFirst(int $n = 1): ImmutableCollection
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->first($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->first($n));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function takeLast(int $n = 1): ImmutableCollection
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->last($n));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->last($n));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function dropLast(int $n = 1): ImmutableCollection
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->last($n));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->last($n));
 	}
 
 	/** {@inheritDoc} */
@@ -283,14 +298,14 @@ trait CollectionLogic
 	#[NoDiscard]
 	public function takeLastWhile(Closure $predicate): ImmutableCollection
 	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/** {@inheritDoc} */
 	#[NoDiscard]
 	public function dropLastWhile(Closure $predicate): ImmutableCollection
 	{
-		return $this->newCollectionOf(new DropOperation($this->store)->lastByPredicate($predicate));
+		return $this->newCollectionOf(new DropOperation($this->store->toArray())->lastByPredicate($predicate));
 	}
 
 	/** {@inheritDoc} */
@@ -345,12 +360,12 @@ trait CollectionLogic
 	{
 		if ($this->store instanceof ReadWriteElementStore) { // @phpstan-ignore instanceof.alwaysTrue
 			$store = clone $this->store;
-			$store->sort(static fn ($a, $b) => $selector($a) <=> $selector($b));
+			$store->sortBy($selector);
 			return $this->newCollectionOf($store);
 		}
 
 		$arr = $this->store->toArray();
-		usort($arr, static fn ($a, $b) => $selector($a) <=> $selector($b));
+		$arr = array_values(AbstractElementStore::orderedBy($arr, $selector));
 		return $this->newCollectionOf($arr);
 	}
 
@@ -360,12 +375,12 @@ trait CollectionLogic
 	{
 		if ($this->store instanceof ReadWriteElementStore) { // @phpstan-ignore instanceof.alwaysTrue
 			$store = clone $this->store;
-			$store->sort(static fn ($a, $b) => $selector($b) <=> $selector($a));
+			$store->sortBy($selector, descending: true);
 			return $this->newCollectionOf($store);
 		}
 
 		$arr = $this->store->toArray();
-		usort($arr, static fn ($a, $b) => $selector($b) <=> $selector($a));
+		$arr = array_values(AbstractElementStore::orderedBy($arr, $selector, descending: true));
 		return $this->newCollectionOf($arr);
 	}
 
@@ -510,7 +525,7 @@ trait CollectionLogic
 	public function chunked(int $size): ImmutableList
 	{
 		return $this->newListOf((function () use ($size) {
-			$chunks = new ChunkOperation($this->store)->ofSize($size);
+			$chunks = new ChunkOperation($this->store->toArray())->ofSize($size);
 			foreach ($chunks as $chunk) {
 				yield $this->newListOf($chunk);
 			}
@@ -671,6 +686,23 @@ trait CollectionLogic
 	}
 
 	// --- Internal ---
+
+	/**
+	 * A store backed by an array hands it out as is. The views over a map keep walking their
+	 * iterator: building all of their elements would cost a terminal that stops early.
+	 *
+	 * @return iterable<int, E>
+	 */
+	protected function terminalElements(): iterable
+	{
+		if (!$this->store instanceof AbstractElementStore) {
+			return $this;
+		}
+
+		/** @var AbstractElementStore<E> $store */
+		$store = $this->store;
+		return $store->toArray();
+	}
 
 	public function getIterator(): Traversable
 	{

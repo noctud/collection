@@ -27,19 +27,19 @@ final class FlipKeyValueOperation extends AbstractKeyValueOperation
 	 */
 	public function items(KeyCollisionStrategy $strategy): HashKeyValueStore // @phpstan-ignore generics.notSubtype
 	{
-		/** @var HashKeyValueStore<V, K> $store */
-		$store = HashKeyValueStore::empty(); // @phpstan-ignore generics.notSubtype
+		// Each value is hashed once, straight into the arrays the store is built from: going
+		// through containsKey() and put() hashed it twice, behind two method calls.
+		$keys = [];
+		$values = [];
 
 		foreach ($this->data as $k => $v) {
-			if (!is_string($v) && !is_int($v) && !is_bool($v) && !is_float($v) && !is_object($v)) {
-				KeyHasher::hashMapKey($v); // throws InvalidKeyTypeException with proper message
-			}
+			$hash = KeyHasher::hashMapKey($v); // throws InvalidKeyTypeException for unsupported values
 
-			if ($strategy !== KeyCollisionStrategy::KeepLast && $store->containsKey($v)) {
+			if ($strategy !== KeyCollisionStrategy::KeepLast && isset($keys[$hash])) {
 				if ($strategy === KeyCollisionStrategy::Throw) {
 					throw new ConversionException(sprintf(
 						'Key collision detected during flip. Value "%s" appears multiple times and would cause a key collision.',
-						is_scalar($v) || $v === null ? (string) $v : get_debug_type($v)
+						is_scalar($v) ? (string) $v : get_debug_type($v)
 					));
 				}
 
@@ -47,8 +47,12 @@ final class FlipKeyValueOperation extends AbstractKeyValueOperation
 				continue;
 			}
 
-			$store->put($v, $k);
+			$keys[$hash] = $v;
+			$values[$hash] = $k;
 		}
+
+		/** @var HashKeyValueStore<V, K> $store */
+		$store = HashKeyValueStore::fromHashed($keys, $values); // @phpstan-ignore argument.type, argument.templateType, generics.notSubtype
 
 		return $store;
 	}

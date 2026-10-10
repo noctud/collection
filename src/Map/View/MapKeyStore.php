@@ -66,6 +66,6 @@ final class MapKeyStore implements ReadOnlyElementStore
 
 	public function toArray(): array
 	{
-		return iterator_to_array($this, preserve_keys: false);
+		return $this->store->keys();
 	}
 }

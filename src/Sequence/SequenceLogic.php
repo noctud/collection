@@ -34,6 +34,7 @@ use Noctud\Collection\Operation\WindowOperation;
 use Noctud\Collection\Operation\ZipOperation;
 use Noctud\Collection\Operation\ZipWithNextOperation;
 use Noctud\Collection\Set\ImmutableSet;
+use Noctud\Collection\StrictElementLookup;
 use NoDiscard;
 use Traversable;
 use WeakReference;
@@ -68,6 +69,16 @@ trait SequenceLogic
 	 * @var WeakReference<Traversable>|null
 	 */
 	private ?WeakReference $lastProduced = null;
+
+	/**
+	 * A sequence is walked once per terminal, through its own iterator.
+	 *
+	 * @return iterable<int, E>
+	 */
+	protected function terminalElements(): iterable
+	{
+		return $this;
+	}
 
 	/**
 	 * @return Generator<int, E>
@@ -397,25 +408,17 @@ trait SequenceLogic
 	 */
 	public function containsAll(iterable $elements): bool
 	{
-		$missing = [];
-		foreach ($elements as $element) {
-			$missing[] = $element;
-		}
-
-		if ($missing === []) {
+		$missing = new StrictElementLookup($elements, PHP_INT_MAX);
+		if ($missing->isEmpty()) {
 			return true;
 		}
 
 		foreach ($this as $v) {
-			if (!in_array($v, $missing, true)) {
-				continue;
-			}
-
 			// Every equal entry drops, not just the first: containsAll([1, 1]) asks whether 1 is
 			// there, not whether it is there twice - the same answer the eager side gives.
-			$missing = array_filter($missing, static fn (mixed $wanted): bool => $wanted !== $v);
+			$missing->remove($v);
 
-			if ($missing === []) {
+			if ($missing->isEmpty()) {
 				return true;
 			}
 		}

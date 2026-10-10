@@ -186,6 +186,22 @@ trait CollectionSort
 	}
 
 	#[Test]
+	public function sortedBy_keeps_equal_elements_in_their_order(): void
+	{
+		// strlen(...) takes a single argument: the selector must not be handed anything else.
+		$collection = $this->collectionOf(['bb', 'a', 'cc', 'b', 'aa']);
+
+		$this->assertSame(['a', 'b', 'bb', 'cc', 'aa'], $collection->sortedBy(strlen(...))->toArray());
+		$this->assertSame(['bb', 'cc', 'aa', 'a', 'b'], $collection->sortedByDesc(strlen(...))->toArray());
+
+		if ($collection instanceof MutableCollection) {
+			$this->assertSame(['a', 'b', 'bb', 'cc', 'aa'], $collection->sortBy(strlen(...))->toArray());
+			$this->assertSame(['bb', 'cc', 'aa', 'a', 'b'], $collection->sortByDesc(strlen(...))->toArray());
+			$this->assertSame(['a', 'b', 'bb', 'cc', 'aa'], $collection->tracked()->sortBy(strlen(...))->toArray());
+		}
+	}
+
+	#[Test]
 	public function sortedBy_on_objects(): void
 	{
 		$a = new stdClass();

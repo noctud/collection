@@ -11,8 +11,8 @@ namespace Noctud\Collection\List;
 
 use Closure;
 use Noctud\Collection\Store\ReadWriteIndexedStore;
+use Noctud\Collection\StrictElementLookup;
 use Noctud\Collection\TrackedResult;
-use Traversable;
 
 /**
  * Tracking trait for mutable lists.
@@ -151,8 +151,7 @@ trait MutableTrackedListLogic
 	public function removeAll(iterable $elements): MutableTrackedList&TrackedResult
 	{
 		$prevCount = $this->store->count();
-		$itemsArray = $elements instanceof Traversable ? iterator_to_array($elements, false) : array_values($elements);
-		$this->store->removeIf(fn ($v) => in_array($v, $itemsArray, true));
+		$this->store->removeIf(new StrictElementLookup($elements, $this->store->count())->predicate());
 		$this->_changed = $this->store->count() !== $prevCount;
 		return $this;
 	}
@@ -161,8 +160,7 @@ trait MutableTrackedListLogic
 	public function retainAll(iterable $elements): MutableTrackedList&TrackedResult
 	{
 		$prevCount = $this->store->count();
-		$itemsArray = $elements instanceof Traversable ? iterator_to_array($elements, false) : array_values($elements);
-		$this->store->removeIf(fn ($v) => !in_array($v, $itemsArray, true));
+		$this->store->removeIf(new StrictElementLookup($elements, $this->store->count())->predicate(negate: true));
 		$this->_changed = $this->store->count() !== $prevCount;
 		return $this;
 	}
@@ -199,7 +197,7 @@ trait MutableTrackedListLogic
 	public function sortBy(Closure $selector): MutableTrackedList&TrackedResult
 	{
 		$prevItems = $this->store->toArray();
-		$this->store->sort(static fn ($a, $b) => $selector($a) <=> $selector($b));
+		$this->store->sortBy($selector);
 		$this->_changed = $this->store->toArray() !== $prevItems;
 		return $this;
 	}
@@ -208,7 +206,7 @@ trait MutableTrackedListLogic
 	public function sortByDesc(Closure $selector): MutableTrackedList&TrackedResult
 	{
 		$prevItems = $this->store->toArray();
-		$this->store->sort(static fn ($a, $b) => $selector($b) <=> $selector($a));
+		$this->store->sortBy($selector, descending: true);
 		$this->_changed = $this->store->toArray() !== $prevItems;
 		return $this;
 	}
