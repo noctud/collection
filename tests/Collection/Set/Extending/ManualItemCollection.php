@@ -18,7 +18,8 @@ use Noctud\Collection\Set\ImmutableSetLogic;
 /**
  * Extension style #2: the base ImmutableSetLogic with hand-written class-level
  * `@method self` overrides + a newCollectionOf override. Param types use the
- * concrete element type, so element/closure checking is fully preserved.
+ * concrete element type, so element/closure checking is fully preserved. add()
+ * is declared too: the base trait's add() widens, which the constructor rejects.
  *
  * The constructor enforces an element invariant: it proves that transforms
  * never go through the hand-written newCollectionOf() with transformed elements.
@@ -28,6 +29,7 @@ use Noctud\Collection\Set\ImmutableSetLogic;
  * @method self filter(Closure(SwappableItem, int): bool $predicate)
  * @method self sorted()
  * @method array{self, self} partition(Closure(SwappableItem, int): bool $predicate)
+ * @method self add(SwappableItem $element)
  */
 class ManualItemCollection implements ImmutableSet
 {

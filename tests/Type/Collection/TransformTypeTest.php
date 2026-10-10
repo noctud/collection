@@ -59,10 +59,10 @@ assertType('Noctud\Collection\Collection<string>', $c->distinct());
 assertType('Noctud\Collection\Collection<string>', $c->distinctBy(fn (string $x): int => (int) $x));
 
 // Grouping into lists of lists.
-assertType('Noctud\Collection\List\ListInterface<Noctud\Collection\List\ListInterface<string>>', $c->chunked(2));
-assertType('Noctud\Collection\List\ListInterface<Noctud\Collection\List\ListInterface<string>>', $c->windowed(2));
-assertType('Noctud\Collection\List\ListInterface<array{string, int}>', $c->zip([1, 2]));
-assertType('Noctud\Collection\List\ListInterface<array{string, string}>', $c->zipWithNext());
+assertType('Noctud\Collection\List\ImmutableList<Noctud\Collection\List\ImmutableList<string>>', $c->chunked(2));
+assertType('Noctud\Collection\List\ImmutableList<Noctud\Collection\List\ImmutableList<string>>', $c->windowed(2));
+assertType('Noctud\Collection\List\ImmutableList<array{string, int}>', $c->zip([1, 2]));
+assertType('Noctud\Collection\List\ImmutableList<array{string, string}>', $c->zipWithNext());
 assertType('array{Noctud\Collection\List\ImmutableList<mixed>, Noctud\Collection\List\ImmutableList<mixed>}', $c->unzip());
 assertType('array{Noctud\Collection\Collection<string>, Noctud\Collection\Collection<string>}', $c->partition(fn (string $x): bool => $x !== ''));
 

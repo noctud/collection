@@ -20,7 +20,6 @@ use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Exception\NonReplayableSourceException;
 use Noctud\Collection\Exception\UnsupportedOperationException;
 use Noctud\Collection\List\ImmutableList;
-use Noctud\Collection\List\ListInterface;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Sequence\Sequence;
 use Noctud\Collection\Set\ImmutableSet;
@@ -542,10 +541,10 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 	 * Split into chunks of the given size. The last chunk may be smaller.
 	 *
 	 * @param positive-int $size
-	 * @return ListInterface<ListInterface<E>>
+	 * @return ImmutableList<ImmutableList<E>>
 	 */
 	#[NoDiscard]
-	public function chunked(int $size): ListInterface;
+	public function chunked(int $size): ImmutableList;
 
 	/**
 	 * Returns a list of snapshots of the window of the given size
@@ -554,10 +553,10 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 	 *
 	 * @param positive-int $size
 	 * @param positive-int $step
-	 * @return ListInterface<ListInterface<E>>
+	 * @return ImmutableList<ImmutableList<E>>
 	 */
 	#[NoDiscard]
-	public function windowed(int $size, int $step = 1, bool $partialWindows = false): ListInterface;
+	public function windowed(int $size, int $step = 1, bool $partialWindows = false): ImmutableList;
 
 	/**
 	 * Combines this collection with another iterable by pairing elements at the same position.
@@ -570,20 +569,20 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 	 *
 	 * @template U
 	 * @param iterable<U> $other
-	 * @return ListInterface<array{E, U}>
+	 * @return ImmutableList<array{E, U}>
 	 * @throws NonReplayableSourceException If the other iterator cannot be rewound
 	 */
 	#[NoDiscard]
-	public function zip(iterable $other): ListInterface;
+	public function zip(iterable $other): ImmutableList;
 
 	/**
 	 * Returns a list of pairs of each two adjacent elements in this collection.
 	 * If the collection has fewer than two elements, returns an empty list.
 	 *
-	 * @return ListInterface<array{E, E}>
+	 * @return ImmutableList<array{E, E}>
 	 */
 	#[NoDiscard]
-	public function zipWithNext(): ListInterface;
+	public function zipWithNext(): ImmutableList;
 
 	/**
 	 * Splits a collection of pairs into two lists — one from the first component, one from the second.

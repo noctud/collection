@@ -55,10 +55,10 @@ assertType('Noctud\Collection\List\ImmutableList<string>', listOf(['a', 'b'])->f
 // flatten() on an empty collection stays typed (E = never).
 assertType('Noctud\Collection\List\ImmutableList<*NEVER*>', listOf([])->flatten());
 
-// chunked/windowed always produce a list of lists. They return the base ListInterface even
-// on an ImmutableList: ListInterface's element type is invariant, so narrowing the nested
-// type would break variance in the shared trait — and ListInterface<...> is already correct.
-assertType('Noctud\Collection\List\ListInterface<Noctud\Collection\List\ListInterface<int>>', $imm->chunked(2));
+// chunked/windowed always produce an immutable list of immutable lists. Collection declares
+// that nested type itself: the element type is invariant, so a sub-interface or trait could
+// not narrow ListInterface<ListInterface<E>> to it without breaking variance.
+assertType('Noctud\Collection\List\ImmutableList<Noctud\Collection\List\ImmutableList<int>>', $imm->chunked(2));
 
 // A mutable list's transforms produce a fresh immutable list.
 $mut = mutableListOf([1, 2, 3]);
