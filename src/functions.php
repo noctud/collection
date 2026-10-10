@@ -104,11 +104,17 @@ if (!function_exists('Noctud\Collection\listOf')) {
 	 *
 	 * @template K of string|int|bool|float|object
 	 * @template V
+	 * Calling it without $data is deprecated: 0.2 makes the argument required. Use mapOf() for an empty map.
+	 *
 	 * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
 	 * @return ImmutableMap<K,V>
 	 */
 	function mapOfPairs(iterable|Closure $data = []): ImmutableMap
 	{
+		if (func_num_args() === 0) {
+			trigger_error('Calling mapOfPairs() without arguments is deprecated, 0.2 makes the $data argument required. Use mapOf() to create an empty map.', E_USER_DEPRECATED);
+		}
+
 		return ImmutableHashMap::ofPairs($data);
 	}
 
