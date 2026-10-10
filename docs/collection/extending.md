@@ -164,6 +164,7 @@ The library provides these logic traits:
 | `SelfPreservingImmutableListLogic` | Immutable list behavior narrowed to your own subtype (see [Self-Preserving Collections](#self-preserving-collections)) |
 | `SelfPreservingImmutableSetLogic` | Immutable set behavior narrowed to your own subtype |
 | `SelfPreservingImmutableMapLogic` | Immutable map behavior narrowed to your own subtype |
+| `SequenceLogic` | Lazy sequence behavior (see [Custom Sequences](#custom-sequences)) |
 
 These traits contain all the methods defined on the interfaces — `filter()`, `sorted()`, `forEach()`, and so on. The store provides the raw data access, and the trait provides the high-level operations.
 
@@ -272,6 +273,34 @@ This view:
 - All transformation methods (`filter()`, `toList()`, etc.) return immutable collections
 
 The same view class works for both mutable and immutable sources — if the underlying map is mutable, changes are reflected in the view; if immutable, the view never changes.
+
+## Custom Sequences
+
+`GeneratorSequence`, the class behind `sequenceOf()`, is final — but all of its behavior lives in the `SequenceLogic` trait. Implement `Sequence`, use the trait, and set the source in your constructor:
+
+```php
+use Noctud\Collection\Sequence\Sequence;
+use Noctud\Collection\Sequence\SequenceLogic;
+
+/** @implements Sequence<Order> */
+final class OrderFeed implements Sequence
+{
+    /** @use SequenceLogic<Order> */
+    use SequenceLogic;
+
+    public function __construct(private Connection $db)
+    {
+        $this->source = fn() => $this->db->cursor('SELECT ...');
+    }
+}
+
+$feed = new OrderFeed($db);
+$feed->find(fn($order) => $order->isOverdue());
+```
+
+The source follows the same rules as in [`sequenceOf()`](./api/functions#sequenceof) — here, a closure that runs the query again on every pass. Set `$this->constrainOnce = true` to limit it to a single pass.
+
+Intermediate operations return a plain `GeneratorSequence` built by the protected `newSequenceOf()` method, so `$feed->filter(...)` is a `Sequence<Order>`, not an `OrderFeed`.
 
 ## Implementing Without Traits
 

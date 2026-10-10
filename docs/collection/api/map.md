@@ -269,6 +269,10 @@ toImmutable(): ImmutableMap<K,V>
 ```
 Returns an immutable map. May return itself if already immutable.
 
+::: tip Sequences over a map
+`Map` has no `asSequence()` — go through a view instead: `$map->entries->asSequence()`, `$map->values->asSequence()` or `$map->keys->asSequence()`. See [Sequence](../sequence).
+:::
+
 ## MutableMap Methods
 
 ### Tracking

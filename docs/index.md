@@ -25,10 +25,10 @@ features:
     details: Choose the right variant for every use case. Immutable methods are marked with NoDiscard to prevent accidental misuse.
   - title: Lazy Initialization
     details: Construct collections from closures. Uses PHP 8.4 lazy objects — the internal store is a ghost proxy materialized only on first access.
+  - title: Lazy Sequences
+    details: Process large or infinite data element by element, without intermediate collections. Chains stop once the result is known.
   - title: Object keys
     details: Use objects as map keys out of the box. Implement the Hashable interface for custom identity semantics.
-  - title: Expressive API
-    details: Rich set of higher-order functions — map, filter, sorted, reduce, flatMap, groupBy, partition, zip, and more.
 ---
 
 <style>
@@ -353,13 +353,62 @@ private ImmutableMap $config {
 }
 ```
 
-Lazy collections behave identically to eager ones — there is no way to tell from outside.
+Lazily initialized collections behave identically to regular ones — there is no way to tell from outside.
 
 ::: info How it works
-Under the hood, lazy collections use PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) feature. The internal store is wrapped in a ghost proxy via `ReflectionClass::newLazyProxy()` — the real store object is only created when first accessed. This is a native language feature with zero userland overhead once initialized.
+Under the hood, lazy initialization uses PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) feature. The internal store is wrapped in a ghost proxy via `ReflectionClass::newLazyProxy()` — the real store object is only created when first accessed. This is a native language feature with zero userland overhead once initialized.
 :::
 
 [Read about lazy initialization →](/collection/lazy-init)
+
+## Lazy Sequences
+
+Collection transformations are eager — each step builds a new collection. Call `asSequence()` and the same chain runs element by element instead, stopping as soon as the result is known.
+
+<div class="side-by-side">
+<div>
+
+Collection — each step runs on everything
+
+```php
+$users
+    ->filter(fn($u) => $u->isActive())
+    ->map(fn($u) => $api->profile($u))
+    ->first();
+// profile() runs for every active user
+```
+
+</div>
+<div>
+
+Sequence — stops at the first result
+
+```php
+$users->asSequence()
+    ->filter(fn($u) => $u->isActive())
+    ->map(fn($u) => $api->profile($u))
+    ->first();
+// profile() runs once
+```
+
+</div>
+</div>
+
+Sequences stream from any source — a file, a database cursor, a paginated API — or from nowhere at all:
+
+```php
+// readLines() is your own generator yielding one line at a time
+// Stops after 10 errors - the whole file is never loaded
+$errors = sequenceOf(fn() => readLines('app.log'))
+    ->filter(fn($line) => str_contains($line, 'ERROR'))
+    ->takeFirst(10)
+    ->toList();
+
+// Infinite, but only the first 10 elements are ever computed
+$powers = generateSequence(1, fn($n) => $n * 2)->takeFirst(10)->toList();
+```
+
+[Read about sequences →](/collection/sequence)
 
 ## Interface-driven design
 

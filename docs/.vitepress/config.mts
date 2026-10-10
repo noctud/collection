@@ -46,6 +46,7 @@ export default defineConfig({
           { text: "Map", link: "/collection/map" },
           { text: "Mutability", link: "/collection/mutability" },
           { text: "Lazy Init", link: "/collection/lazy-init" },
+          { text: "Sequence", link: "/collection/sequence" },
           { text: "Sorting", link: "/collection/sorting" },
           { text: "Best Practices", link: "/collection/best-practices" },
           { text: "Extending", link: "/collection/extending" },
@@ -58,6 +59,7 @@ export default defineConfig({
           { text: "List", link: "/collection/api/list" },
           { text: "Set", link: "/collection/api/set" },
           { text: "Map", link: "/collection/api/map" },
+          { text: "Sequence", link: "/collection/api/sequence" },
           { text: "Factory Functions", link: "/collection/api/functions" },
         ],
       },
@@ -70,6 +72,22 @@ export default defineConfig({
 
     search: {
       provider: "local",
+      options: {
+        // `searchTitle` in a page's frontmatter replaces its H1 in the search index only,
+        // so the page can rank for the words people search for without changing its heading
+        _render(src, env, md) {
+          const html = md.render(src, env);
+          if (env.frontmatter?.search === false) return "";
+
+          const searchTitle = env.frontmatter?.searchTitle;
+          if (!searchTitle) return html;
+
+          return html.replace(
+            /(<h1[^>]*>).*?(<a class="header-anchor")/,
+            (_, open, anchor) => `${open}${md.utils.escapeHtml(searchTitle)} ${anchor}`,
+          );
+        },
+      },
     }
   },
 });

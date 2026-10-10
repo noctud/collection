@@ -31,4 +31,11 @@
   <text x="464" y="100" class="node muted">MutableMap&lt;K,V&gt;</text>
   <path d="M440 88 L440 134 L458 134" class="line"/>
   <text x="464" y="146" class="node muted">ImmutableMap&lt;K,V&gt;</text>
+
+  <!-- Sequence (right side, aligned with Set) -->
+  <text x="440" y="258" class="node main">Sequence&lt;E&gt;</text>
+  <path d="M440 274 L440 308 L458 308" class="line"/>
+  <text x="464" y="320" class="node muted">sequenceOf()</text>
+  <path d="M440 308 L440 342 L458 342" class="line"/>
+  <text x="464" y="354" class="node muted">asSequence()</text>
 </svg>

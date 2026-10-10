@@ -25,7 +25,7 @@ mapOfPairs([['1','a'], [$user,'b']]); // preserves exact key types
 stringMapOf(['name' => 'Amy']); // optimized for string keys
 intMapOf([1 => 'a', 2 => 'b']); // optimized for int keys
 
-listOf(fn() => loadRows()); // lazy — loaded on first access
+listOf(fn() => loadRows()); // lazy init — loaded on first access
 ```
 
 ## List & Set
@@ -265,6 +265,48 @@ mutableMapOf(['🍎' => 3, '🍌' => 5])->remove('🍎'); // {🍌: 5}
 ```
 
 Also: `putFirst`, `putAll`, `putAllPairs`, `removeIf`, `removeIfKey`, `removeIfValue`, `removeNullValues`, `clear`, plus the in-place `sortByKey` / `sortByValue` / … family.
+
+## Sequence
+
+A **lazy** pipeline. Intermediate operations return a new `Sequence` and run nothing; a terminal operation pulls elements one at a time and stops as soon as it can.
+
+```php
+sequenceOf(['🍎','🥕','🍊']); // from an array — replayable
+sequenceOf(fn() => loadRows()); // closure runs on every pass
+mutableListOf(['🍎','🍊'])->asSequence(); // no copy, sees later changes
+generateSequence(1, fn($n) => $n * 2); // 1, 2, 4, 8, … — infinite
+```
+
+```php
+sequenceOf(['🥕','🍎','🍊','🥦'])
+    ->filter($isFruit) // nothing runs yet
+    ->map(fn($e) => "$e!") // still nothing
+    ->first(); // 🍎! — pulled 🥕 and 🍎, never 🍊 or 🥦
+```
+
+On an infinite sequence, only operations that stop early can return.
+
+```php
+$naturals = generateSequence(1, fn($n) => $n + 1); // 1, 2, 3, …
+
+$naturals->takeFirst(3)->toList(); // [1, 2, 3]
+$naturals->dropFirst(2)->first(); // 3
+$naturals->find(fn($n) => $n * $n > 50); // 8
+$naturals->takeWhile(fn($n) => $n < 5)->sum(); // 10
+$naturals->chunked(2)->first(); // [1, 2]
+$naturals->joinToString(limit: 3); // "1, 2, 3, ..."
+$naturals->count(); // never returns — drains forever
+```
+
+Every terminal operation is a new pass. A `Generator` can't replay:
+
+```php
+$once = sequenceOf($generator);
+$once->toList(); // [...]
+$once->toList(); // throws NonReplayableSourceException
+```
+
+No `sorted*`, `reversed`, `shuffled`, `random`, `takeLast*`, `dropLast*` or set operations — most of them need everything up front. Call `toList()` first: `$seq->toList()->sorted()`.
 
 ## Mutable vs. immutable
 
