@@ -11,6 +11,7 @@ namespace Noctud\Collection\Set;
 
 use Closure;
 use Noctud\Collection\CollectionLogic;
+use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Operation\DistinctOperation;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Operation\DropOperation;
@@ -334,7 +335,7 @@ trait SetLogic
 	 * @template GV
 	 * @param Closure(E, int):GK $keySelector
 	 * @param (Closure(E, int):GV)|null $valueTransform
-	 * @return ImmutableMap<GK, ImmutableSet<E>>
+	 * @return ($valueTransform is null ? ImmutableMap<GK, ImmutableSet<E>> : ImmutableMap<GK, ImmutableList<GV>>)
 	 * @phpstan-ignore-next-line method.childReturnType
 	 */
 	#[NoDiscard]

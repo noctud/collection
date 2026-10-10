@@ -103,6 +103,7 @@ If you'd rather keep the base trait, declare `@method` overrides on the class an
  * @method self filter(Closure(OrderItem, int): bool $predicate)
  * @method self sorted()
  * @method array{self, self} partition(Closure(OrderItem, int): bool $predicate)
+ * @method self add(OrderItem $element)
  */
 class OrderItemCollection implements ImmutableSet
 {
@@ -119,6 +120,10 @@ class OrderItemCollection implements ImmutableSet
 ```
 
 Add `@method` lines only for methods that genuinely keep the same shape. This is more verbose but useful when you only need a few methods narrowed, or when you can't add a constructor accepting an `iterable`.
+
+::: warning Declare the mutations you use
+The base trait's immutable mutations widen like the interface does — `add(NE): ImmutableSet<E|NE>` — and rebuild through `newCollectionOf()`, so a foreign element would reach your constructor. Declare each mutation you call with your element type, as `add()` above: PHPStan then rejects a foreign element, and the result is typed as your class.
+:::
 
 ### What is and isn't narrowed
 

@@ -479,7 +479,7 @@ trait ListLogic
 	 * @template GV
 	 * @param Closure(E, int):GK $keySelector
 	 * @param (Closure(E, int):GV)|null $valueTransform
-	 * @return ImmutableMap<GK, ImmutableList<E>>
+	 * @return ($valueTransform is null ? ImmutableMap<GK, ImmutableList<E>> : ImmutableMap<GK, ImmutableList<GV>>)
 	 * @phpstan-ignore-next-line method.childReturnType
 	 */
 	#[NoDiscard]

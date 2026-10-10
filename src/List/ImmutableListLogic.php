@@ -28,10 +28,7 @@ trait ImmutableListLogic
 
 	// --- Mutation (returns new) ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param E $element
-	 */
+	/** {@inheritDoc} */
 	public function add(mixed $element): ImmutableList
 	{
 		$store = clone $this->store;
@@ -39,10 +36,7 @@ trait ImmutableListLogic
 		return $this->newCollectionOf($store); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param E $element
-	 */
+	/** {@inheritDoc} */
 	public function addFirst(mixed $element): ImmutableList
 	{
 		$store = clone $this->store;
@@ -50,10 +44,7 @@ trait ImmutableListLogic
 		return $this->newCollectionOf($store); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param iterable<E> $elements
-	 */
+	/** {@inheritDoc} */
 	public function addAll(iterable $elements): ImmutableList
 	{
 		$store = clone $this->store;
