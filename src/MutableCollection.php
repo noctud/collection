@@ -21,6 +21,7 @@ use NoDiscard;
  *
  * @template E
  * @extends WritableCollection<E>
+ * @method MutableCollection<E> onEach(Closure(E, int):void $action) Executes the given action for each element and returns the collection itself for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
  */
 interface MutableCollection extends WritableCollection
 {

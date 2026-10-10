@@ -19,6 +19,7 @@ use Noctud\Collection\WritableTrackedCollection;
  * @template E
  * @extends WritableSet<E>
  * @extends WritableTrackedCollection<E>
+ * @method WritableTrackedSet<E>&TrackedResult onEach(Closure(E, int):void $action) Executes the given action for each element and returns the collection itself for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
  */
 interface WritableTrackedSet extends WritableSet, WritableTrackedCollection
 {

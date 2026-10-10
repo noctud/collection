@@ -17,6 +17,7 @@ use NoDiscard;
 /**
  * @template E
  * @extends Collection<E>
+ * @method ImmutableCollection<E> onEach(Closure(E, int):void $action) Executes the given action for each element and returns the collection for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
  */
 interface ImmutableCollection extends Collection
 {

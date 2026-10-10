@@ -161,7 +161,8 @@ listOf(['🍎','🍊','🍋'])->shuffled(); // random order
 ### Iteration & conversion
 
 ```php
-listOf(['🍎','🍊'])->forEach(fn($e) => send($e)); // returns the list
+listOf(['🍎','🍊'])->forEach(fn($e) => send($e)); // returns the list (nothing since 0.2)
+listOf(['🍎','🍊'])->onEach(fn($e) => send($e))->toSet(); // same walk, keeps the chain
 
 listOf(['🍎','🍊','🍎'])->toSet(); // {🍎, 🍊}
 setOf(['🍎','🍊'])->toList(); // [🍎, 🍊]

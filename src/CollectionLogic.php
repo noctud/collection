@@ -759,6 +759,20 @@ trait CollectionLogic
 		return $this;
 	}
 
+	/**
+	 * Executes the given action for each element and returns the collection for chaining.
+	 *
+	 * Declared through a `@method` tag on each interface for now, so that classes implementing
+	 * them without this trait keep working; 0.2 declares it natively and turns forEach()
+	 * into a `: void` method.
+	 *
+	 * @param Closure(E, int):void $action
+	 */
+	public function onEach(Closure $action): static
+	{
+		return $this->forEach($action);
+	}
+
 	// --- Conversion ---
 
 	/** {@inheritDoc} */

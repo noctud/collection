@@ -198,19 +198,34 @@ All return new immutable maps, marked `#[NoDiscard]`.
 ## Iteration
 
 ```php
+onEach(Closure $action): Map<K,V>
+```
+Execute `(V, K): void` for each entry and return the map for chaining.
+
+```php
+onEachKey(Closure $action): Map<K,V>
+```
+Execute `(K): void` for each key and return the map for chaining.
+
+```php
+onEachValue(Closure $action): Map<K,V>
+```
+Execute `(V): void` for each value and return the map for chaining.
+
+```php
 forEach(Closure $action): Map
 ```
-Execute `(V, K): void` for each entry. Returns the map for chaining.
+Execute `(V, K): void` for each entry. Returns the map, but 0.2 changes this to `void` — use `onEach()` wherever the result is used.
 
 ```php
 forEachKey(Closure $action): Map
 ```
-Execute `(K): void` for each key. Returns the map for chaining.
+Execute `(K): void` for each key. Returns the map, but 0.2 changes this to `void` — use `onEachKey()` wherever the result is used.
 
 ```php
 forEachValue(Closure $action): Map
 ```
-Execute `(V): void` for each value. Returns the map for chaining.
+Execute `(V): void` for each value. Returns the map, but 0.2 changes this to `void` — use `onEachValue()` wherever the result is used.
 
 ## Conversion
 

@@ -21,6 +21,9 @@ use NoDiscard;
  * @template K of string|int|bool|float|object
  * @template V
  * @extends Map<K,V>
+ * @method WritableMap<K,V> onEach(Closure(V, K):void $action) Executes the given action for each entry and returns the current map for chaining. Use it instead of forEach() wherever the result is used - forEach() returns void since 0.2.
+ * @method WritableMap<K,V> onEachKey(Closure(K):void $action) Executes the given action for each key and returns the current map for chaining. Use it instead of forEachKey() wherever the result is used - forEachKey() returns void since 0.2.
+ * @method WritableMap<K,V> onEachValue(Closure(V):void $action) Executes the given action for each value and returns the current map for chaining. Use it instead of forEachValue() wherever the result is used - forEachValue() returns void since 0.2.
  */
 interface WritableMap extends Map
 {
