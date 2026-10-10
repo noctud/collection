@@ -89,7 +89,7 @@ $scores = intMapOf([1 => 100, 2 => 85, 3 => 92]);
 StringMap and IntMap use ~50% less memory than HashMap (single-array storage vs dual-array). They also benefit from zero-copy initialization via PHP's copy-on-write and have no key hashing overhead. The API is identical to HashMap — you can swap between them without code changes.
 :::
 
-These maps enforce key types at runtime. IntMap throws `InvalidKeyTypeException` for non-int keys. StringMap enforces string keys on `put()` but accepts PHP's existing array during construction (since PHP already casts numeric strings to int):
+These maps enforce key types at runtime. The mutable IntMap throws `InvalidKeyTypeException` for non-int keys. The mutable StringMap enforces string keys on `put()` but accepts PHP's existing array during construction (since PHP already casts numeric strings to int). The immutable variants widen instead, returning an `ImmutableHashMap` for a key of another type:
 
 ```php
 $intMap = mutableIntMapOf();
@@ -97,6 +97,9 @@ $intMap->put('a', 'fail'); // throws InvalidKeyTypeException
 
 $stringMap = mutableStringMapOf();
 $stringMap->put(123, 'fail'); // throws InvalidKeyTypeException
+
+$scores = intMapOf([1 => 100]);
+$scores->put('a', 50); // ImmutableHashMap [1 => 100, 'a' => 50]
 ```
 
 Transformation methods return immutable collections. Methods that preserve key types return the corresponding immutable type-specific map:

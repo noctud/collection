@@ -130,10 +130,12 @@ types to match.
 ## Immutable mutations of the base logic traits widen
 
 `add()`, `addFirst()` and `addAll()` of `ImmutableListLogic` and `ImmutableSetLogic` now widen the element type
-the way `ImmutableList` and `ImmutableSet` declare, also on a value typed as your own class built on them. In 0.1
-PHPStan rejected a foreign element there. A class that rebuilds itself in `newCollectionOf()` and validates its
-elements now gets such an element at runtime instead. Declare the mutations you call with your element type to
-keep them strict, or use a `SelfPreserving*Logic` trait, whose mutations are strict:
+the way `ImmutableList` and `ImmutableSet` declare, also on a value typed as your own class built on them. So do
+`put()`, `putFirst()`, `putIfAbsent()`, `putAll()` and `putAllPairs()` of `ImmutableMapLogic` with the key and
+value types. In 0.1 PHPStan rejected a foreign element or entry there. A class that rebuilds itself in
+`newCollectionOf()` or `newMapOf()` and validates its contents now gets one at runtime instead. Declare the
+mutations you call with your own types to keep them strict, or use a `SelfPreserving*Logic` trait, whose
+mutations are strict:
 
 ```php
 /**
@@ -151,14 +153,19 @@ class OrderItemCollection implements ImmutableSet
 
 These do not break code written against the 0.1 documentation, but can be observed:
 
+- `putIfAbsent()` on an immutable int or string map given a key of another type falls back to a hash map,
+  as `put()` already did, instead of throwing `InvalidKeyTypeException`.
 - `zip()` walks the other iterable in lockstep instead of copying it upfront. A `Generator` passed in is
   consumed only up to the shorter length, and one that was already advanced now resumes from where it
   is instead of throwing. An iterator that cannot be rewound surfaces as `NonReplayableSourceException`
   (a subclass of `UnsupportedOperationException`) with the original exception as its previous one.
 - Every exception the library throws implements the new `Noctud\Collection\Exception\NoctudCollectionException`,
   so a single `catch` covers them all. Existing `catch` blocks keep working.
-- On a value typed as a concrete class (`ImmutableHashSet`, `ImmutableArrayList`, your own class using the
-  logic traits), PHPStan now types several methods the way the interfaces declare them. In 0.1 such a value lost
-  the element type of `chunked()`, `windowed()`, `zip()` and `zipWithNext()`, typed `groupBy()` with a value
-  transform as groups of the original elements, and leaked an unresolved template from `add()`, `addFirst()`
-  and `addAll()` on immutable lists and sets (see above for classes that rebuild themselves).
+- On a value typed as a concrete class (`ImmutableHashSet`, `ImmutableArrayList`, `ImmutableHashMap`,
+  `MutableHashMap`, your own class using the logic traits), PHPStan now types several methods the way the
+  interfaces declare them. In 0.1 such a value lost the element type of `chunked()`, `windowed()`, `zip()` and
+  `zipWithNext()`, typed `groupBy()` with a value transform as groups of the original elements, and leaked an
+  unresolved template from `add()`, `addFirst()` and `addAll()` on immutable lists and sets (see above for
+  classes that rebuild themselves). On maps, `toArray()` lost the key type, `containsKey()`, `containsValue()`
+  and `remove()` rejected keys and values the interfaces accept, and immutable maps rejected the widening of
+  `put()`, `putFirst()`, `putIfAbsent()`, `putAll()` and `putAllPairs()`.

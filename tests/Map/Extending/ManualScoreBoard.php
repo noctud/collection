@@ -18,7 +18,8 @@ use ReturnTypeWillChange;
 
 /**
  * Extension style #2 (Map): base ImmutableMapLogic + class-level `@method self`
- * overrides + a newMapOf override.
+ * overrides + a newMapOf override. put() is declared too: the base trait's put()
+ * widens, which the constructor rejects.
  *
  * The constructor enforces an entry invariant: it proves that transforms
  * never go through the hand-written newMapOf() with transformed entries.
@@ -27,6 +28,7 @@ use ReturnTypeWillChange;
  * @phpstan-consistent-constructor
  * @method self filterValues(Closure(int): bool $predicate)
  * @method self sortedByValueDesc()
+ * @method self put(string $key, int $value)
  */
 class ManualScoreBoard implements ImmutableMap
 {

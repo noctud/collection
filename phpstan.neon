@@ -47,9 +47,6 @@ parameters:
 		# classes which implement ImmutableMap<string,...>. The trait's put()/putFirst()
 		# accepts string|int|bool|float|object but the store expects string.
 		-
-			identifier: method.childReturnType
-			path: src/Map/ImmutableMapLogic.php
-		-
 			identifier: argument.type
 			path: src/Map/ImmutableMapLogic.php
 		-

@@ -26,7 +26,8 @@ use function Noctud\Collection\stringMapOf;
 
 /**
  * Immutable string-key map with optimized single-array storage.
- * Only accepts string keys; non-string keys throw InvalidKeyTypeException.
+ * Adds string keys only: put() and the other additions return an ImmutableHashMap for a
+ * key of another type. The constructor takes a PHP array as is, numeric-string keys included.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
  * The class is empty for easy extendability, if you want your own ImmutableStringMap,
@@ -79,6 +80,25 @@ final class ImmutableStringMap implements ImmutableMap
 		} catch (InvalidKeyTypeException) {
 			return mapOf($this->store)->put($key, $value);
 		}
+	}
+
+	/**
+	 * Puts a key-value pair if the key is absent. If the key is not a string, falls back to HashMap.
+	 *
+	 * @template NK of string|int|bool|float|object
+	 * @template NV
+	 * @param NK $key
+	 * @param NV $value
+	 * @return ImmutableMap<string|NK, V|NV>
+	 */
+	#[NoDiscard]
+	public function putIfAbsent(string|int|bool|float|object $key, mixed $value): ImmutableMap
+	{
+		if ($this->containsKey($key)) {
+			return $this;
+		}
+
+		return $this->put($key, $value);
 	}
 
 	/**

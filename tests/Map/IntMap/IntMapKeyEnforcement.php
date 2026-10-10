@@ -55,6 +55,35 @@ trait IntMapKeyEnforcement
 	}
 
 	#[Test]
+	public function putIfAbsent_keeps_existing_key(): void
+	{
+		$map = $this->mapOf([1 => 'a']);
+		$result = $map->putIfAbsent(1, 'b');
+
+		$this->assertSame($map, $result);
+		$this->assertSame('a', $result->get(1));
+	}
+
+	#[Test]
+	public function putIfAbsent_rejects_string_key(): void
+	{
+		$map = $this->mapOf([1 => 'a']);
+
+		if ($map instanceof MutableMap) {
+			$this->expectException(InvalidKeyTypeException::class);
+			$this->expectExceptionMessage('IntMap requires int keys, got string');
+			/** @phpstan-ignore argument.type */
+			$map->putIfAbsent('abc', 'value');
+		} else {
+			// Immutable maps fall back to HashMap for non-int keys, like put()
+			/** @phpstan-ignore argument.type */
+			$result = $map->putIfAbsent('abc', 'value');
+			$this->assertInstanceOf(ImmutableHashMap::class, $result);
+			$this->assertSame([1 => 'a', 'abc' => 'value'], $result->toArray());
+		}
+	}
+
+	#[Test]
 	public function getOrNull_with_string_key_returns_null(): void
 	{
 		$map = $this->mapOf([1 => 'a', 2 => 'b']);

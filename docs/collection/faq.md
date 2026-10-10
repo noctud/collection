@@ -42,7 +42,7 @@ For element values, the library relies on **static analysis** (PHPStan, Psalm) r
 
 **Exception: StringMap and IntMap**
 
-`StringMap` and `IntMap` perform runtime key type checks, throwing `InvalidKeyTypeException` on wrong key types. This enforces the Map contract: what you put in stays exactly as you put it.
+`StringMap` and `IntMap` perform runtime key type checks. The mutable ones throw `InvalidKeyTypeException` on a wrong key type; the immutable ones widen like any immutable map and return an `ImmutableHashMap` instead. Either way this enforces the Map contract: what you put in stays exactly as you put it.
 
 Without this check, putting a `string` into `IntMap` would silently cast it to `0` — corrupting your data. Putting an `int` into `StringMap` would technically work, but allowing it would break the contract that what you put in stays in exactly as-is.
 

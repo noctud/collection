@@ -25,83 +25,56 @@ trait ImmutableMapLogic
 
 	// --- Mutation (returns new) ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 * @param V $value
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function put(string|int|bool|float|object $key, mixed $value): ImmutableMap
 	{
 		$entries = clone $this->store;
 		$entries->put($key, $value);
 
-		return $this->newMapOf($entries);
+		return $this->newMapOf($entries); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 * @param V $value
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function putIfAbsent(string|int|bool|float|object $key, mixed $value): ImmutableMap
 	{
 		if ($this->store->containsKey($key)) { // @phpstan-ignore argument.type
-			return $this;
+			return $this; // @phpstan-ignore return.type
 		}
 
 		$entries = clone $this->store;
 		$entries->put($key, $value);
 
-		return $this->newMapOf($entries);
+		return $this->newMapOf($entries); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param iterable<K,V> $data
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function putAll(iterable $data): ImmutableMap
 	{
 		$entries = clone $this->store;
 		$entries->putAllFromAssoc($data);
 
-		return $this->newMapOf($entries);
+		return $this->newMapOf($entries); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param iterable<array{0:K,1:V}> $data
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function putAllPairs(iterable $data): ImmutableMap
 	{
 		$entries = clone $this->store;
 		$entries->putAllFromPairs($data);
 
-		return $this->newMapOf($entries);
+		return $this->newMapOf($entries); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 * @param V $value
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function putFirst(string|int|bool|float|object $key, mixed $value): ImmutableMap
 	{
 		$entries = clone $this->store;
 		$entries->putFirst($key, $value);
 
-		return $this->newMapOf($entries);
+		return $this->newMapOf($entries); // @phpstan-ignore return.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 * @return ImmutableMap<K,V>
-	 */
+	/** {@inheritDoc} */
 	public function remove(string|int|bool|float|object $key): ImmutableMap
 	{
 		$entries = clone $this->store;
