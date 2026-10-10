@@ -103,22 +103,16 @@ trait MapLogic
 
 	// --- Querying ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param K $key
-	 */
+	/** {@inheritDoc} */
 	public function containsKey(string|int|bool|float|object $key): bool
 	{
 		return $this->store->containsKey($key); // @phpstan-ignore argument.type
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @param V $value
-	 */
+	/** {@inheritDoc} */
 	public function containsValue(mixed $value): bool
 	{
-		return $this->store->contains($value);
+		return $this->store->contains($value); // @phpstan-ignore argument.type
 	}
 
 	/** {@inheritDoc} */
@@ -697,9 +691,9 @@ trait MapLogic
 
 	/**
 	 * {@inheritDoc}
-	 * @return array<array-key,V>
+	 * @return (K is array-key ? array<K,V> : array<array-key,V>)
 	 */
-	#[NoDiscard]
+	#[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound (in maps with a concrete K the conditional is already decided)
 	public function toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array
 	{
 		return $this->store->toArray($onCollision);
