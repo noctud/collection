@@ -574,7 +574,7 @@ trait CollectionLogic
 	 * @template V
 	 * @param Closure(E, int):K $keySelector
 	 * @param (Closure(E, int):V)|null $valueTransform
-	 * @return ImmutableMap<K, ImmutableCollection<E>>
+	 * @return ($valueTransform is null ? ImmutableMap<K, ImmutableCollection<E>> : ImmutableMap<K, ImmutableList<V>>)
 	 */
 	#[NoDiscard]
 	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap

@@ -1,7 +1,8 @@
 # Upgrading from 0.1 to 0.2
 
 Most code upgrades without changes. The one break that ordinary calling code is likely to hit is the
-`forEach()` return type; the rest only concern code that extends or implements the library's types.
+`forEach()` return type, and a PHPDoc that spells out what `chunked()` or `windowed()` return needs a
+small change too; the rest only concern code that extends or implements the library's types.
 
 **Prepare on 0.1.8 first.** 0.1.8 already ships `onEach()`, `onEachKey()` and `onEachValue()` and flags
 `mapOfPairs()` called without arguments, so you can fix everything below while still on 0.1, then
@@ -89,6 +90,63 @@ Each `onEach*()` is narrowed on the sub-interfaces the same way the 0.1 `forEach
 `ImmutableList::onEach(): ImmutableList`, `MutableTrackedMap::onEach(): MutableTrackedMap&TrackedResult`.
 Classes using the traits get all of them for free.
 
+## `chunked()`, `windowed()`, `zip()` and `zipWithNext()` return `ImmutableList`
+
+`Collection` declared them as returning `ListInterface`. They now return `ImmutableList`, as the library's
+implementations always did at runtime: `ImmutableList<ImmutableList<E>>` for `chunked()` and `windowed()`,
+`ImmutableList<array{E, U}>` for `zip()` and `ImmutableList<array{E, E}>` for `zipWithNext()`.
+
+Code that only calls them gets more precise types. A PHPDoc that spells out the old
+`ListInterface<ListInterface<E>>` of `chunked()` or `windowed()` no longer accepts the result, though: a
+list's element type is invariant, so a `ListInterface<ImmutableList<int>>` is no `ListInterface<ListInterface<int>>`.
+Mark the inner type covariant, which accepts the 0.1 and the 0.2 result alike, or write
+`ImmutableList<ImmutableList<E>>` once on 0.2. `zip()` and `zipWithNext()` are not affected.
+
+```php
+// 0.1
+/**
+ * @param Collection<int> $ids
+ * @return ListInterface<ListInterface<int>>
+ */
+function pages(Collection $ids): ListInterface
+{
+    return $ids->chunked(50);
+}
+
+// 0.1.8 and 0.2
+/**
+ * @param Collection<int> $ids
+ * @return ListInterface<covariant ListInterface<int>>
+ */
+function pages(Collection $ids): ListInterface
+{
+    return $ids->chunked(50);
+}
+```
+
+A class that implements the interfaces directly, without the logic traits, must narrow these four return
+types to match.
+
+## Immutable mutations of the base logic traits widen
+
+`add()`, `addFirst()` and `addAll()` of `ImmutableListLogic` and `ImmutableSetLogic` now widen the element type
+the way `ImmutableList` and `ImmutableSet` declare, also on a value typed as your own class built on them. In 0.1
+PHPStan rejected a foreign element there. A class that rebuilds itself in `newCollectionOf()` and validates its
+elements now gets such an element at runtime instead. Declare the mutations you call with your element type to
+keep them strict, or use a `SelfPreserving*Logic` trait, whose mutations are strict:
+
+```php
+/**
+ * @implements ImmutableSet<OrderItem>
+ * @method self add(OrderItem $element)
+ */
+class OrderItemCollection implements ImmutableSet
+{
+    use ImmutableSetLogic;
+    // ...
+}
+```
+
 ## Behaviour changes
 
 These do not break code written against the 0.1 documentation, but can be observed:
@@ -99,3 +157,8 @@ These do not break code written against the 0.1 documentation, but can be observ
   (a subclass of `UnsupportedOperationException`) with the original exception as its previous one.
 - Every exception the library throws implements the new `Noctud\Collection\Exception\NoctudCollectionException`,
   so a single `catch` covers them all. Existing `catch` blocks keep working.
+- On a value typed as a concrete class (`ImmutableHashSet`, `ImmutableArrayList`, your own class using the
+  logic traits), PHPStan now types several methods the way the interfaces declare them. In 0.1 such a value lost
+  the element type of `chunked()`, `windowed()`, `zip()` and `zipWithNext()`, typed `groupBy()` with a value
+  transform as groups of the original elements, and leaked an unresolved template from `add()`, `addFirst()`
+  and `addAll()` on immutable lists and sets (see above for classes that rebuild themselves).

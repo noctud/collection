@@ -19,7 +19,8 @@ use ReturnTypeWillChange;
 
 /**
  * Extension style #2 (List): base ImmutableListLogic + class-level `@method self`
- * overrides + a newCollectionOf override.
+ * overrides + a newCollectionOf override. add() is declared too: the base trait's
+ * add() widens, which the constructor rejects.
  *
  * The constructor enforces an element invariant: it proves that transforms
  * never go through the hand-written newCollectionOf() with transformed elements.
@@ -28,6 +29,7 @@ use ReturnTypeWillChange;
  * @phpstan-consistent-constructor
  * @method self filter(Closure(SwappableItem, int): bool $predicate)
  * @method self sorted()
+ * @method self add(SwappableItem $element)
  */
 class ManualLineItems implements ImmutableList
 {

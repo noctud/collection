@@ -294,7 +294,7 @@ distinctBy(Closure $selector): Collection<E>
 Unique elements by selector `(E, int): mixed` value.
 
 ```php
-chunked(int $size): ListInterface<ListInterface<E>>
+chunked(int $size): ImmutableList<ImmutableList<E>>
 ```
 Split into chunks of the given size. The last chunk may be smaller.
 
@@ -303,12 +303,12 @@ windowed(
     int $size,
     int $step = 1,
     bool $partialWindows = false,
-): ListInterface<ListInterface<E>>
+): ImmutableList<ImmutableList<E>>
 ```
 Returns a list of snapshots of a sliding window of the given size along this collection with the given step. When `$partialWindows` is `true`, includes smaller windows at the end.
 
 ```php
-zip(iterable $other): ListInterface<array{E, U}>
+zip(iterable $other): ImmutableList<array{E, U}>
 ```
 Pair elements from two iterables at the same position. Result length equals the shorter input.
 
@@ -317,7 +317,7 @@ Only a `Generator` can be distinguished from a fresh cursor — every other adva
 :::
 
 ```php
-zipWithNext(): ListInterface<array{E, E}>
+zipWithNext(): ImmutableList<array{E, E}>
 ```
 Returns a list of pairs of each two adjacent elements. If the collection has fewer than two elements, returns an empty list.
 
