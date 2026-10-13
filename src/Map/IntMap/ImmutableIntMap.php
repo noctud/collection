@@ -26,7 +26,8 @@ use function Noctud\Collection\mutableIntMapOf;
 
 /**
  * Immutable int-key map with optimized single-array storage.
- * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
+ * Only holds int keys: a non-int key passed to the constructor throws InvalidKeyTypeException,
+ * while put() and the other additions return an ImmutableHashMap for one.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
  * The class is empty for easy extendability, if you want your own ImmutableIntMap,
@@ -79,6 +80,25 @@ final class ImmutableIntMap implements ImmutableMap
 		} catch (InvalidKeyTypeException) {
 			return mapOf($this)->put($key, $value);
 		}
+	}
+
+	/**
+	 * Puts a key-value pair if the key is absent. If the key is not an int, falls back to HashMap.
+	 *
+	 * @template NK of string|int|bool|float|object
+	 * @template NV
+	 * @param NK $key
+	 * @param NV $value
+	 * @return ImmutableMap<int|NK, V|NV>
+	 */
+	#[NoDiscard]
+	public function putIfAbsent(string|int|bool|float|object $key, mixed $value): ImmutableMap
+	{
+		if ($this->containsKey($key)) {
+			return $this;
+		}
+
+		return $this->put($key, $value);
 	}
 
 	/**
