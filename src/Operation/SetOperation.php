@@ -9,10 +9,15 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Operation;
 
-use Generator;
 use Noctud\Collection\KeyHasher;
+use Noctud\Collection\Set\HashSet\HashElementStore;
+use Noctud\Collection\Set\HashSet\ImmutableHashSet;
+use Noctud\Collection\Set\HashSet\MutableHashSet;
 
 /**
+ * Set algebra on arrays keyed by KeyHasher::hashSetKey(): PHP intersects, subtracts and merges
+ * those in C, and the resulting set is built from them without hashing anything twice.
+ *
  * @internal
  * @template V
  * @extends AbstractOperation<int,V>
@@ -21,68 +26,57 @@ final class SetOperation extends AbstractOperation
 {
 	/**
 	 * @param iterable<mixed> $other
-	 * @return Generator<V>
+	 * @return HashElementStore<V>
 	 */
-	public function intersect(iterable $other): Generator
+	public function intersect(iterable $other): HashElementStore
 	{
-		$otherSet = [];
-		foreach ($other as $v) {
-			$otherSet[KeyHasher::hashSetKey($v)] = true;
-		}
-
-		$seen = [];
-		foreach ($this->data as $v) {
-			$hash = KeyHasher::hashSetKey($v);
-			if (isset($otherSet[$hash]) && !isset($seen[$hash])) {
-				$seen[$hash] = true;
-				yield $v;
-			}
-		}
+		return HashElementStore::fromHashed(array_intersect_key(self::hashed($this->data), self::hashed($other)));
 	}
 
 	/**
 	 * @template U
 	 * @param iterable<U> $other
-	 * @return Generator<V|U>
+	 * @return HashElementStore<V|U>
 	 */
-	public function union(iterable $other): Generator
+	public function union(iterable $other): HashElementStore
 	{
-		$seen = [];
-		foreach ($this->data as $v) {
-			$hash = KeyHasher::hashSetKey($v);
-			if (!isset($seen[$hash])) {
-				$seen[$hash] = true;
-				yield $v;
-			}
-		}
-
-		foreach ($other as $v) {
-			$hash = KeyHasher::hashSetKey($v);
-			if (!isset($seen[$hash])) {
-				$seen[$hash] = true;
-				yield $v;
-			}
-		}
+		return HashElementStore::fromHashed(self::hashed($this->data) + self::hashed($other));
 	}
 
 	/**
 	 * @param iterable<mixed> $other
-	 * @return Generator<V>
+	 * @return HashElementStore<V>
 	 */
-	public function subtract(iterable $other): Generator
+	public function subtract(iterable $other): HashElementStore
 	{
-		$otherSet = [];
-		foreach ($other as $v) {
-			$otherSet[KeyHasher::hashSetKey($v)] = true;
+		return HashElementStore::fromHashed(array_diff_key(self::hashed($this->data), self::hashed($other)));
+	}
+
+	/**
+	 * Keys each element by its hash, keeping its first occurrence. A hash set already holds them so.
+	 *
+	 * @template T
+	 * @param iterable<T> $data
+	 * @return array<int|string,T>
+	 */
+	private static function hashed(iterable $data): array
+	{
+		if ($data instanceof ImmutableHashSet || $data instanceof MutableHashSet) {
+			$data = $data->__internalCollectionStore();
 		}
 
-		$seen = [];
-		foreach ($this->data as $v) {
+		if ($data instanceof HashElementStore) {
+			return $data->toHashedArray();
+		}
+
+		$hashed = [];
+		foreach ($data as $v) {
 			$hash = KeyHasher::hashSetKey($v);
-			if (!isset($otherSet[$hash]) && !isset($seen[$hash])) {
-				$seen[$hash] = true;
-				yield $v;
+			if (!array_key_exists($hash, $hashed)) {
+				$hashed[$hash] = $v;
 			}
 		}
+
+		return $hashed;
 	}
 }

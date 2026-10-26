@@ -153,6 +153,63 @@ trait MapOrdering
 	}
 
 	#[Test]
+	public function sortedByKey_and_sortedByValue_keep_equal_entries_in_their_order(): void
+	{
+		// strlen(...) takes a single argument: the selector must be handed the key or the value alone.
+		$map = $this->mapOfPairs([['aa', 'bb'], ['b', 'c'], ['cc', 'dd'], ['d', 'e']]);
+
+		$this->assertSame(['b', 'd', 'aa', 'cc'], $map->sortedByKey(strlen(...))->keys->toArray());
+		$this->assertSame(['aa', 'cc', 'b', 'd'], $map->sortedByKeyDesc(strlen(...))->keys->toArray());
+		$this->assertSame(['b', 'd', 'aa', 'cc'], $map->sortedByValue(strlen(...))->keys->toArray());
+		$this->assertSame(['aa', 'cc', 'b', 'd'], $map->sortedByValueDesc(strlen(...))->keys->toArray());
+
+		$mutable = self::asMutableMap($map);
+		if ($mutable !== null) {
+			$this->assertSame(['b', 'd', 'aa', 'cc'], $mutable->sortByKey(strlen(...))->keys->toArray());
+			$this->assertSame(['aa', 'cc', 'b', 'd'], $mutable->sortByValueDesc(strlen(...))->keys->toArray());
+			$this->assertSame(['b', 'd', 'aa', 'cc'], $mutable->tracked()->sortByValue(strlen(...))->keys->toArray());
+		}
+	}
+
+	#[Test]
+	public function sortedBy_compares_like_the_spaceship_operator(): void
+	{
+		// The selected values compare with <=>, which NAN is not ordered by the same way arsort() orders it.
+		$pairs = [['three', 3.0], ['nan', NAN], ['one', 1.0], ['two', 2.0]];
+		$map = $this->mapOfPairs($pairs);
+		$selector = static fn (float $v): float => $v;
+
+		$this->assertSame(['nan', 'one', 'two', 'three'], $map->sortedBy($selector)->keys->toArray());
+		$this->assertSame(['nan', 'three', 'two', 'one'], $map->sortedByDesc($selector)->keys->toArray());
+		$this->assertSame(['nan', 'three', 'two', 'one'], $map->sortedByValueDesc()->keys->toArray());
+
+		$mutable = self::asMutableMap($map);
+		if ($mutable !== null) {
+			// NAN orders by where it starts: each sort starts from the same order.
+			$this->assertSame(['nan', 'three', 'two', 'one'], $mutable->sortByDesc($selector)->keys->toArray());
+			$mutable = self::asMutableMap($this->mapOfPairs($pairs));
+			$this->assertNotNull($mutable);
+			$this->assertSame(['nan', 'one', 'two', 'three'], $mutable->sortByValue()->keys->toArray());
+		}
+	}
+
+	#[Test]
+	public function sortedBy_keeps_equal_entries_in_their_order(): void
+	{
+		$map = $this->mapOfPairs([['a', 1], ['b', 2], ['c', 1], ['d', 2]]);
+		$selector = static fn (int $v): int => $v;
+
+		$this->assertSame(['a' => 1, 'c' => 1, 'b' => 2, 'd' => 2], $map->sortedBy($selector)->toArray());
+		$this->assertSame(['b' => 2, 'd' => 2, 'a' => 1, 'c' => 1], $map->sortedByDesc($selector)->toArray());
+
+		$mutable = self::asMutableMap($map);
+		if ($mutable !== null) {
+			$this->assertSame(['a' => 1, 'c' => 1, 'b' => 2, 'd' => 2], $mutable->sortBy($selector)->toArray());
+			$this->assertSame(['b' => 2, 'd' => 2, 'a' => 1, 'c' => 1], $mutable->sortByDesc($selector)->toArray());
+		}
+	}
+
+	#[Test]
 	public function sortedWith_sorts_with_comparator(): void
 	{
 		$map = $this->mapOfPairs([['ax', 2], ['b', 10], ['ccc', 3], ['1', 4]]);

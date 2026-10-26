@@ -84,6 +84,14 @@ interface ReadWriteElementStore extends ReadOnlyElementStore
 	public function sort(?callable $comparator = null): void;
 
 	/**
+	 * Sorts elements in-place by the value the selector returns for each of them, compared with <=>.
+	 * Elements with equal values keep their order.
+	 *
+	 * @param callable(E):mixed $selector
+	 */
+	public function sortBy(callable $selector, bool $descending = false): void;
+
+	/**
 	 * Reverses the order of elements in-place.
 	 */
 	public function reverse(): void;

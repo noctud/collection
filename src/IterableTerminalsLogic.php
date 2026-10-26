@@ -16,8 +16,9 @@ use Noctud\Collection\Exception\UnsupportedOperationException;
 use Stringable;
 
 /**
- * Terminal operations implemented by walking $this and nothing else, shared by the eager
- * Collection side and the lazy Sequence side.
+ * Terminal operations implemented by walking the elements and nothing else, shared by the eager
+ * Collection side and the lazy Sequence side. They walk terminalElements(): $this, or the same
+ * elements as an array when the consumer holds one, which PHP walks about twice as fast.
  *
  * A body belongs here only if it is identical for both, which excludes two families: the one the
  * eager side answers from its store in O(1) (first/last/isEmpty/contains/count), and containsAll,
@@ -33,6 +34,13 @@ use Stringable;
  */
 trait IterableTerminalsLogic
 {
+	/**
+	 * The elements the terminals walk, in iteration order and with the same keys as iterating $this.
+	 *
+	 * @return iterable<int, E>
+	 */
+	abstract protected function terminalElements(): iterable;
+
 	// --- Element Access ---
 
 	/** {@inheritDoc} */
@@ -41,7 +49,7 @@ trait IterableTerminalsLogic
 		$found = false;
 		$result = null;
 
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			if ($found) {
 				throw NoSuchElementException::subjectHasMoreThanOneElement($this);
 			}
@@ -68,7 +76,7 @@ trait IterableTerminalsLogic
 		$found = false;
 		$result = null;
 
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			if ($found) {
 				return null;
 			}
@@ -83,7 +91,7 @@ trait IterableTerminalsLogic
 	/** {@inheritDoc} */
 	public function find(Closure $predicate): mixed
 	{
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				return $v;
 			}
@@ -95,7 +103,7 @@ trait IterableTerminalsLogic
 	/** {@inheritDoc} */
 	public function expect(Closure $predicate)
 	{
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				return $v;
 			}
@@ -109,7 +117,7 @@ trait IterableTerminalsLogic
 	{
 		$result = null;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				$result = $v;
 			}
@@ -124,7 +132,7 @@ trait IterableTerminalsLogic
 		$found = false;
 		$result = null;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				$result = $v;
 				$found = true;
@@ -149,7 +157,7 @@ trait IterableTerminalsLogic
 	/** {@inheritDoc} */
 	public function all(Closure $predicate): bool
 	{
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if (!$predicate($v, $i)) {
 				return false;
 			}
@@ -161,7 +169,7 @@ trait IterableTerminalsLogic
 	/** {@inheritDoc} */
 	public function any(Closure $predicate): bool
 	{
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				return true;
 			}
@@ -181,7 +189,7 @@ trait IterableTerminalsLogic
 	{
 		/** @var int<0, max> $count */
 		$count = 0;
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			if ($predicate($v, $i)) {
 				$count++;
 			}
@@ -196,7 +204,7 @@ trait IterableTerminalsLogic
 	public function fold(mixed $initial, Closure $operation): mixed
 	{
 		$acc = $initial;
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			$acc = $operation($acc, $v);
 		}
 		return $acc;
@@ -208,7 +216,7 @@ trait IterableTerminalsLogic
 		$first = true;
 		$acc = null;
 
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			if ($first) {
 				$acc = $v;
 				$first = false;
@@ -236,7 +244,7 @@ trait IterableTerminalsLogic
 		$first = true;
 		$acc = null;
 
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			if ($first) {
 				$acc = $v;
 				$first = false;
@@ -253,8 +261,14 @@ trait IterableTerminalsLogic
 	public function sum(?Closure $selector = null): int|float
 	{
 		$sum = 0;
-		foreach ($this as $i => $v) {
-			$sum += $selector !== null ? $selector($v, $i) : $v; // @phpstan-ignore assignOp.invalid
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				$sum += $v; // @phpstan-ignore assignOp.invalid
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$sum += $selector($v, $i); // @phpstan-ignore assignOp.invalid
+			}
 		}
 
 		return $sum;
@@ -271,9 +285,16 @@ trait IterableTerminalsLogic
 	{
 		$sum = 0;
 		$count = 0;
-		foreach ($this as $i => $v) {
-			$sum += $selector !== null ? $selector($v, $i) : $v; // @phpstan-ignore assignOp.invalid
-			$count++;
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				$sum += $v; // @phpstan-ignore assignOp.invalid
+				$count++;
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$sum += $selector($v, $i); // @phpstan-ignore assignOp.invalid
+				$count++;
+			}
 		}
 
 		return $count > 0 ? $sum / $count : null;
@@ -286,12 +307,21 @@ trait IterableTerminalsLogic
 		$minElement = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
-			$value = $selector !== null ? $selector($v, $i) : $v;
-			if (!$found || $value < $minValue) {
-				$minValue = $value;
-				$minElement = $v;
-				$found = true;
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				if (!$found || $v < $minElement) {
+					$minElement = $v;
+					$found = true;
+				}
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$value = $selector($v, $i);
+				if (!$found || $value < $minValue) {
+					$minValue = $value;
+					$minElement = $v;
+					$found = true;
+				}
 			}
 		}
 
@@ -314,12 +344,21 @@ trait IterableTerminalsLogic
 		$minElement = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
-			$value = $selector !== null ? $selector($v, $i) : $v;
-			if (!$found || $value < $minValue) {
-				$minValue = $value;
-				$minElement = $v;
-				$found = true;
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				if (!$found || $v < $minElement) {
+					$minElement = $v;
+					$found = true;
+				}
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$value = $selector($v, $i);
+				if (!$found || $value < $minValue) {
+					$minValue = $value;
+					$minElement = $v;
+					$found = true;
+				}
 			}
 		}
 
@@ -333,12 +372,21 @@ trait IterableTerminalsLogic
 		$maxElement = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
-			$value = $selector !== null ? $selector($v, $i) : $v;
-			if (!$found || $value > $maxValue) {
-				$maxValue = $value;
-				$maxElement = $v;
-				$found = true;
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				if (!$found || $v > $maxElement) {
+					$maxElement = $v;
+					$found = true;
+				}
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$value = $selector($v, $i);
+				if (!$found || $value > $maxValue) {
+					$maxValue = $value;
+					$maxElement = $v;
+					$found = true;
+				}
 			}
 		}
 
@@ -361,12 +409,21 @@ trait IterableTerminalsLogic
 		$maxElement = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
-			$value = $selector !== null ? $selector($v, $i) : $v;
-			if (!$found || $value > $maxValue) {
-				$maxValue = $value;
-				$maxElement = $v;
-				$found = true;
+		if ($selector === null) {
+			foreach ($this->terminalElements() as $v) {
+				if (!$found || $v > $maxElement) {
+					$maxElement = $v;
+					$found = true;
+				}
+			}
+		} else {
+			foreach ($this->terminalElements() as $i => $v) {
+				$value = $selector($v, $i);
+				if (!$found || $value > $maxValue) {
+					$maxValue = $value;
+					$maxElement = $v;
+					$found = true;
+				}
 			}
 		}
 
@@ -379,7 +436,7 @@ trait IterableTerminalsLogic
 		$minValue = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			$value = $selector($v, $i);
 			if (!$found || $value < $minValue) {
 				$minValue = $value;
@@ -405,7 +462,7 @@ trait IterableTerminalsLogic
 		$best = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			$value = $selector($v, $i);
 			if (!$found || $value < $best) {
 				$best = $value;
@@ -422,7 +479,7 @@ trait IterableTerminalsLogic
 		$maxValue = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			$value = $selector($v, $i);
 			if (!$found || $value > $maxValue) {
 				$maxValue = $value;
@@ -448,7 +505,7 @@ trait IterableTerminalsLogic
 		$best = null;
 		$found = false;
 
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			$value = $selector($v, $i);
 			if (!$found || $value > $best) {
 				$best = $value;
@@ -464,7 +521,7 @@ trait IterableTerminalsLogic
 	{
 		$result = $prefix;
 		$i = 0;
-		foreach ($this as $v) {
+		foreach ($this->terminalElements() as $v) {
 			if ($i > 0) {
 				$result .= $separator;
 			}
@@ -497,7 +554,7 @@ trait IterableTerminalsLogic
 	/** {@inheritDoc} */
 	public function forEach(Closure $action): void
 	{
-		foreach ($this as $i => $v) {
+		foreach ($this->terminalElements() as $i => $v) {
 			$action($v, $i);
 		}
 	}

@@ -208,7 +208,7 @@ trait MutableTrackedMapLogic
 	{
 		$prevPairs = $this->store->toPairs();
 		$sel = $selector ?? static fn ($k) => $k;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($x[0]) <=> $sel($y[0]));
+		$this->store->sortBy(static fn ($v, $k) => $sel($k));
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}
@@ -218,7 +218,7 @@ trait MutableTrackedMapLogic
 	{
 		$prevPairs = $this->store->toPairs();
 		$sel = $selector ?? static fn ($k) => $k;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($y[0]) <=> $sel($x[0]));
+		$this->store->sortBy(static fn ($v, $k) => $sel($k), descending: true);
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}
@@ -228,7 +228,7 @@ trait MutableTrackedMapLogic
 	{
 		$prevPairs = $this->store->toPairs();
 		$sel = $selector ?? static fn ($v) => $v;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($x[1]) <=> $sel($y[1]));
+		$this->store->sortBy(static fn ($v) => $sel($v));
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}
@@ -238,7 +238,7 @@ trait MutableTrackedMapLogic
 	{
 		$prevPairs = $this->store->toPairs();
 		$sel = $selector ?? static fn ($v) => $v;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($y[1]) <=> $sel($x[1]));
+		$this->store->sortBy(static fn ($v) => $sel($v), descending: true);
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}
@@ -247,7 +247,7 @@ trait MutableTrackedMapLogic
 	public function sortBy(Closure $selector): MutableTrackedMap&TrackedResult
 	{
 		$prevPairs = $this->store->toPairs();
-		$this->store->sortByPairs(static fn ($x, $y) => $selector($x[1], $x[0]) <=> $selector($y[1], $y[0]));
+		$this->store->sortBy($selector);
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}
@@ -256,7 +256,7 @@ trait MutableTrackedMapLogic
 	public function sortByDesc(Closure $selector): MutableTrackedMap&TrackedResult
 	{
 		$prevPairs = $this->store->toPairs();
-		$this->store->sortByPairs(static fn ($x, $y) => $selector($y[1], $y[0]) <=> $selector($x[1], $x[0]));
+		$this->store->sortBy($selector, descending: true);
 		$this->_changed = $this->store->toPairs() !== $prevPairs;
 		return $this;
 	}

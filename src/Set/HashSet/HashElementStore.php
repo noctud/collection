@@ -32,6 +32,32 @@ final class HashElementStore extends AbstractElementStore implements ReadWriteEl
 		$this->addAll($source);
 	}
 
+	/**
+	 * Builds the store from elements already keyed by KeyHasher::hashSetKey().
+	 *
+	 * @template NE
+	 * @param array<int|string,NE> $elements
+	 * @return self<NE>
+	 */
+	public static function fromHashed(array $elements): self
+	{
+		/** @var self<NE> $store */
+		$store = new self();
+		$store->elements = $elements;
+
+		return $store;
+	}
+
+	/**
+	 * Returns the elements keyed by KeyHasher::hashSetKey().
+	 *
+	 * @return array<int|string,E>
+	 */
+	public function toHashedArray(): array
+	{
+		return $this->elements;
+	}
+
 	public function addAll(iterable $source): void
 	{
 		foreach ($source as $element) {
@@ -99,6 +125,11 @@ final class HashElementStore extends AbstractElementStore implements ReadWriteEl
 		} else {
 			asort($this->elements);
 		}
+	}
+
+	public function sortBy(callable $selector, bool $descending = false): void
+	{
+		$this->elements = self::orderedBy($this->elements, $selector, $descending);
 	}
 
 	public function reverse(): void

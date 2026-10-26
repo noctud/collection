@@ -119,6 +119,18 @@ trait ListMutate
 	}
 
 	#[Test]
+	public function removeEvery_compares_strictly_and_reindexes(): void
+	{
+		$list = $this->collectionOf([0, '0', 0, 0, false, 0]);
+		$result = $list->removeEvery(0);
+		$this->assertSame(['0', false], $result->toArray());
+		$this->assertSame(1, $result->indexOf(false));
+
+		$all = $this->collectionOf(['a', 'a', 'a']);
+		$this->assertSame([], $all->removeEvery('a')->toArray());
+	}
+
+	#[Test]
 	public function removeAt_index(): void
 	{
 		$list = $this->collectionOf(['a', 'b', 'c']);

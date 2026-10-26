@@ -14,6 +14,7 @@ use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Map\SimpleMapEntry;
 use Noctud\Collection\Map\KeyCollisionStrategy;
+use Noctud\Collection\Operation\SortOperation;
 use Noctud\Collection\Store\KeyValueStore;
 use Traversable;
 
@@ -104,7 +105,7 @@ final class IntKeyValueStore implements KeyValueStore
 	 */
 	public function contains(mixed $value): bool
 	{
-		return array_any($this->data, fn ($v) => $v === $value);
+		return in_array($value, $this->data, true);
 	}
 
 	/**
@@ -316,6 +317,23 @@ final class IntKeyValueStore implements KeyValueStore
 	}
 
 	/** @inheritDoc */
+	public function sortBy(callable $selector, bool $descending = false): void
+	{
+		$selected = [];
+		foreach ($this->data as $k => $v) {
+			$selected[$k] = $selector($v, $k);
+		}
+
+		$this->data = array_replace(SortOperation::order($selected, $descending), $this->data);
+	}
+
+	/** @inheritDoc */
+	public function slice(int $offset, ?int $length = null): void
+	{
+		$this->data = array_slice($this->data, $offset, $length, preserve_keys: true);
+	}
+
+	/** @inheritDoc */
 	public function reverse(): void
 	{
 		$this->data = array_reverse($this->data, true);
@@ -344,6 +362,18 @@ final class IntKeyValueStore implements KeyValueStore
 		}
 
 		return $out;
+	}
+
+	/** @inheritDoc */
+	public function keys(): array
+	{
+		return array_keys($this->data);
+	}
+
+	/** @inheritDoc */
+	public function values(): array
+	{
+		return array_values($this->data);
 	}
 
 	/**

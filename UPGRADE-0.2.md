@@ -89,6 +89,17 @@ Each `onEach*()` is narrowed on the sub-interfaces the same way the 0.1 `forEach
 `ImmutableList::onEach(): ImmutableList`, `MutableTrackedMap::onEach(): MutableTrackedMap&TrackedResult`.
 Classes using the traits get all of them for free.
 
+## New store interface methods
+
+Custom stores must add:
+
+| Interface | Methods |
+|---|---|
+| `ReadWriteElementStore` | `sortBy()` |
+| `KeyValueStore` | `sortBy()`, `slice()`, `keys()`, `values()` |
+
+Element stores extending `AbstractElementStore` already get `sortBy()` from it.
+
 ## Behaviour changes
 
 These do not break code written against the 0.1 documentation, but can be observed:

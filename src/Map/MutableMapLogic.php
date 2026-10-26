@@ -159,7 +159,7 @@ trait MutableMapLogic
 	public function sortByKey(?Closure $selector = null): MutableMap
 	{
 		$sel = $selector ?? static fn ($k) => $k;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($x[0]) <=> $sel($y[0]));
+		$this->store->sortBy(static fn ($v, $k) => $sel($k));
 
 		return $this;
 	}
@@ -168,7 +168,7 @@ trait MutableMapLogic
 	public function sortByKeyDesc(?Closure $selector = null): MutableMap
 	{
 		$sel = $selector ?? static fn ($k) => $k;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($y[0]) <=> $sel($x[0]));
+		$this->store->sortBy(static fn ($v, $k) => $sel($k), descending: true);
 
 		return $this;
 	}
@@ -177,7 +177,7 @@ trait MutableMapLogic
 	public function sortByValue(?Closure $selector = null): MutableMap
 	{
 		$sel = $selector ?? static fn ($v) => $v;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($x[1]) <=> $sel($y[1]));
+		$this->store->sortBy(static fn ($v) => $sel($v));
 
 		return $this;
 	}
@@ -186,7 +186,7 @@ trait MutableMapLogic
 	public function sortByValueDesc(?Closure $selector = null): MutableMap
 	{
 		$sel = $selector ?? static fn ($v) => $v;
-		$this->store->sortByPairs(static fn ($x, $y) => $sel($y[1]) <=> $sel($x[1]));
+		$this->store->sortBy(static fn ($v) => $sel($v), descending: true);
 
 		return $this;
 	}
@@ -194,7 +194,7 @@ trait MutableMapLogic
 	/** {@inheritDoc} */
 	public function sortBy(Closure $selector): MutableMap
 	{
-		$this->store->sortByPairs(static fn ($x, $y) => $selector($x[1], $x[0]) <=> $selector($y[1], $y[0]));
+		$this->store->sortBy($selector);
 
 		return $this;
 	}
@@ -202,7 +202,7 @@ trait MutableMapLogic
 	/** {@inheritDoc} */
 	public function sortByDesc(Closure $selector): MutableMap
 	{
-		$this->store->sortByPairs(static fn ($x, $y) => $selector($y[1], $y[0]) <=> $selector($x[1], $x[0]));
+		$this->store->sortBy($selector, descending: true);
 
 		return $this;
 	}

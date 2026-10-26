@@ -338,7 +338,7 @@ trait MapLogic
 	{
 		$store = clone $this->store;
 		$sel = $selector ?? static fn ($k) => $k;
-		$store->sortByPairs(static fn ($x, $y) => $sel($x[0]) <=> $sel($y[0]));
+		$store->sortBy(static fn ($v, $k) => $sel($k));
 		return $this->newMapOf($store);
 	}
 
@@ -352,7 +352,7 @@ trait MapLogic
 	{
 		$store = clone $this->store;
 		$sel = $selector ?? static fn ($k) => $k;
-		$store->sortByPairs(static fn ($x, $y) => $sel($y[0]) <=> $sel($x[0]));
+		$store->sortBy(static fn ($v, $k) => $sel($k), descending: true);
 		return $this->newMapOf($store);
 	}
 
@@ -366,7 +366,7 @@ trait MapLogic
 	{
 		$store = clone $this->store;
 		$sel = $selector ?? static fn ($v) => $v;
-		$store->sortByPairs(static fn ($x, $y) => $sel($x[1]) <=> $sel($y[1]));
+		$store->sortBy(static fn ($v) => $sel($v));
 		return $this->newMapOf($store);
 	}
 
@@ -380,7 +380,7 @@ trait MapLogic
 	{
 		$store = clone $this->store;
 		$sel = $selector ?? static fn ($v) => $v;
-		$store->sortByPairs(static fn ($x, $y) => $sel($y[1]) <=> $sel($x[1]));
+		$store->sortBy(static fn ($v) => $sel($v), descending: true);
 		return $this->newMapOf($store);
 	}
 
@@ -393,7 +393,7 @@ trait MapLogic
 	public function sortedBy(Closure $selector): ImmutableMap
 	{
 		$store = clone $this->store;
-		$store->sortByPairs(static fn ($x, $y) => $selector($x[1], $x[0]) <=> $selector($y[1], $y[0]));
+		$store->sortBy($selector);
 		return $this->newMapOf($store);
 	}
 
@@ -406,7 +406,7 @@ trait MapLogic
 	public function sortedByDesc(Closure $selector): ImmutableMap
 	{
 		$store = clone $this->store;
-		$store->sortByPairs(static fn ($x, $y) => $selector($y[1], $y[0]) <=> $selector($x[1], $x[0]));
+		$store->sortBy($selector, descending: true);
 		return $this->newMapOf($store);
 	}
 
@@ -493,13 +493,10 @@ trait MapLogic
 			return $this->newMapOf([]);
 		}
 
-		$pairs = $this->store->toPairs();
+		$store = clone $this->store;
+		$store->slice(0, $n);
 
-		return $this->newMapOf((function () use ($pairs, $n) {
-			foreach (array_slice($pairs, 0, $n) as [$k, $v]) {
-				yield $k => $v;
-			}
-		})());
+		return $this->newMapOf($store);
 	}
 
 	/**
@@ -513,13 +510,10 @@ trait MapLogic
 			return $this->newMapOf([]);
 		}
 
-		$pairs = $this->store->toPairs();
+		$store = clone $this->store;
+		$store->slice(-$n);
 
-		return $this->newMapOf((function () use ($pairs, $n) {
-			foreach (array_slice($pairs, -$n) as [$k, $v]) {
-				yield $k => $v;
-			}
-		})());
+		return $this->newMapOf($store);
 	}
 
 	/**
@@ -533,13 +527,10 @@ trait MapLogic
 			return $this->newMapOf($this->store);
 		}
 
-		$pairs = $this->store->toPairs();
+		$store = clone $this->store;
+		$store->slice($n);
 
-		return $this->newMapOf((function () use ($pairs, $n) {
-			foreach (array_slice($pairs, $n) as [$k, $v]) {
-				yield $k => $v;
-			}
-		})());
+		return $this->newMapOf($store);
 	}
 
 	/**
@@ -553,18 +544,10 @@ trait MapLogic
 			return $this->newMapOf($this->store);
 		}
 
-		$pairs = $this->store->toPairs();
-		$length = count($pairs) - $n;
+		$store = clone $this->store;
+		$store->slice(0, max(0, $store->count() - $n));
 
-		if ($length <= 0) {
-			return $this->newMapOf([]);
-		}
-
-		return $this->newMapOf((function () use ($pairs, $length) {
-			foreach (array_slice($pairs, 0, $length) as [$k, $v]) {
-				yield $k => $v;
-			}
-		})());
+		return $this->newMapOf($store);
 	}
 
 	/**

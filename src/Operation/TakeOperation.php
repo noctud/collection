@@ -19,15 +19,29 @@ use Generator;
 final class TakeOperation extends AbstractOperation
 {
 	/**
-	 * @param int $n
-	 * @return Generator<V>
+	 * An array is sliced, and a collection takes the slice over as is. Any other source is
+	 * streamed, so that a lazy caller stops pulling after n elements.
+	 *
+	 * @return iterable<V>
 	 */
-	public function first(int $n): Generator
+	public function first(int $n): iterable
 	{
 		if ($n <= 0) {
-			return;
+			return [];
 		}
 
+		if (is_array($this->data)) {
+			return array_slice($this->data, 0, $n);
+		}
+
+		return $this->streamFirst($n);
+	}
+
+	/**
+	 * @return Generator<V>
+	 */
+	private function streamFirst(int $n): Generator
+	{
 		$i = 0;
 		foreach ($this->data as $v) {
 			yield $v;

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Store;
 
 use Noctud\Collection\Exception\NoSuchElementException;
+use Noctud\Collection\Operation\SortOperation;
 
 /**
  * Base class for collection stores.
@@ -122,6 +123,25 @@ abstract class AbstractElementStore implements ReadWriteElementStore
 		} else {
 			sort($this->elements);
 		}
+	}
+
+	public function sortBy(callable $selector, bool $descending = false): void
+	{
+		$this->elements = array_values(self::orderedBy($this->elements, $selector, $descending));
+	}
+
+	/**
+	 * Orders the elements by the value the selector returns for each of them, keeping their keys.
+	 *
+	 * @template T
+	 * @template TKey of array-key
+	 * @param array<TKey,T> $elements
+	 * @param callable(T):mixed $selector
+	 * @return array<TKey,T>
+	 */
+	public static function orderedBy(array $elements, callable $selector, bool $descending = false): array
+	{
+		return array_replace(SortOperation::order(array_map($selector, $elements), $descending), $elements);
 	}
 
 	public function reverse(): void

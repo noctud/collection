@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection;
 
+use Generator;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 
@@ -60,5 +61,29 @@ trait CollectionContains
 
 		$this->assertTrue($collection->containsAll([]));
 		$this->assertFalse($collection->containsAll([1]));
+	}
+
+	#[Test]
+	public function containsAll_with_many_elements_compares_strictly(): void
+	{
+		// Enough elements on both sides for the lookup to be indexed by hash.
+		$collection = $this->collectionOf(range(0, 299));
+
+		$this->assertTrue($collection->containsAll(range(299, 0, -1)));
+		$this->assertFalse($collection->containsAll([...range(0, 298), '299']));
+		$this->assertFalse($collection->containsAll([...range(0, 298), 299.0]));
+	}
+
+	#[Test]
+	public function containsAll_stops_at_the_first_missing_element(): void
+	{
+		$collection = $this->collectionOf([1, 2]);
+		$endless = (static function (): Generator {
+			for ($i = 1;; $i++) {
+				yield $i;
+			}
+		})();
+
+		$this->assertFalse($collection->containsAll($endless));
 	}
 }

@@ -325,6 +325,23 @@ trait CollectionMutateWrite
 	}
 
 	#[Test]
+	public function removeAll_and_retainAll_with_many_elements_compare_strictly(): void
+	{
+		// Enough elements on both sides for the lookup to be indexed by hash: the numeric strings
+		// share nothing with the ints they look like.
+		$data = range(0, 299);
+		$elements = [...array_map(strval(...), range(0, 149)), ...range(150, 299)];
+
+		$collection = $this->collectionOf($data);
+		$removed = $collection->removeAll($elements);
+		$this->assertSame(range(0, 149), $removed->toArray());
+
+		$collection = $this->collectionOf($data);
+		$retained = $collection->retainAll($elements);
+		$this->assertSame(range(150, 299), $retained->toArray());
+	}
+
+	#[Test]
 	public function retainAll_with_empty_keeps_nothing(): void
 	{
 		$collection = $this->collectionOf([1, 2, 3]);

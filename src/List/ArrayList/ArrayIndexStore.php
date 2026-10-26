@@ -83,14 +83,9 @@ final class ArrayIndexStore extends AbstractElementStore implements ReadWriteInd
 
 	public function indexOf(mixed $value): int
 	{
-		/** @var int $i */
-		foreach ($this->elements as $i => $v) {
-			if ($v === $value) {
-				return $i;
-			}
-		}
+		$index = array_search($value, $this->elements, true);
 
-		return -1;
+		return $index === false ? -1 : $index;
 	}
 
 	public function lastIndexOf(mixed $value): int
@@ -124,22 +119,30 @@ final class ArrayIndexStore extends AbstractElementStore implements ReadWriteInd
 
 	public function removeFirstOccurrence(mixed $element): void
 	{
-		/** @var int $k */
-		foreach ($this->elements as $k => $v) {
-			if ($v === $element) {
-				array_splice($this->elements, $k, 1);
-				return;
-			}
+		$index = array_search($element, $this->elements, true);
+		if ($index !== false) {
+			array_splice($this->elements, $index, 1);
 		}
 	}
 
+	/**
+	 * Finds every occurrence in C and reindexes once: splicing each one out shifted the rest
+	 * of the list every time, which was quadratic when many elements matched. Unsetting them
+	 * from a copy allocates no more than the single splice it replaces when one matches.
+	 */
 	public function removeEvery(mixed $element): void
 	{
-		for ($k = count($this->elements) - 1; $k >= 0; $k--) {
-			if ($this->elements[$k] === $element) {
-				array_splice($this->elements, $k, 1);
-			}
+		$indexes = array_keys($this->elements, $element, true);
+		if ($indexes === []) {
+			return;
 		}
+
+		$elements = $this->elements;
+		foreach ($indexes as $index) {
+			unset($elements[$index]);
+		}
+
+		$this->elements = array_values($elements);
 	}
 
 	public function contains(mixed $element): bool
