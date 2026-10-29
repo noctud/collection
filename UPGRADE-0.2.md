@@ -131,7 +131,7 @@ These do not break code written against the 0.1 documentation, but can be observ
 - `zip()` walks the other iterable in lockstep instead of copying it upfront. A `Generator` passed in is
   consumed only up to the shorter length, and one that was already advanced now resumes from where it
   is instead of throwing. An iterator that cannot be rewound surfaces as `NonReplayableSourceException`
-  (a subclass of `UnsupportedOperationException`) with the original exception as its previous one.
+  (a `LogicException`) with the original exception as its previous one.
 - Every exception the library throws implements the new `Noctud\Collection\Exception\NoctudCollectionException`,
   so a single `catch` covers them all. Existing `catch` blocks keep working.
 - On a value typed as a concrete class (`ImmutableHashSet`, `ImmutableArrayList`, `ImmutableHashMap`,

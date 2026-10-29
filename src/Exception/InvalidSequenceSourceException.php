@@ -9,12 +9,10 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Exception;
 
-use LogicException;
-
 /**
  * Thrown when a sequence source closure returns a non-iterable value.
  */
-final class InvalidSequenceSourceException extends LogicException implements SourceException
+final class InvalidSequenceSourceException extends SourceException
 {
 	public static function closureReturnedNonIterable(mixed $produced): self
 	{

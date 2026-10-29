@@ -14,7 +14,7 @@ use Throwable;
 /**
  * Thrown when an iterable that can only be walked once is walked again.
  */
-final class NonReplayableSourceException extends UnsupportedOperationException implements SourceException
+final class NonReplayableSourceException extends SourceException
 {
 	public static function sequenceSourceAlreadyIterated(): self
 	{

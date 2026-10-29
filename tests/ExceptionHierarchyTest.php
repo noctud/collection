@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests;
 
 use FilesystemIterator;
 use Generator;
+use LogicException;
 use Noctud\Collection\Exception\NoctudCollectionException;
 use Noctud\Collection\Exception\SourceException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -77,6 +78,17 @@ final class ExceptionHierarchyTest extends TestCase
 		$this->assertTrue(
 			is_subclass_of($class, NoctudCollectionException::class),
 			sprintf('%s must implement %s', $class, NoctudCollectionException::class),
+		);
+	}
+
+	#[Test]
+	#[DataProvider('libraryExceptions')]
+	public function every_library_exception_is_a_logic_exception(string $class): void
+	{
+		// IDEs treat LogicException as unchecked, so a @throws tag doesn't ask callers for a try-catch
+		$this->assertTrue(
+			is_subclass_of($class, LogicException::class),
+			sprintf('%s must extend %s', $class, LogicException::class),
 		);
 	}
 
