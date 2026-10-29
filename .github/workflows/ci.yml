@@ -10,9 +10,17 @@ jobs:
   phpunit:
     name: PHPUnit (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    # PHP 8.6 is a release candidate until its GA on 2026-11-19, so its job may fail
+    # without failing the run; move it into the php list once it is released.
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.4', '8.5']
+        experimental: [false]
+        include:
+          - php: '8.6'
+            experimental: true
     steps:
       - uses: actions/checkout@v4
 
@@ -20,13 +28,13 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: ${{ matrix.php == '8.4' && 'xdebug' || 'none' }}
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
       - name: Run tests
-        run: vendor/bin/phpunit --coverage-clover coverage.xml
+        run: vendor/bin/phpunit --fail-on-deprecation ${{ matrix.php == '8.4' && '--coverage-clover coverage.xml' || '' }}
 
       - name: Upload coverage to Codecov
         if: matrix.php == '8.4'
