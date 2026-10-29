@@ -1,9 +1,9 @@
 # Noctud Collection
 
 [![Docs](https://img.shields.io/badge/docs-noctud.dev-8A2BE2)](https://noctud.dev/collection/getting-started)
-[![codecov](https://codecov.io/gh/noctud/collection/branch/0.1.x/graph/badge.svg)](https://codecov.io/gh/noctud/collection)
-[![Latest Stable Version](https://img.shields.io/packagist/v/noctud/collection.svg)](https://packagist.org/packages/noctud/collection)
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+[![codecov](https://codecov.io/gh/noctud/collection/branch/0.2.x/graph/badge.svg)](https://codecov.io/gh/noctud/collection)
+[![Latest Stable Version](https://img.shields.io/packagist/v/noctud/collection.svg?color=blue)](https://packagist.org/packages/noctud/collection)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/jS3fKe6vW9)
 
 Type-safe, mutable/immutable, sortable and key-preserving List/Map/Set collections for **PHP 8.4+**.
