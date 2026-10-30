@@ -11,7 +11,7 @@ namespace Noctud\Collection\Tests\Map\Unit\Enum;
 
 enum TestStatus: string
 {
-	case Pending = 'pending';
-	case Approved = 'approved';
-	case Rejected = 'rejected';
+    case Pending = 'pending';
+    case Approved = 'approved';
+    case Rejected = 'rejected';
 }

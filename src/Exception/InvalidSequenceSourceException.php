@@ -17,10 +17,10 @@ use function get_debug_type;
  */
 final class InvalidSequenceSourceException extends SourceException
 {
-	public static function closureReturnedNonIterable(mixed $produced): self
-	{
-		return new self(
-			sprintf('The sequence\'s source closure must return an iterable, got %s.', get_debug_type($produced)),
-		);
-	}
+    public static function closureReturnedNonIterable(mixed $produced): self
+    {
+        return new self(
+            sprintf('The sequence\'s source closure must return an iterable, got %s.', get_debug_type($produced)),
+        );
+    }
 }

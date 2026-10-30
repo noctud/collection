@@ -68,12 +68,12 @@ assertType('array{Noctud\Collection\Collection<string>, Noctud\Collection\Collec
 
 // groupBy is conditional on the value transform.
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, Noctud\Collection\Collection<string>>',
-	$c->groupBy(fn (string $x): string => $x),
+    'Noctud\Collection\Map\ImmutableMap<string, Noctud\Collection\Collection<string>>',
+    $c->groupBy(fn (string $x): string => $x),
 );
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, Noctud\Collection\List\ImmutableList<int>>',
-	$c->groupBy(fn (string $x): string => $x, fn (string $x): int => (int) $x),
+    'Noctud\Collection\Map\ImmutableMap<string, Noctud\Collection\List\ImmutableList<int>>',
+    $c->groupBy(fn (string $x): string => $x, fn (string $x): int => (int) $x),
 );
 
 // Set operations: with a same-typed iterable, the element type is unchanged.

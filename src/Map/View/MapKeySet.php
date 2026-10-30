@@ -26,18 +26,18 @@ use Noctud\Collection\Store\KeyValueStore;
  */
 final class MapKeySet implements Set
 {
-	/** @use SetLogic<E> */
-	use SetLogic;
+    /** @use SetLogic<E> */
+    use SetLogic;
 
-	/** @var ReadOnlyElementStore<E> */
-	protected ReadOnlyElementStore $store;
+    /** @var ReadOnlyElementStore<E> */
+    protected ReadOnlyElementStore $store;
 
-	/**
-	 * @template TV
-	 * @param KeyValueStore<E,TV>|ReadOnlyElementStore<E> $store
-	 */
-	public function __construct(KeyValueStore|ReadOnlyElementStore $store)
-	{
-		$this->store = $store instanceof ReadOnlyElementStore ? $store : new MapKeyStore($store);
-	}
+    /**
+     * @template TV
+     * @param KeyValueStore<E,TV>|ReadOnlyElementStore<E> $store
+     */
+    public function __construct(KeyValueStore|ReadOnlyElementStore $store)
+    {
+        $this->store = $store instanceof ReadOnlyElementStore ? $store : new MapKeyStore($store);
+    }
 }

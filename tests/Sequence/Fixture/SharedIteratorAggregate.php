@@ -22,14 +22,14 @@ use Traversable;
  */
 final class SharedIteratorAggregate implements IteratorAggregate
 {
-	/** @param Traversable<TKey, TValue> $iterator */
-	public function __construct(
-		private readonly Traversable $iterator,
-	) {}
+    /** @param Traversable<TKey, TValue> $iterator */
+    public function __construct(
+        private readonly Traversable $iterator,
+    ) {}
 
-	/** @return Traversable<TKey, TValue> */
-	public function getIterator(): Traversable
-	{
-		return $this->iterator;
-	}
+    /** @return Traversable<TKey, TValue> */
+    public function getIterator(): Traversable
+    {
+        return $this->iterator;
+    }
 }

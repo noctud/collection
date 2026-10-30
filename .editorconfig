@@ -1,5 +1,3 @@
-# Mirrors the coding standard in phpcs.xml.dist: tabs by default (PHP, NEON);
-# sections below only list what differs from this default.
 root = true
 
 [*]
@@ -7,18 +5,14 @@ charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-indent_style = tab
+indent_style = space
 indent_size = 4
 
-# composer.json and the XML *.dist configs are space-indented.
-[*.{json,xml,dist}]
-indent_style = space
-
-# GitHub Actions workflows are space-indented (2).
-[*.{yml,yaml}]
-indent_style = space
-indent_size = 2
-
-# Markdown: trailing whitespace is significant (two spaces = hard line break).
 [*.md]
 trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[docs/{.vitepress/**,package.json}]
+indent_size = 2

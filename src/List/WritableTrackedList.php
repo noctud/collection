@@ -23,119 +23,119 @@ use Noctud\Collection\WritableTrackedCollection;
  */
 interface WritableTrackedList extends WritableList, WritableTrackedCollection
 {
-	// --- Narrowing Start (auto-generated) ---
+    // --- Narrowing Start (auto-generated) ---
 
-	/**
-	 * Sets the element at the specified index.
-	 *
-	 * @param int $index The index at which to set the element
-	 * @param E $element The element to set
-	 * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
-	 * @throws IndexOutOfBoundsException If the index is out of bounds
-	 */
-	public function set(int $index, mixed $element): WritableTrackedList&TrackedResult;
+    /**
+     * Sets the element at the specified index.
+     *
+     * @param int $index The index at which to set the element
+     * @param E $element The element to set
+     * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
+     * @throws IndexOutOfBoundsException If the index is out of bounds
+     */
+    public function set(int $index, mixed $element): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes all occurrences of the specified element from the collection.
-	 *
-	 * @param E $element The element to remove
-	 * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
-	 */
-	public function removeEvery(mixed $element): WritableTrackedList&TrackedResult;
+    /**
+     * Removes all occurrences of the specified element from the collection.
+     *
+     * @param E $element The element to remove
+     * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
+     */
+    public function removeEvery(mixed $element): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes the element at the specified index.
-	 *
-	 * @param int $index The index of the element to remove
-	 * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
-	 * @throws IndexOutOfBoundsException If the index is out of bounds
-	 */
-	public function removeAt(int $index): WritableTrackedList&TrackedResult;
+    /**
+     * Removes the element at the specified index.
+     *
+     * @param int $index The index of the element to remove
+     * @return WritableTrackedList<E>&TrackedResult The list itself for chaining
+     * @throws IndexOutOfBoundsException If the index is out of bounds
+     */
+    public function removeAt(int $index): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Adds a single element to the collection.
-	 *
-	 * Note: Mutable collections enforce strict typing - you can only add elements
-	 * of the declared type E. Use ImmutableCollection if you need type widening.
-	 *
-	 * @param E $element The element to add
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function add(mixed $element): WritableTrackedList&TrackedResult;
+    /**
+     * Adds a single element to the collection.
+     *
+     * Note: Mutable collections enforce strict typing - you can only add elements
+     * of the declared type E. Use ImmutableCollection if you need type widening.
+     *
+     * @param E $element The element to add
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function add(mixed $element): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Adds all elements from an iterable source to the collection.
-	 *
-	 * Note: Mutable collections enforce strict typing - you can only add elements
-	 * of the declared type E. Use ImmutableCollection if you need type widening.
-	 *
-	 * @param iterable<E> $elements The elements to add
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function addAll(iterable $elements): WritableTrackedList&TrackedResult;
+    /**
+     * Adds all elements from an iterable source to the collection.
+     *
+     * Note: Mutable collections enforce strict typing - you can only add elements
+     * of the declared type E. Use ImmutableCollection if you need type widening.
+     *
+     * @param iterable<E> $elements The elements to add
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function addAll(iterable $elements): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes the first occurrence of the specified element from the collection.
-	 *
-	 * @param E $element The element to remove
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function removeElement(mixed $element): WritableTrackedList&TrackedResult;
+    /**
+     * Removes the first occurrence of the specified element from the collection.
+     *
+     * @param E $element The element to remove
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function removeElement(mixed $element): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes all elements matching the given predicate.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function removeIf(Closure $predicate): WritableTrackedList&TrackedResult;
+    /**
+     * Removes all elements matching the given predicate.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function removeIf(Closure $predicate): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes all occurrences of every element in the given iterable from the collection.
-	 *
-	 * @param iterable<E> $elements The elements to remove
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function removeAll(iterable $elements): WritableTrackedList&TrackedResult;
+    /**
+     * Removes all occurrences of every element in the given iterable from the collection.
+     *
+     * @param iterable<E> $elements The elements to remove
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function removeAll(iterable $elements): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes the first element from the collection.
-	 * No-op if empty.
-	 *
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function removeFirst(): WritableTrackedList&TrackedResult;
+    /**
+     * Removes the first element from the collection.
+     * No-op if empty.
+     *
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function removeFirst(): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes the last element from the collection.
-	 * No-op if empty.
-	 *
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function removeLast(): WritableTrackedList&TrackedResult;
+    /**
+     * Removes the last element from the collection.
+     * No-op if empty.
+     *
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function removeLast(): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Retains only elements that are present in the given iterable.
-	 *
-	 * @param iterable<E> $elements The elements to retain
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function retainAll(iterable $elements): WritableTrackedList&TrackedResult;
+    /**
+     * Retains only elements that are present in the given iterable.
+     *
+     * @param iterable<E> $elements The elements to retain
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function retainAll(iterable $elements): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Removes all elements from the collection.
-	 *
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function clear(): WritableTrackedList&TrackedResult;
+    /**
+     * Removes all elements from the collection.
+     *
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function clear(): WritableTrackedList&TrackedResult;
 
-	/**
-	 * Executes the given action for each element and returns the collection for chaining.
-	 *
-	 * @param Closure(E, int):void $action
-	 * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
-	 */
-	public function onEach(Closure $action): WritableTrackedList&TrackedResult;
+    /**
+     * Executes the given action for each element and returns the collection for chaining.
+     *
+     * @param Closure(E, int):void $action
+     * @return WritableTrackedList<E>&TrackedResult The collection itself for chaining
+     */
+    public function onEach(Closure $action): WritableTrackedList&TrackedResult;
 
-	// --- Narrowing End (auto-generated) ---
+    // --- Narrowing End (auto-generated) ---
 }

@@ -20,33 +20,33 @@ use function array_key_exists;
  */
 final class UnzipOperation extends AbstractOperation
 {
-	/**
-	 * Splits a source of pairs into two plain lists, the inverse of ZipOperation.
-	 *
-	 * @return array{list<mixed>, list<mixed>}
-	 * @throws UnsupportedOperationException When an element is not a pair.
-	 */
-	public function pairs(): array
-	{
-		$first = [];
-		$second = [];
+    /**
+     * Splits a source of pairs into two plain lists, the inverse of ZipOperation.
+     *
+     * @return array{list<mixed>, list<mixed>}
+     * @throws UnsupportedOperationException When an element is not a pair.
+     */
+    public function pairs(): array
+    {
+        $first = [];
+        $second = [];
 
-		foreach ($this->data as $pair) {
-			if (!is_array($pair)) {
-				throw new UnsupportedOperationException('unzip() requires a collection of pairs (arrays with indices 0 and 1)');
-			}
+        foreach ($this->data as $pair) {
+            if (!is_array($pair)) {
+                throw new UnsupportedOperationException('unzip() requires a collection of pairs (arrays with indices 0 and 1)');
+            }
 
-			$a = $pair[0] ?? null;
-			$b = $pair[1] ?? null;
+            $a = $pair[0] ?? null;
+            $b = $pair[1] ?? null;
 
-			if ($a === null && !array_key_exists(0, $pair) || $b === null && !array_key_exists(1, $pair)) {
-				throw new UnsupportedOperationException('unzip() requires a collection of pairs (arrays with indices 0 and 1)');
-			}
+            if ($a === null && !array_key_exists(0, $pair) || $b === null && !array_key_exists(1, $pair)) {
+                throw new UnsupportedOperationException('unzip() requires a collection of pairs (arrays with indices 0 and 1)');
+            }
 
-			$first[] = $a;
-			$second[] = $b;
-		}
+            $first[] = $a;
+            $second[] = $b;
+        }
 
-		return [$first, $second];
-	}
+        return [$first, $second];
+    }
 }

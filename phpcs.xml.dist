@@ -23,7 +23,6 @@
         <!-- Disable conflicting rules that we handle differently -->
         <exclude name="Generic.ControlStructures.InlineControlStructure"/>
         <exclude name="Generic.Files.LineLength"/>
-        <exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
         <exclude name="PEAR.Functions.ValidDefaultValue"/>
         <exclude name="PSR2.Classes.ClassDeclaration"/>
         <exclude name="PSR2.Classes.PropertyDeclaration.Multiple"/>
@@ -42,12 +41,11 @@
     <!-- INDENTATION & WHITESPACE -->
     <!-- =================================================================== -->
 
-    <!-- Use tabs for indentation -->
-    <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+    <!-- Use 4 spaces for indentation -->
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
             <property name="indent" value="4"/>
-            <property name="tabIndent" value="true"/>
         </properties>
     </rule>
 

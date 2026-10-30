@@ -23,57 +23,57 @@ use function iterator_to_array;
  */
 final class MapEntryStore implements ReadOnlyElementStore
 {
-	public function __construct(
-		/** @var KeyValueStore<K,V> */
-		private readonly KeyValueStore $store,
-	) {}
+    public function __construct(
+        /** @var KeyValueStore<K,V> */
+        private readonly KeyValueStore $store,
+    ) {}
 
-	/**
-	 * @return Traversable<MapEntry<K,V>>
-	 */
-	public function getIterator(): Traversable
-	{
-		foreach ($this->store as $key => $value) {
-			yield new SimpleMapEntry($key, $value);
-		}
-	}
+    /**
+     * @return Traversable<MapEntry<K,V>>
+     */
+    public function getIterator(): Traversable
+    {
+        foreach ($this->store as $key => $value) {
+            yield new SimpleMapEntry($key, $value);
+        }
+    }
 
-	public function count(): int
-	{
-		return $this->store->count();
-	}
+    public function count(): int
+    {
+        return $this->store->count();
+    }
 
-	public function isEmpty(): bool
-	{
-		return $this->store->isEmpty();
-	}
+    public function isEmpty(): bool
+    {
+        return $this->store->isEmpty();
+    }
 
-	public function first(bool $throw = false): ?MapEntry
-	{
-		return $this->store->first($throw);
-	}
+    public function first(bool $throw = false): ?MapEntry
+    {
+        return $this->store->first($throw);
+    }
 
-	public function last(bool $throw = false): ?MapEntry
-	{
-		return $this->store->last($throw);
-	}
+    public function last(bool $throw = false): ?MapEntry
+    {
+        return $this->store->last($throw);
+    }
 
-	public function random(bool $throw = false): ?MapEntry
-	{
-		return $this->store->random($throw);
-	}
+    public function random(bool $throw = false): ?MapEntry
+    {
+        return $this->store->random($throw);
+    }
 
-	public function contains(mixed $element): bool
-	{
-		if (!$element instanceof MapEntry) {
-			return false;
-		}
+    public function contains(mixed $element): bool
+    {
+        if (!$element instanceof MapEntry) {
+            return false;
+        }
 
-		return $this->store->containsKey($element->key) && $this->store->get($element->key) === $element->value; // @phpstan-ignore argument.type, argument.type
-	}
+        return $this->store->containsKey($element->key) && $this->store->get($element->key) === $element->value; // @phpstan-ignore argument.type, argument.type
+    }
 
-	public function toArray(): array
-	{
-		return iterator_to_array($this, preserve_keys: false);
-	}
+    public function toArray(): array
+    {
+        return iterator_to_array($this, preserve_keys: false);
+    }
 }

@@ -25,25 +25,25 @@ use NoDiscard;
  */
 final class MutableTrackedHashMap implements MutableTrackedMap, TrackedResult
 {
-	/** @use MutableTrackedMapLogic<K,V> */
-	use MutableTrackedMapLogic;
+    /** @use MutableTrackedMapLogic<K,V> */
+    use MutableTrackedMapLogic;
 
-	/**
-	 * @param KeyValueStore<K,V> $store
-	 */
-	public function __construct(KeyValueStore $store)
-	{
-		$this->store = $store;
-	}
+    /**
+     * @param KeyValueStore<K,V> $store
+     */
+    public function __construct(KeyValueStore $store)
+    {
+        $this->store = $store;
+    }
 
-	/**
-	 * Returns this tracked map (already tracked).
-	 *
-	 * @return MutableTrackedMap<K,V>
-	 */
-	#[NoDiscard]
-	public function tracked(): MutableTrackedMap
-	{
-		return $this;
-	}
+    /**
+     * Returns this tracked map (already tracked).
+     *
+     * @return MutableTrackedMap<K,V>
+     */
+    #[NoDiscard]
+    public function tracked(): MutableTrackedMap
+    {
+        return $this;
+    }
 }

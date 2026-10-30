@@ -18,10 +18,10 @@ use Noctud\Collection\Store\KeyValueStore;
  */
 abstract class AbstractKeyValueOperation
 {
-	/**
-	 * @param KeyValueStore<K,V> $data
-	 */
-	public function __construct(
-		protected KeyValueStore $data,
-	) {}
+    /**
+     * @param KeyValueStore<K,V> $data
+     */
+    public function __construct(
+        protected KeyValueStore $data,
+    ) {}
 }

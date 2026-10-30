@@ -17,25 +17,25 @@ use function Noctud\Collection\mutableListOf;
 
 final class MutableListTest extends AbstractListTestCase
 {
-	use ListChangedWithNull;
+    use ListChangedWithNull;
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableList<E>
-	 */
-	public function collectionOf(iterable|Closure $data): MutableList
-	{
-		return mutableListOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableList<E>
+     */
+    public function collectionOf(iterable|Closure $data): MutableList
+    {
+        return mutableListOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableList<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): MutableList
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableList<E>
+     */
+    public function enumerableOf(iterable|Closure $data): MutableList
+    {
+        return $this->collectionOf($data);
+    }
 }

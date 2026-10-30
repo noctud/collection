@@ -22,6 +22,6 @@ assertType('Noctud\Collection\Map\MapEntry<string, int>|null', $map->entries->fi
 // declared `string|int|bool|float|object`/`mixed`).
 $entry = $map->entries->firstOrNull();
 if ($entry !== null) {
-	assertType('string', $entry->key);
-	assertType('int', $entry->value);
+    assertType('string', $entry->key);
+    assertType('int', $entry->value);
 }

@@ -16,23 +16,23 @@ use function Noctud\Collection\mutableMapOf;
 
 final class MutableMapValueCollectionTest extends AbstractCollectionTestCase
 {
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Collection<E>
-	 */
-	public function collectionOf(iterable|Closure $data): Collection
-	{
-		return mutableMapOf($data)->values;
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Collection<E>
+     */
+    public function collectionOf(iterable|Closure $data): Collection
+    {
+        return mutableMapOf($data)->values;
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Collection<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): Collection
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Collection<E>
+     */
+    public function enumerableOf(iterable|Closure $data): Collection
+    {
+        return $this->collectionOf($data);
+    }
 }

@@ -33,222 +33,222 @@ use function function_exists;
 
 // Avoid redeclaration errors
 if (!function_exists('Noctud\Collection\listOf')) {
-	/**
-	 * Creates an immutable list.
-	 * If the given data is Closure, the list will be lazily initialized when first accessed.
-	 *
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	function listOf(iterable|Closure $data = []): ImmutableList
-	{
-		return new ImmutableArrayList($data);
-	}
+    /**
+     * Creates an immutable list.
+     * If the given data is Closure, the list will be lazily initialized when first accessed.
+     *
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    function listOf(iterable|Closure $data = []): ImmutableList
+    {
+        return new ImmutableArrayList($data);
+    }
 
-	/**
-	 * Creates a mutable list.
-	 * If the given data is Closure, the list will be lazily initialized when first accessed.
-	 *
-	 * @template E = mixed
-	 * @param iterable<E>|Closure():iterable<E>|null $data
-	 * @return MutableList<E>
-	 */
-	function mutableListOf(iterable|Closure|null $data = null): MutableList
-	{
-		return new MutableArrayList($data ?? []);
-	}
+    /**
+     * Creates a mutable list.
+     * If the given data is Closure, the list will be lazily initialized when first accessed.
+     *
+     * @template E = mixed
+     * @param iterable<E>|Closure():iterable<E>|null $data
+     * @return MutableList<E>
+     */
+    function mutableListOf(iterable|Closure|null $data = null): MutableList
+    {
+        return new MutableArrayList($data ?? []);
+    }
 
-	/**
-	 * Creates an immutable set.
-	 * If the given data contains duplicate values, only the first occurrence is kept.
-	 * If the given data is Closure, the set will be lazily initialized when first accessed.
-	 *
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableSet<E>
-	 */
-	function setOf(iterable|Closure $data = []): ImmutableSet
-	{
-		return new ImmutableHashSet($data);
-	}
+    /**
+     * Creates an immutable set.
+     * If the given data contains duplicate values, only the first occurrence is kept.
+     * If the given data is Closure, the set will be lazily initialized when first accessed.
+     *
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableSet<E>
+     */
+    function setOf(iterable|Closure $data = []): ImmutableSet
+    {
+        return new ImmutableHashSet($data);
+    }
 
-	/**
-	 * Creates a mutable set.
-	 * If the given data contains duplicate values, only the first occurrence is kept.
-	 * If the given data is Closure, the set will be lazily initialized when first accessed.
-	 *
-	 * @template E = mixed
-	 * @param iterable<E>|Closure():iterable<E>|null $data
-	 * @return MutableSet<E>
-	 */
-	function mutableSetOf(iterable|Closure|null $data = null): MutableSet
-	{
-		return new MutableHashSet($data ?? []);
-	}
+    /**
+     * Creates a mutable set.
+     * If the given data contains duplicate values, only the first occurrence is kept.
+     * If the given data is Closure, the set will be lazily initialized when first accessed.
+     *
+     * @template E = mixed
+     * @param iterable<E>|Closure():iterable<E>|null $data
+     * @return MutableSet<E>
+     */
+    function mutableSetOf(iterable|Closure|null $data = null): MutableSet
+    {
+        return new MutableHashSet($data ?? []);
+    }
 
-	/**
-	 * Creates an immutable map.
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return ImmutableMap<K,V>
-	 */
-	function mapOf(iterable|Closure $data = []): ImmutableMap
-	{
-		return ImmutableHashMap::of($data);
-	}
+    /**
+     * Creates an immutable map.
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return ImmutableMap<K,V>
+     */
+    function mapOf(iterable|Closure $data = []): ImmutableMap
+    {
+        return ImmutableHashMap::of($data);
+    }
 
-	/**
-	 * Creates an immutable map from pairs like [['key1', 'value1'], ['key2', 'value2']].
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
-	 * @return ImmutableMap<K,V>
-	 */
-	function mapOfPairs(iterable|Closure $data): ImmutableMap
-	{
-		return ImmutableHashMap::ofPairs($data);
-	}
+    /**
+     * Creates an immutable map from pairs like [['key1', 'value1'], ['key2', 'value2']].
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
+     * @return ImmutableMap<K,V>
+     */
+    function mapOfPairs(iterable|Closure $data): ImmutableMap
+    {
+        return ImmutableHashMap::ofPairs($data);
+    }
 
-	/**
-	 * Creates a mutable map.
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template K of string|int|bool|float|object = string|int|bool|float|object
-	 * @template V = mixed
-	 * @param iterable<K,V>|Closure():iterable<K,V>|null $data
-	 * @return MutableMap<K,V>
-	 */
-	function mutableMapOf(iterable|Closure|null $data = null): MutableMap
-	{
-		return MutableHashMap::of($data ?? []);
-	}
+    /**
+     * Creates a mutable map.
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template K of string|int|bool|float|object = string|int|bool|float|object
+     * @template V = mixed
+     * @param iterable<K,V>|Closure():iterable<K,V>|null $data
+     * @return MutableMap<K,V>
+     */
+    function mutableMapOf(iterable|Closure|null $data = null): MutableMap
+    {
+        return MutableHashMap::of($data ?? []);
+    }
 
-	/**
-	 * Creates a mutable map from pairs like [['key1', 'value1'], ['key2', 'value2']].
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
-	 * @return MutableMap<K,V>
-	 */
-	function mutableMapOfPairs(iterable|Closure $data): MutableMap
-	{
-		return MutableHashMap::ofPairs($data);
-	}
+    /**
+     * Creates a mutable map from pairs like [['key1', 'value1'], ['key2', 'value2']].
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
+     * @return MutableMap<K,V>
+     */
+    function mutableMapOfPairs(iterable|Closure $data): MutableMap
+    {
+        return MutableHashMap::ofPairs($data);
+    }
 
-	/**
-	 * Creates an immutable string-key map with optimized single-array storage.
-	 * Int keys are automatically cast to string during construction (handles PHP's numeric string casting).
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template V
-	 * @param iterable<string|int,V>|Closure():iterable<string|int,V> $data
-	 * @return ImmutableMap<string,V>
-	 */
-	function stringMapOf(iterable|Closure $data = []): ImmutableMap
-	{
-		return new ImmutableStringMap($data);
-	}
+    /**
+     * Creates an immutable string-key map with optimized single-array storage.
+     * Int keys are automatically cast to string during construction (handles PHP's numeric string casting).
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template V
+     * @param iterable<string|int,V>|Closure():iterable<string|int,V> $data
+     * @return ImmutableMap<string,V>
+     */
+    function stringMapOf(iterable|Closure $data = []): ImmutableMap
+    {
+        return new ImmutableStringMap($data);
+    }
 
-	/**
-	 * Creates a mutable string-key map with optimized single-array storage.
-	 * Int keys are automatically cast to string during construction (handles PHP's numeric string casting).
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template V = mixed
-	 * @param iterable<string|int,V>|Closure():iterable<string|int,V>|null $data
-	 * @return MutableMap<string,V>
-	 */
-	function mutableStringMapOf(iterable|Closure|null $data = null): MutableMap
-	{
-		return new MutableStringMap($data ?? []);
-	}
+    /**
+     * Creates a mutable string-key map with optimized single-array storage.
+     * Int keys are automatically cast to string during construction (handles PHP's numeric string casting).
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template V = mixed
+     * @param iterable<string|int,V>|Closure():iterable<string|int,V>|null $data
+     * @return MutableMap<string,V>
+     */
+    function mutableStringMapOf(iterable|Closure|null $data = null): MutableMap
+    {
+        return new MutableStringMap($data ?? []);
+    }
 
-	/**
-	 * Creates an immutable int-key map with optimized single-array storage.
-	 * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template V
-	 * @param iterable<int,V>|Closure():iterable<int,V> $data
-	 * @return ImmutableMap<int,V>
-	 */
-	function intMapOf(iterable|Closure $data = []): ImmutableMap
-	{
-		return new ImmutableIntMap($data);
-	}
+    /**
+     * Creates an immutable int-key map with optimized single-array storage.
+     * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template V
+     * @param iterable<int,V>|Closure():iterable<int,V> $data
+     * @return ImmutableMap<int,V>
+     */
+    function intMapOf(iterable|Closure $data = []): ImmutableMap
+    {
+        return new ImmutableIntMap($data);
+    }
 
-	/**
-	 * Creates a mutable int-key map with optimized single-array storage.
-	 * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
-	 * If the given data is Closure, the map will be lazily initialized when first accessed.
-	 *
-	 * @template V = mixed
-	 * @param iterable<int,V>|Closure():iterable<int,V>|null $data
-	 * @return MutableMap<int,V>
-	 */
-	function mutableIntMapOf(iterable|Closure|null $data = null): MutableMap
-	{
-		return new MutableIntMap($data ?? []);
-	}
+    /**
+     * Creates a mutable int-key map with optimized single-array storage.
+     * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
+     * If the given data is Closure, the map will be lazily initialized when first accessed.
+     *
+     * @template V = mixed
+     * @param iterable<int,V>|Closure():iterable<int,V>|null $data
+     * @return MutableMap<int,V>
+     */
+    function mutableIntMapOf(iterable|Closure|null $data = null): MutableMap
+    {
+        return new MutableIntMap($data ?? []);
+    }
 
-	/**
-	 * Creates a lazy sequence over the given source.
-	 * Nothing is pulled from the source before the sequence is iterated. Whether the
-	 * sequence can be iterated again depends on the source kind (see Sequence for the
-	 * full contract):
-	 *
-	 * - an array: replayable;
-	 * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
-	 *   iterable on every pass; it must hand back a fresh iterator each time;
-	 * - a raw Iterator/Generator: single-pass, yields its remaining elements.
-	 *
-	 * Pass constrainOnce to force a single pass whatever the source is: the second pass
-	 * throws instead of replaying an array or re-invoking a producer, which is what you
-	 * want when replaying would repeat a side effect.
-	 *
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $source
-	 * @param bool $constrainOnce Limits the sequence to a single pass, whatever the source kind.
-	 * @return Sequence<E>
-	 */
-	function sequenceOf(iterable|Closure $source = [], bool $constrainOnce = false): Sequence
-	{
-		return new GeneratorSequence($source, $constrainOnce);
-	}
+    /**
+     * Creates a lazy sequence over the given source.
+     * Nothing is pulled from the source before the sequence is iterated. Whether the
+     * sequence can be iterated again depends on the source kind (see Sequence for the
+     * full contract):
+     *
+     * - an array: replayable;
+     * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
+     *   iterable on every pass; it must hand back a fresh iterator each time;
+     * - a raw Iterator/Generator: single-pass, yields its remaining elements.
+     *
+     * Pass constrainOnce to force a single pass whatever the source is: the second pass
+     * throws instead of replaying an array or re-invoking a producer, which is what you
+     * want when replaying would repeat a side effect.
+     *
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $source
+     * @param bool $constrainOnce Limits the sequence to a single pass, whatever the source kind.
+     * @return Sequence<E>
+     */
+    function sequenceOf(iterable|Closure $source = [], bool $constrainOnce = false): Sequence
+    {
+        return new GeneratorSequence($source, $constrainOnce);
+    }
 
-	/**
-	 * Creates a lazy sequence from a seed and a function computing the next element.
-	 *
-	 * The sequence yields the seed, then every value returned by $next,
-	 * and stops on the first null. A null seed yields an empty sequence.
-	 * When $next never returns null the sequence is infinite:
-	 * terminate it with takeFirst() or takeWhile().
-	 *
-	 * The sequence is replayable - every pass restarts from $seed.
-	 *
-	 * @template E
-	 * @param E|null $seed
-	 * @param Closure(E):(E|null) $next
-	 * @return Sequence<E>
-	 */
-	function generateSequence(mixed $seed, Closure $next): Sequence
-	{
-		return new GeneratorSequence(static function () use ($seed, $next): Generator {
-			$current = $seed;
+    /**
+     * Creates a lazy sequence from a seed and a function computing the next element.
+     *
+     * The sequence yields the seed, then every value returned by $next,
+     * and stops on the first null. A null seed yields an empty sequence.
+     * When $next never returns null the sequence is infinite:
+     * terminate it with takeFirst() or takeWhile().
+     *
+     * The sequence is replayable - every pass restarts from $seed.
+     *
+     * @template E
+     * @param E|null $seed
+     * @param Closure(E):(E|null) $next
+     * @return Sequence<E>
+     */
+    function generateSequence(mixed $seed, Closure $next): Sequence
+    {
+        return new GeneratorSequence(static function () use ($seed, $next): Generator {
+            $current = $seed;
 
-			while ($current !== null) {
-				yield $current;
+            while ($current !== null) {
+                yield $current;
 
-				$current = $next($current);
-			}
-		});
-	}
+                $current = $next($current);
+            }
+        });
+    }
 }

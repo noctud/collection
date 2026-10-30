@@ -11,8 +11,8 @@ namespace Noctud\Collection\Tests\Collection\Fixture;
 
 class Animal
 {
-	public function __construct(
-		public readonly string $name,
-	) {
-	}
+    public function __construct(
+        public readonly string $name,
+    ) {
+    }
 }

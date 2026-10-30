@@ -18,34 +18,34 @@ use function is_callable;
 
 final class MutableLazyStringMapTest extends AbstractStringMapTestCase
 {
-	/**
-	 * @template V
-	 * @param iterable<string,V>|Closure():iterable<string,V> $data
-	 * @return MutableMap<string,V>
-	 */
-	public function mapOf(iterable|Closure $data): MutableMap
-	{
-		if (!is_callable($data)) {
-			return mutableStringMapOf(fn () => $data);
-		}
+    /**
+     * @template V
+     * @param iterable<string,V>|Closure():iterable<string,V> $data
+     * @return MutableMap<string,V>
+     */
+    public function mapOf(iterable|Closure $data): MutableMap
+    {
+        if (!is_callable($data)) {
+            return mutableStringMapOf(fn () => $data);
+        }
 
-		return mutableStringMapOf($data);
-	}
+        return mutableStringMapOf($data);
+    }
 
-	#[Test]
-	public function lazy_init_from_closure(): void
-	{
-		$called = false;
-		$map = mutableStringMapOf(function () use (&$called) {
-			$called = true;
-			return ['a' => 1, 'b' => 2];
-		});
+    #[Test]
+    public function lazy_init_from_closure(): void
+    {
+        $called = false;
+        $map = mutableStringMapOf(function () use (&$called) {
+            $called = true;
+            return ['a' => 1, 'b' => 2];
+        });
 
-		// Not called yet
-		$this->assertFalse($called);
+        // Not called yet
+        $this->assertFalse($called);
 
-		// Triggers initialization
-		$this->assertSame(2, $map->count());
-		$this->assertTrue($called); // @phpstan-ignore method.impossibleType
-	}
+        // Triggers initialization
+        $this->assertSame(2, $map->count());
+        $this->assertTrue($called); // @phpstan-ignore method.impossibleType
+    }
 }

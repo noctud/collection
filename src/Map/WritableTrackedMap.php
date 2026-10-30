@@ -21,138 +21,138 @@ use Noctud\Collection\TrackedResult;
  */
 interface WritableTrackedMap extends WritableMap
 {
-	// --- Narrowing Start (auto-generated) ---
+    // --- Narrowing Start (auto-generated) ---
 
-	/**
-	 * Returns the current map with the given key/value added.
-	 *
-	 * Note: Mutable maps enforce strict typing - you can only add entries
-	 * matching the declared types K and V. Use ImmutableMap if you need type widening.
-	 *
-	 * @param K $key
-	 * @param V $value
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function put(string|int|bool|float|object $key, mixed $value): WritableTrackedMap&TrackedResult;
+    /**
+     * Returns the current map with the given key/value added.
+     *
+     * Note: Mutable maps enforce strict typing - you can only add entries
+     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     *
+     * @param K $key
+     * @param V $value
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function put(string|int|bool|float|object $key, mixed $value): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Puts the given key/value only if the key is not already present.
-	 * If the key already exists, this is a no-op.
-	 *
-	 * @param K $key
-	 * @param V $value
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function putIfAbsent(string|int|bool|float|object $key, mixed $value): WritableTrackedMap&TrackedResult;
+    /**
+     * Puts the given key/value only if the key is not already present.
+     * If the key already exists, this is a no-op.
+     *
+     * @param K $key
+     * @param V $value
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function putIfAbsent(string|int|bool|float|object $key, mixed $value): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Adds all entries from the given iterable to the current map.
-	 * Example of $data: ['key' => 'value', 'key2' => 'value2']
-	 *
-	 * Note: Mutable maps enforce strict typing - you can only add entries
-	 * matching the declared types K and V. Use ImmutableMap if you need type widening.
-	 *
-	 * @param iterable<K,V> $data
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function putAll(iterable $data): WritableTrackedMap&TrackedResult;
+    /**
+     * Adds all entries from the given iterable to the current map.
+     * Example of $data: ['key' => 'value', 'key2' => 'value2']
+     *
+     * Note: Mutable maps enforce strict typing - you can only add entries
+     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     *
+     * @param iterable<K,V> $data
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function putAll(iterable $data): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Adds all entries from the given iterable to the current map.
-	 * Example of $data: [['key','value'], ['key2','value2']]
-	 *
-	 * Note: Mutable maps enforce strict typing - you can only add entries
-	 * matching the declared types K and V. Use ImmutableMap if you need type widening.
-	 *
-	 * @param iterable<array{0:K,1:V}> $data
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function putAllPairs(iterable $data): WritableTrackedMap&TrackedResult;
+    /**
+     * Adds all entries from the given iterable to the current map.
+     * Example of $data: [['key','value'], ['key2','value2']]
+     *
+     * Note: Mutable maps enforce strict typing - you can only add entries
+     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     *
+     * @param iterable<array{0:K,1:V}> $data
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function putAllPairs(iterable $data): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes the entry for the specified key if present.
-	 *
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function remove(string|int|bool|float|object $key): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes the entry for the specified key if present.
+     *
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function remove(string|int|bool|float|object $key): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes all entries that match the given predicate function.
-	 *
-	 * @param Closure(V, K):bool $predicate
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeIf(Closure $predicate): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes all entries that match the given predicate function.
+     *
+     * @param Closure(V, K):bool $predicate
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeIf(Closure $predicate): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes all entries whose keys match the given predicate function.
-	 *
-	 * @param Closure(K):bool $predicate
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeIfKey(Closure $predicate): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes all entries whose keys match the given predicate function.
+     *
+     * @param Closure(K):bool $predicate
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeIfKey(Closure $predicate): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes all entries whose values match the given predicate function.
-	 *
-	 * @param Closure(V):bool $predicate
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeIfValue(Closure $predicate): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes all entries whose values match the given predicate function.
+     *
+     * @param Closure(V):bool $predicate
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeIfValue(Closure $predicate): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes all entries with null values.
-	 *
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeNullValues(): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes all entries with null values.
+     *
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeNullValues(): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes the first entry from the map.
-	 * No-op if empty.
-	 *
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeFirst(): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes the first entry from the map.
+     * No-op if empty.
+     *
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeFirst(): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes the last entry from the map.
-	 * No-op if empty.
-	 *
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function removeLast(): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes the last entry from the map.
+     * No-op if empty.
+     *
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function removeLast(): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Removes all entries from the map.
-	 *
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function clear(): WritableTrackedMap&TrackedResult;
+    /**
+     * Removes all entries from the map.
+     *
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function clear(): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Executes the given action for each entry and returns the map for chaining.
-	 *
-	 * @param Closure(V, K):void $action
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function onEach(Closure $action): WritableTrackedMap&TrackedResult;
+    /**
+     * Executes the given action for each entry and returns the map for chaining.
+     *
+     * @param Closure(V, K):void $action
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function onEach(Closure $action): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Executes the given action for each key and returns the map for chaining.
-	 *
-	 * @param Closure(K):void $action
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function onEachKey(Closure $action): WritableTrackedMap&TrackedResult;
+    /**
+     * Executes the given action for each key and returns the map for chaining.
+     *
+     * @param Closure(K):void $action
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function onEachKey(Closure $action): WritableTrackedMap&TrackedResult;
 
-	/**
-	 * Executes the given action for each value and returns the map for chaining.
-	 *
-	 * @param Closure(V):void $action
-	 * @return WritableTrackedMap<K,V>&TrackedResult The current map.
-	 */
-	public function onEachValue(Closure $action): WritableTrackedMap&TrackedResult;
+    /**
+     * Executes the given action for each value and returns the map for chaining.
+     *
+     * @param Closure(V):void $action
+     * @return WritableTrackedMap<K,V>&TrackedResult The current map.
+     */
+    public function onEachValue(Closure $action): WritableTrackedMap&TrackedResult;
 
-	// --- Narrowing End (auto-generated) ---
+    // --- Narrowing End (auto-generated) ---
 }

@@ -18,21 +18,21 @@ use Generator;
  */
 final class ZipWithNextOperation extends AbstractOperation
 {
-	/**
-	 * @return Generator<array{V, V}>
-	 */
-	public function pairs(): Generator
-	{
-		$previous = null;
-		$hasPrevious = false;
+    /**
+     * @return Generator<array{V, V}>
+     */
+    public function pairs(): Generator
+    {
+        $previous = null;
+        $hasPrevious = false;
 
-		foreach ($this->data as $v) {
-			if ($hasPrevious) {
-				yield [$previous, $v];
-			}
+        foreach ($this->data as $v) {
+            if ($hasPrevious) {
+                yield [$previous, $v];
+            }
 
-			$previous = $v;
-			$hasPrevious = true;
-		}
-	}
+            $previous = $v;
+            $hasPrevious = true;
+        }
+    }
 }

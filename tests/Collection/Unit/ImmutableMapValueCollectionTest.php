@@ -20,34 +20,34 @@ use function strlen;
 
 final class ImmutableMapValueCollectionTest extends AbstractCollectionTestCase
 {
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Collection<E>
-	 */
-	public function collectionOf(iterable|Closure $data): Collection
-	{
-		return mapOf($data)->values; // @phpstan-ignore argument.templateType
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Collection<E>
+     */
+    public function collectionOf(iterable|Closure $data): Collection
+    {
+        return mapOf($data)->values; // @phpstan-ignore argument.templateType
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Collection<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): Collection
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Collection<E>
+     */
+    public function enumerableOf(iterable|Closure $data): Collection
+    {
+        return $this->collectionOf($data);
+    }
 
-	#[Test]
-	public function sortedBy_sorts_a_copy_of_an_element_store(): void
-	{
-		$store = new ArrayIndexStore(['ccc', 'a', 'bb']);
-		$values = new MapValueCollection($store);
+    #[Test]
+    public function sortedBy_sorts_a_copy_of_an_element_store(): void
+    {
+        $store = new ArrayIndexStore(['ccc', 'a', 'bb']);
+        $values = new MapValueCollection($store);
 
-		$this->assertSame(['a', 'bb', 'ccc'], $values->sortedBy(strlen(...))->toArray());
-		$this->assertSame(['ccc', 'bb', 'a'], $values->sortedByDesc(strlen(...))->toArray());
-		$this->assertSame(['ccc', 'a', 'bb'], $store->toArray());
-	}
+        $this->assertSame(['a', 'bb', 'ccc'], $values->sortedBy(strlen(...))->toArray());
+        $this->assertSame(['ccc', 'bb', 'a'], $values->sortedByDesc(strlen(...))->toArray());
+        $this->assertSame(['ccc', 'a', 'bb'], $store->toArray());
+    }
 }

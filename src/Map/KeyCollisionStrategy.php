@@ -11,7 +11,7 @@ namespace Noctud\Collection\Map;
 
 enum KeyCollisionStrategy
 {
-	case Throw;
-	case KeepFirst;
-	case KeepLast;
+    case Throw;
+    case KeepFirst;
+    case KeepLast;
 }

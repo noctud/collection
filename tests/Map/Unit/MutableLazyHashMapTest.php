@@ -19,50 +19,50 @@ use function is_callable;
 
 final class MutableLazyHashMapTest extends AbstractMapTestCase
 {
-	use EnumerableLazyInit;
+    use EnumerableLazyInit;
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return MutableMap<K,V>
-	 */
-	public function mapOf(iterable|Closure $data): MutableMap
-	{
-		if (!is_callable($data)) {
-			return mutableMapOf(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return MutableMap<K,V>
+     */
+    public function mapOf(iterable|Closure $data): MutableMap
+    {
+        if (!is_callable($data)) {
+            return mutableMapOf(fn () => $data);
+        }
 
-		return mutableMapOf($data);
-	}
+        return mutableMapOf($data);
+    }
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
-	 * @return MutableMap<K,V>
-	 */
-	public function mapOfPairs(iterable|Closure $data): MutableMap
-	{
-		if (!is_callable($data)) {
-			return mutableMapOfPairs(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
+     * @return MutableMap<K,V>
+     */
+    public function mapOfPairs(iterable|Closure $data): MutableMap
+    {
+        if (!is_callable($data)) {
+            return mutableMapOfPairs(fn () => $data);
+        }
 
-		return mutableMapOfPairs($data);
-	}
+        return mutableMapOfPairs($data);
+    }
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return MutableMap<K,V>
-	 */
-	public function enumerableOf(iterable|Closure $data): MutableMap
-	{
-		if (!is_callable($data)) {
-			return mutableMapOf(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return MutableMap<K,V>
+     */
+    public function enumerableOf(iterable|Closure $data): MutableMap
+    {
+        if (!is_callable($data)) {
+            return mutableMapOf(fn () => $data);
+        }
 
-		return mutableMapOf($data);
-	}
+        return mutableMapOf($data);
+    }
 }

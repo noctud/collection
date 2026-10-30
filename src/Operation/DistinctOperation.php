@@ -20,38 +20,38 @@ use function array_key_exists;
  */
 final class DistinctOperation extends AbstractOperation
 {
-	/**
-	 * @return Generator<V>
-	 */
-	public function items(): Generator
-	{
-		$set = [];
-		foreach ($this->data as $v) {
-			$nk = KeyHasher::hashSetKey($v);
-			if (!array_key_exists($nk, $set)) {
-				// Holding the value keeps objects alive, so their spl_object_id() can't be reused by a later object
-				$set[$nk] = $v;
-				yield $v;
-			}
-		}
-	}
+    /**
+     * @return Generator<V>
+     */
+    public function items(): Generator
+    {
+        $set = [];
+        foreach ($this->data as $v) {
+            $nk = KeyHasher::hashSetKey($v);
+            if (!array_key_exists($nk, $set)) {
+                // Holding the value keeps objects alive, so their spl_object_id() can't be reused by a later object
+                $set[$nk] = $v;
+                yield $v;
+            }
+        }
+    }
 
-	/**
-	 * @template SK
-	 * @param callable(V, int):SK $selector
-	 * @return Generator<V>
-	 */
-	public function bySelector(callable $selector): Generator
-	{
-		$set = [];
-		foreach ($this->data as $i => $v) {
-			$key = $selector($v, $i);
-			$nk = KeyHasher::hashSetKey($key);
-			if (!array_key_exists($nk, $set)) {
-				// Holding the key keeps objects alive, so their spl_object_id() can't be reused by a later object
-				$set[$nk] = $key;
-				yield $v;
-			}
-		}
-	}
+    /**
+     * @template SK
+     * @param callable(V, int):SK $selector
+     * @return Generator<V>
+     */
+    public function bySelector(callable $selector): Generator
+    {
+        $set = [];
+        foreach ($this->data as $i => $v) {
+            $key = $selector($v, $i);
+            $nk = KeyHasher::hashSetKey($key);
+            if (!array_key_exists($nk, $set)) {
+                // Holding the key keeps objects alive, so their spl_object_id() can't be reused by a later object
+                $set[$nk] = $key;
+                yield $v;
+            }
+        }
+    }
 }

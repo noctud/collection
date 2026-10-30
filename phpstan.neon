@@ -1,56 +1,56 @@
 parameters:
-	level: 9
-	phpVersion: 80400
-	tmpDir: %currentWorkingDirectory%/var/cache/phpstan
-	fileExtensions:
-		- php
-	paths:
-		- src
-	ignoreErrors:
-		# MapEntrySet and MapValueCollection are @internal view classes whose
-		# generic parameters cause false positives in trait-in-context analysis.
-		# MapEntry<K,V> is invariant, causing Closure(MapEntry<K,V>):bool to be
-		# seen as incompatible with itself; MapEntry is never scalar/null; and
-		# MapValueCollection's newCollection(iterable<E>) conflicts with
-		# type-changing operations like map/flatMap.
-		-
-			message: '#MapEntry#'
-			path: src/CollectionLogic.php
-		-
-			identifier: missingType.generics
-			path: src/CollectionLogic.php
-		-
-			identifier: return.type
-			path: src/Set/SetLogic.php
-		# Narrowing sections narrow Collection<E> → ImmutableList<E> / ImmutableSet<E> etc.
-		# in child return types, which PHPStan flags as incompatible.
-		-
-			identifier: method.childReturnType
-			paths:
-				- src/ImmutableCollection.php
-				- src/WritableCollection.php
-				- src/List/ListInterface.php
-				- src/List/ImmutableList.php
-				- src/List/WritableList.php
-				- src/Set/Set.php
-				- src/Set/ImmutableSet.php
-				- src/Set/WritableSet.php
-		# flatten()'s conditional return type cannot be evaluated in classes with a
-		# concrete E (the subject is already substituted), so the trait vs ancestor
-		# comparison sees structurally different but semantically equal conditionals.
-		-
-			message: '#::flatten\(\)#'
-			identifier: method.childReturnType
-			paths:
-				- src/List/ListLogic.php
-				- src/Set/SetLogic.php
-		# classes which implement ImmutableMap<string,...>. The trait's put()/putFirst()
-		# accepts string|int|bool|float|object but the store expects string.
-		-
-			identifier: argument.type
-			path: src/Map/ImmutableMapLogic.php
-		-
-			message: '#MapValueCollection#'
-			path: src/CollectionLogic.php
+    level: 9
+    phpVersion: 80400
+    tmpDir: %currentWorkingDirectory%/var/cache/phpstan
+    fileExtensions:
+        - php
+    paths:
+        - src
+    ignoreErrors:
+        # MapEntrySet and MapValueCollection are @internal view classes whose
+        # generic parameters cause false positives in trait-in-context analysis.
+        # MapEntry<K,V> is invariant, causing Closure(MapEntry<K,V>):bool to be
+        # seen as incompatible with itself; MapEntry is never scalar/null; and
+        # MapValueCollection's newCollection(iterable<E>) conflicts with
+        # type-changing operations like map/flatMap.
+        -
+            message: '#MapEntry#'
+            path: src/CollectionLogic.php
+        -
+            identifier: missingType.generics
+            path: src/CollectionLogic.php
+        -
+            identifier: return.type
+            path: src/Set/SetLogic.php
+        # Narrowing sections narrow Collection<E> → ImmutableList<E> / ImmutableSet<E> etc.
+        # in child return types, which PHPStan flags as incompatible.
+        -
+            identifier: method.childReturnType
+            paths:
+                - src/ImmutableCollection.php
+                - src/WritableCollection.php
+                - src/List/ListInterface.php
+                - src/List/ImmutableList.php
+                - src/List/WritableList.php
+                - src/Set/Set.php
+                - src/Set/ImmutableSet.php
+                - src/Set/WritableSet.php
+        # flatten()'s conditional return type cannot be evaluated in classes with a
+        # concrete E (the subject is already substituted), so the trait vs ancestor
+        # comparison sees structurally different but semantically equal conditionals.
+        -
+            message: '#::flatten\(\)#'
+            identifier: method.childReturnType
+            paths:
+                - src/List/ListLogic.php
+                - src/Set/SetLogic.php
+        # classes which implement ImmutableMap<string,...>. The trait's put()/putFirst()
+        # accepts string|int|bool|float|object but the store expects string.
+        -
+            identifier: argument.type
+            path: src/Map/ImmutableMapLogic.php
+        -
+            message: '#MapValueCollection#'
+            path: src/CollectionLogic.php
 includes:
-	- phpstan-tests.neon
+    - phpstan-tests.neon

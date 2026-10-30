@@ -22,6 +22,6 @@ assertType('int<0, max>', $c->countWhere(fn (string $x): bool => $x !== ''));
 
 // countBy: the key selector's return becomes the map key, values are the counts.
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, int>',
-	$c->countBy(fn (string $x): string => $x),
+    'Noctud\Collection\Map\ImmutableMap<string, int>',
+    $c->countBy(fn (string $x): string => $x),
 );

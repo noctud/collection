@@ -35,47 +35,47 @@ use function iterator_to_array;
  */
 class ManualItemCollection implements ImmutableSet
 {
-	/** @use ImmutableSetLogic<SwappableItem> */
-	use ImmutableSetLogic;
+    /** @use ImmutableSetLogic<SwappableItem> */
+    use ImmutableSetLogic;
 
-	/** @param iterable<SwappableItem> $data */
-	public function __construct(iterable $data = [])
-	{
-		$items = is_array($data) ? $data : iterator_to_array($data, false);
-		foreach ($items as $item) {
-			if (!$item instanceof SwappableItem) {
-				throw new InvalidArgumentException('ManualItemCollection must only hold SwappableItem instances');
-			}
-		}
+    /** @param iterable<SwappableItem> $data */
+    public function __construct(iterable $data = [])
+    {
+        $items = is_array($data) ? $data : iterator_to_array($data, false);
+        foreach ($items as $item) {
+            if (!$item instanceof SwappableItem) {
+                throw new InvalidArgumentException('ManualItemCollection must only hold SwappableItem instances');
+            }
+        }
 
-		$this->store = new HashElementStore($items);
-	}
+        $this->store = new HashElementStore($items);
+    }
 
-	/** @param iterable<SwappableItem> $data */
-	protected function newCollectionOf(iterable $data): ImmutableSet
-	{
-		return new self($data);
-	}
+    /** @param iterable<SwappableItem> $data */
+    protected function newCollectionOf(iterable $data): ImmutableSet
+    {
+        return new self($data);
+    }
 
-	public function onlySwapped(): self
-	{
-		return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
-	}
+    public function onlySwapped(): self
+    {
+        return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
+    }
 
-	public function sortedItems(): self
-	{
-		return $this->sorted();
-	}
+    public function sortedItems(): self
+    {
+        return $this->sorted();
+    }
 
-	/** @return array{self, self} */
-	public function splitBySwapped(): array
-	{
-		return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
-	}
+    /** @return array{self, self} */
+    public function splitBySwapped(): array
+    {
+        return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
+    }
 
-	/** @return ImmutableSet<int> */
-	public function toIds(): ImmutableSet
-	{
-		return $this->map(static fn (SwappableItem $i): int => $i->id);
-	}
+    /** @return ImmutableSet<int> */
+    public function toIds(): ImmutableSet
+    {
+        return $this->map(static fn (SwappableItem $i): int => $i->id);
+    }
 }

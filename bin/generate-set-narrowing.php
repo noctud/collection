@@ -38,22 +38,22 @@ $writableCollectionContent = file_get_contents($writableCollectionFile);
 $mutableCollectionContent = file_get_contents($mutableCollectionFile);
 
 if ($collectionContent === false || $immutableCollectionContent === false || $writableCollectionContent === false || $mutableCollectionContent === false) {
-	echo "Failed to read source files\n";
-	exit(1);
+    echo "Failed to read source files\n";
+    exit(1);
 }
 
 // Generate Set narrowing (Collection -> Set)
 $setNarrowing = NarrowingGenerator::generateSetNarrowing($collectionContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($setFile, $setNarrowing)) {
-	echo "Failed to update Set.php\n";
-	exit(1);
+    echo "Failed to update Set.php\n";
+    exit(1);
 }
 
 // Generate ImmutableSet narrowing (ImmutableCollection -> ImmutableSet)
 $immutableSetNarrowing = NarrowingGenerator::generateImmutableSetNarrowing($immutableCollectionContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($immutableSetFile, $immutableSetNarrowing)) {
-	echo "Failed to update ImmutableSet.php\n";
-	exit(1);
+    echo "Failed to update ImmutableSet.php\n";
+    exit(1);
 }
 
 // Generate WritableSet narrowing:
@@ -63,8 +63,8 @@ $writableSetMutationNarrowing = NarrowingGenerator::generateWritableSetNarrowing
 $writableSetTransformationNarrowing = NarrowingGenerator::generateWritableSetTransformationNarrowing($collectionContent, ['onEach']);
 $writableSetNarrowing = $writableSetMutationNarrowing . "\n\n" . $writableSetTransformationNarrowing;
 if (!NarrowingGenerator::writeBetweenMarkers($writableSetFile, $writableSetNarrowing)) {
-	echo "Failed to update WritableSet.php\n";
-	exit(1);
+    echo "Failed to update WritableSet.php\n";
+    exit(1);
 }
 
 // Generate WritableTrackedSet narrowing (WritableSet -> WritableTrackedSet&TrackedResult)
@@ -72,21 +72,21 @@ if (!NarrowingGenerator::writeBetweenMarkers($writableSetFile, $writableSetNarro
 $writableTrackedSetFile = __DIR__ . '/../src/Set/WritableTrackedSet.php';
 $writableSetContent = file_get_contents($writableSetFile);
 if ($writableSetContent === false) {
-	echo "Failed to read WritableSet.php\n";
-	exit(1);
+    echo "Failed to read WritableSet.php\n";
+    exit(1);
 }
 
 $wtsNarrowing = NarrowingGenerator::generateWritableTrackedSetNarrowing($writableSetContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($writableTrackedSetFile, $wtsNarrowing)) {
-	echo "Failed to update WritableTrackedSet.php\n";
-	exit(1);
+    echo "Failed to update WritableTrackedSet.php\n";
+    exit(1);
 }
 
 // Generate MutableSet narrowing (MutableCollection -> MutableSet)
 $mutableSetNarrowing = NarrowingGenerator::generateMutableSetNarrowing($mutableCollectionContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($mutableSetFile, $mutableSetNarrowing)) {
-	echo "Failed to update MutableSet.php\n";
-	exit(1);
+    echo "Failed to update MutableSet.php\n";
+    exit(1);
 }
 
 // Generate MutableTrackedSet narrowing (MutableSet -> MutableTrackedSet&TrackedResult)
@@ -94,14 +94,14 @@ if (!NarrowingGenerator::writeBetweenMarkers($mutableSetFile, $mutableSetNarrowi
 $trackedSetFile = __DIR__ . '/../src/Set/MutableTrackedSet.php';
 $mutableSetContent = file_get_contents($mutableSetFile);
 if ($mutableSetContent === false) {
-	echo "Failed to read MutableSet.php\n";
-	exit(1);
+    echo "Failed to read MutableSet.php\n";
+    exit(1);
 }
 
 $trackedSetNarrowing = NarrowingGenerator::generateTrackedSetNarrowing($mutableSetContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($trackedSetFile, $trackedSetNarrowing)) {
-	echo "Failed to update MutableTrackedSet.php\n";
-	exit(1);
+    echo "Failed to update MutableTrackedSet.php\n";
+    exit(1);
 }
 
 echo "Done!\n";

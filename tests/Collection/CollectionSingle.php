@@ -14,51 +14,51 @@ use PHPUnit\Framework\Attributes\Test;
 
 trait CollectionSingle
 {
-	#[Test]
-	public function single_returns_only_element(): void
-	{
-		$collection = $this->collectionOf([42]);
-		$this->assertSame(42, $collection->single());
-	}
+    #[Test]
+    public function single_returns_only_element(): void
+    {
+        $collection = $this->collectionOf([42]);
+        $this->assertSame(42, $collection->single());
+    }
 
-	#[Test]
-	public function single_throws_on_empty(): void
-	{
-		$collection = $this->collectionOf([]);
+    #[Test]
+    public function single_throws_on_empty(): void
+    {
+        $collection = $this->collectionOf([]);
 
-		$this->expectException(NoSuchElementException::class);
-		$this->expectExceptionMessageIsOrContains('Collection is empty');
-		$collection->single();
-	}
+        $this->expectException(NoSuchElementException::class);
+        $this->expectExceptionMessageIsOrContains('Collection is empty');
+        $collection->single();
+    }
 
-	#[Test]
-	public function single_throws_on_multiple(): void
-	{
-		$collection = $this->collectionOf([1, 2]);
+    #[Test]
+    public function single_throws_on_multiple(): void
+    {
+        $collection = $this->collectionOf([1, 2]);
 
-		$this->expectException(NoSuchElementException::class);
-		$this->expectExceptionMessageIsOrContains('Collection contains more than one element');
-		$collection->single();
-	}
+        $this->expectException(NoSuchElementException::class);
+        $this->expectExceptionMessageIsOrContains('Collection contains more than one element');
+        $collection->single();
+    }
 
-	#[Test]
-	public function singleOrNull_returns_element(): void
-	{
-		$collection = $this->collectionOf([42]);
-		$this->assertSame(42, $collection->singleOrNull());
-	}
+    #[Test]
+    public function singleOrNull_returns_element(): void
+    {
+        $collection = $this->collectionOf([42]);
+        $this->assertSame(42, $collection->singleOrNull());
+    }
 
-	#[Test]
-	public function singleOrNull_returns_null_on_empty(): void
-	{
-		$collection = $this->collectionOf([]);
-		$this->assertNull($collection->singleOrNull());
-	}
+    #[Test]
+    public function singleOrNull_returns_null_on_empty(): void
+    {
+        $collection = $this->collectionOf([]);
+        $this->assertNull($collection->singleOrNull());
+    }
 
-	#[Test]
-	public function singleOrNull_returns_null_on_multiple(): void
-	{
-		$collection = $this->collectionOf([1, 2]);
-		$this->assertNull($collection->singleOrNull());
-	}
+    #[Test]
+    public function singleOrNull_returns_null_on_multiple(): void
+    {
+        $collection = $this->collectionOf([1, 2]);
+        $this->assertNull($collection->singleOrNull());
+    }
 }

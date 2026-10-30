@@ -16,23 +16,23 @@ use function Noctud\Collection\listOf;
 
 final class ImmutableListTest extends AbstractListTestCase
 {
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	public function collectionOf(iterable|Closure $data): ImmutableList
-	{
-		return listOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    public function collectionOf(iterable|Closure $data): ImmutableList
+    {
+        return listOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): ImmutableList
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    public function enumerableOf(iterable|Closure $data): ImmutableList
+    {
+        return $this->collectionOf($data);
+    }
 }

@@ -1,44 +1,44 @@
 parameters:
-	paths:
-		- tests
+    paths:
+        - tests
 
-	ignoreErrors:
-		# ignore "missing value type in iterable" warnings
-		- '#no value type specified in iterable type#'
-		# traits are analyzed against abstract base classes where collectionOf() returns
-		# the most general Collection/Set/List type; concrete test classes narrow the return type
-		-
-			identifier: method.notFound
-			path: tests/Collection/*
-		-
-			identifier: argument.type
-			path: tests/Collection/*
-		-
-			identifier: method.alreadyNarrowedType
-			path: tests/Collection/*
-		# defensive array_is_list() assertions verify at runtime what PHPStan
-		# treats as statically certain from the list<E> return PHPDocs; they
-		# guard against future regressions of the list invariant
-		-
-			identifier: function.alreadyNarrowedType
-			path: tests/Collection/*
-		-
-			identifier: instanceof.alwaysTrue
-			path: tests/Collection/*
-		-
-			identifier: missingType.generics
-			path: tests/Collection/*
-		# same issue for Map tests - concrete classes narrow the return type
-		# (includes the Map extending fixtures under tests/Map/Extending)
-		-
-			identifier: instanceof.alwaysTrue
-			path: tests/Map/*
-		-
-			identifier: missingType.generics
-			path: tests/Map/*
-		# since PHPStan 2.2.15, a repeated assertSame() on the same call is reported as
-		# always true (phpstan/phpstan#15317); Sequence tests deliberately re-run terminal
-		# operations to verify replay and laziness
-		-
-			identifier: method.alreadyNarrowedType
-			path: tests/Sequence/*
+    ignoreErrors:
+        # ignore "missing value type in iterable" warnings
+        - '#no value type specified in iterable type#'
+        # traits are analyzed against abstract base classes where collectionOf() returns
+        # the most general Collection/Set/List type; concrete test classes narrow the return type
+        -
+            identifier: method.notFound
+            path: tests/Collection/*
+        -
+            identifier: argument.type
+            path: tests/Collection/*
+        -
+            identifier: method.alreadyNarrowedType
+            path: tests/Collection/*
+        # defensive array_is_list() assertions verify at runtime what PHPStan
+        # treats as statically certain from the list<E> return PHPDocs; they
+        # guard against future regressions of the list invariant
+        -
+            identifier: function.alreadyNarrowedType
+            path: tests/Collection/*
+        -
+            identifier: instanceof.alwaysTrue
+            path: tests/Collection/*
+        -
+            identifier: missingType.generics
+            path: tests/Collection/*
+        # same issue for Map tests - concrete classes narrow the return type
+        # (includes the Map extending fixtures under tests/Map/Extending)
+        -
+            identifier: instanceof.alwaysTrue
+            path: tests/Map/*
+        -
+            identifier: missingType.generics
+            path: tests/Map/*
+        # since PHPStan 2.2.15, a repeated assertSame() on the same call is reported as
+        # always true (phpstan/phpstan#15317); Sequence tests deliberately re-run terminal
+        # operations to verify replay and laziness
+        -
+            identifier: method.alreadyNarrowedType
+            path: tests/Sequence/*

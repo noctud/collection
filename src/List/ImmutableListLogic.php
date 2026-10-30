@@ -20,109 +20,109 @@ use Noctud\Collection\StrictElementLookup;
  */
 trait ImmutableListLogic
 {
-	/** @var ReadWriteIndexedStore<E> */
-	protected ReadWriteIndexedStore $store;
+    /** @var ReadWriteIndexedStore<E> */
+    protected ReadWriteIndexedStore $store;
 
-	/** @use ListLogic<E> */
-	use ListLogic;
+    /** @use ListLogic<E> */
+    use ListLogic;
 
-	// --- Mutation (returns new) ---
+    // --- Mutation (returns new) ---
 
-	/** {@inheritDoc} */
-	public function add(mixed $element): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->add($element);
-		return $this->newCollectionOf($store); // @phpstan-ignore return.type
-	}
+    /** {@inheritDoc} */
+    public function add(mixed $element): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->add($element);
+        return $this->newCollectionOf($store); // @phpstan-ignore return.type
+    }
 
-	/** {@inheritDoc} */
-	public function addFirst(mixed $element): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->addFirst($element);
-		return $this->newCollectionOf($store); // @phpstan-ignore return.type
-	}
+    /** {@inheritDoc} */
+    public function addFirst(mixed $element): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->addFirst($element);
+        return $this->newCollectionOf($store); // @phpstan-ignore return.type
+    }
 
-	/** {@inheritDoc} */
-	public function addAll(iterable $elements): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->addAll($elements);
-		return $this->newCollectionOf($store); // @phpstan-ignore return.type
-	}
+    /** {@inheritDoc} */
+    public function addAll(iterable $elements): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->addAll($elements);
+        return $this->newCollectionOf($store); // @phpstan-ignore return.type
+    }
 
-	/** {@inheritDoc} */
-	public function removeIf(Closure $predicate): ImmutableList
-	{
-		$i = 0;
-		$filtered = new FilterOperation($this->store->toArray())->byValue(function ($v) use ($predicate, &$i) {
-			return !$predicate($v, $i++);
-		});
-		return $this->newCollectionOf($filtered);
-	}
+    /** {@inheritDoc} */
+    public function removeIf(Closure $predicate): ImmutableList
+    {
+        $i = 0;
+        $filtered = new FilterOperation($this->store->toArray())->byValue(function ($v) use ($predicate, &$i) {
+            return !$predicate($v, $i++);
+        });
+        return $this->newCollectionOf($filtered);
+    }
 
-	/** {@inheritDoc} */
-	public function removeAll(iterable $elements): ImmutableList
-	{
-		$lookup = new StrictElementLookup($elements);
-		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate(negate: true)));
-	}
+    /** {@inheritDoc} */
+    public function removeAll(iterable $elements): ImmutableList
+    {
+        $lookup = new StrictElementLookup($elements);
+        return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate(negate: true)));
+    }
 
-	/** {@inheritDoc} */
-	public function removeElement(mixed $element): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->removeFirstOccurrence($element);
-		return $this->newCollectionOf($store);
-	}
+    /** {@inheritDoc} */
+    public function removeElement(mixed $element): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->removeFirstOccurrence($element);
+        return $this->newCollectionOf($store);
+    }
 
-	/** {@inheritDoc} */
-	public function removeFirst(): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->removeFirst();
-		return $this->newCollectionOf($store);
-	}
+    /** {@inheritDoc} */
+    public function removeFirst(): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->removeFirst();
+        return $this->newCollectionOf($store);
+    }
 
-	/** {@inheritDoc} */
-	public function removeLast(): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->removeLast();
-		return $this->newCollectionOf($store);
-	}
+    /** {@inheritDoc} */
+    public function removeLast(): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->removeLast();
+        return $this->newCollectionOf($store);
+    }
 
-	/** {@inheritDoc} */
-	public function retainAll(iterable $elements): ImmutableList
-	{
-		$lookup = new StrictElementLookup($elements);
-		return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate()));
-	}
+    /** {@inheritDoc} */
+    public function retainAll(iterable $elements): ImmutableList
+    {
+        $lookup = new StrictElementLookup($elements);
+        return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate()));
+    }
 
-	// --- Mutation: List (returns new) ---
+    // --- Mutation: List (returns new) ---
 
-	/** {@inheritDoc} */
-	public function set(int $index, mixed $element): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->set($index, $element); // @phpstan-ignore argument.type
-		return $this->newCollectionOf($store); // @phpstan-ignore return.type
-	}
+    /** {@inheritDoc} */
+    public function set(int $index, mixed $element): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->set($index, $element); // @phpstan-ignore argument.type
+        return $this->newCollectionOf($store); // @phpstan-ignore return.type
+    }
 
-	/** {@inheritDoc} */
-	public function removeAt(int $index): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->removeAt($index);
-		return $this->newCollectionOf($store);
-	}
+    /** {@inheritDoc} */
+    public function removeAt(int $index): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->removeAt($index);
+        return $this->newCollectionOf($store);
+    }
 
-	/** {@inheritDoc} */
-	public function removeEvery(mixed $element): ImmutableList
-	{
-		$store = clone $this->store;
-		$store->removeEvery($element);
-		return $this->newCollectionOf($store);
-	}
+    /** {@inheritDoc} */
+    public function removeEvery(mixed $element): ImmutableList
+    {
+        $store = clone $this->store;
+        $store->removeEvery($element);
+        return $this->newCollectionOf($store);
+    }
 }

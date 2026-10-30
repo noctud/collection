@@ -19,27 +19,27 @@ namespace Noctud\Collection\Store;
  */
 interface ReadWriteIndexedStore extends ReadOnlyIndexedStore, ReadWriteElementStore
 {
-	// --- Mutation ---
+    // --- Mutation ---
 
-	/**
-	 * Sets the element at the given index.
-	 *
-	 * @param int $index
-	 * @param V $element
-	 */
-	public function set(int $index, mixed $element): void;
+    /**
+     * Sets the element at the given index.
+     *
+     * @param int $index
+     * @param V $element
+     */
+    public function set(int $index, mixed $element): void;
 
-	/**
-	 * Removes the element at the given index.
-	 *
-	 * @param int $index
-	 */
-	public function removeAt(int $index): void;
+    /**
+     * Removes the element at the given index.
+     *
+     * @param int $index
+     */
+    public function removeAt(int $index): void;
 
-	/**
-	 * Removes all occurrences of the element.
-	 *
-	 * @param V $element
-	 */
-	public function removeEvery(mixed $element): void;
+    /**
+     * Removes all occurrences of the element.
+     *
+     * @param V $element
+     */
+    public function removeEvery(mixed $element): void;
 }

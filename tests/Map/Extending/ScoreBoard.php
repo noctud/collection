@@ -27,87 +27,87 @@ use function is_int;
  */
 class ScoreBoard implements ImmutableMap
 {
-	/** @use SelfPreservingImmutableMapLogic<string, int> */
-	use SelfPreservingImmutableMapLogic;
+    /** @use SelfPreservingImmutableMapLogic<string, int> */
+    use SelfPreservingImmutableMapLogic;
 
-	/** @param iterable<string, int> $data */
-	public function __construct(iterable $data = [])
-	{
-		// Buffered into pairs: iterator_to_array() crashes on non-scalar keys before the guard runs
-		$pairs = [];
-		foreach ($data as $name => $score) {
-			self::assertEntry($name, $score);
-			$pairs[] = [$name, $score];
-		}
+    /** @param iterable<string, int> $data */
+    public function __construct(iterable $data = [])
+    {
+        // Buffered into pairs: iterator_to_array() crashes on non-scalar keys before the guard runs
+        $pairs = [];
+        foreach ($data as $name => $score) {
+            self::assertEntry($name, $score);
+            $pairs[] = [$name, $score];
+        }
 
-		$this->store = HashKeyValueStore::fromPairs($pairs);
-	}
+        $this->store = HashKeyValueStore::fromPairs($pairs);
+    }
 
-	// mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
-	// to catch internal rebuilds that would bypass the declared entry types.
-	private static function assertEntry(mixed $name, mixed $score): void
-	{
-		if (!is_string($name) || !is_int($score)) {
-			throw new InvalidArgumentException('ScoreBoard must only hold string => int entries');
-		}
-	}
+    // mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
+    // to catch internal rebuilds that would bypass the declared entry types.
+    private static function assertEntry(mixed $name, mixed $score): void
+    {
+        if (!is_string($name) || !is_int($score)) {
+            throw new InvalidArgumentException('ScoreBoard must only hold string => int entries');
+        }
+    }
 
-	public function winners(): self
-	{
-		return $this->filterValues(static fn (int $score): bool => $score >= 100);
-	}
+    public function winners(): self
+    {
+        return $this->filterValues(static fn (int $score): bool => $score >= 100);
+    }
 
-	public function ranked(): self
-	{
-		return $this->sortedByValueDesc();
-	}
+    public function ranked(): self
+    {
+        return $this->sortedByValueDesc();
+    }
 
-	public function byName(): self
-	{
-		return $this->sortedByKey();
-	}
+    public function byName(): self
+    {
+        return $this->sortedByKey();
+    }
 
-	public function with(string $name, int $score): self
-	{
-		return $this->put($name, $score);
-	}
+    public function with(string $name, int $score): self
+    {
+        return $this->put($name, $score);
+    }
 
-	public function without(string $name): self
-	{
-		return $this->remove($name);
-	}
+    public function without(string $name): self
+    {
+        return $this->remove($name);
+    }
 
-	public function top(): self
-	{
-		return $this->sortedByValueDesc()->takeFirst(1);
-	}
+    public function top(): self
+    {
+        return $this->sortedByValueDesc()->takeFirst(1);
+    }
 
-	// mapKeys / mapValues / mapValuesNotNull / flip change the key or value type, so
-	// they return the base ImmutableMap<NK,V> / ImmutableMap<K,NV> (not self). These
-	// assert the new key/value type is inferred from the closure rather than collapsed
-	// to mixed.
+    // mapKeys / mapValues / mapValuesNotNull / flip change the key or value type, so
+    // they return the base ImmutableMap<NK,V> / ImmutableMap<K,NV> (not self). These
+    // assert the new key/value type is inferred from the closure rather than collapsed
+    // to mixed.
 
-	/** @return ImmutableMap<int, int> */
-	public function rekeyByScore(): ImmutableMap
-	{
-		return $this->mapKeys(static fn (int $score, string $name): int => $score);
-	}
+    /** @return ImmutableMap<int, int> */
+    public function rekeyByScore(): ImmutableMap
+    {
+        return $this->mapKeys(static fn (int $score, string $name): int => $score);
+    }
 
-	/** @return ImmutableMap<string, float> */
-	public function scaled(): ImmutableMap
-	{
-		return $this->mapValues(static fn (int $score): float => $score * 1.5);
-	}
+    /** @return ImmutableMap<string, float> */
+    public function scaled(): ImmutableMap
+    {
+        return $this->mapValues(static fn (int $score): float => $score * 1.5);
+    }
 
-	/** @return ImmutableMap<string, string> */
-	public function winnerLabels(): ImmutableMap
-	{
-		return $this->mapValuesNotNull(static fn (int $score): ?string => $score >= 100 ? 'win' : null);
-	}
+    /** @return ImmutableMap<string, string> */
+    public function winnerLabels(): ImmutableMap
+    {
+        return $this->mapValuesNotNull(static fn (int $score): ?string => $score >= 100 ? 'win' : null);
+    }
 
-	/** @return ImmutableMap<int, string> */
-	public function flipped(): ImmutableMap
-	{
-		return $this->flip();
-	}
+    /** @return ImmutableMap<int, string> */
+    public function flipped(): ImmutableMap
+    {
+        return $this->flip();
+    }
 }

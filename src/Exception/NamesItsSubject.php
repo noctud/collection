@@ -21,16 +21,16 @@ use Noctud\Collection\Sequence\Sequence;
  */
 trait NamesItsSubject
 {
-	/**
-	 * @param Collection<mixed>|Sequence<mixed> $subject
-	 */
-	private static function subjectName(Collection|Sequence $subject): string
-	{
-		// The parameter type makes this exhaustive, so the default arm *is* the Collection case
-		// rather than a catch-all. Widening that union means adding an arm here.
-		return match (true) {
-			$subject instanceof Sequence => 'Sequence',
-			default => 'Collection',
-		};
-	}
+    /**
+     * @param Collection<mixed>|Sequence<mixed> $subject
+     */
+    private static function subjectName(Collection|Sequence $subject): string
+    {
+        // The parameter type makes this exhaustive, so the default arm *is* the Collection case
+        // rather than a catch-all. Widening that union means adding an arm here.
+        return match (true) {
+            $subject instanceof Sequence => 'Sequence',
+            default => 'Collection',
+        };
+    }
 }

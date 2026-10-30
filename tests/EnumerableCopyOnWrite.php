@@ -47,232 +47,232 @@ use function sprintf;
 
 trait EnumerableCopyOnWrite
 {
-	private const int CowSize = 50_000;
+    private const int CowSize = 50_000;
 
-	private const float CowMaxMemoryIncreasePercent = 10.0;
+    private const float CowMaxMemoryIncreasePercent = 10.0;
 
-	/** @var list<mixed> Prevents GC from collecting references during memory measurement */
-	private array $cowAnchors = [];
+    /** @var list<mixed> Prevents GC from collecting references during memory measurement */
+    private array $cowAnchors = [];
 
-	/**
-	 * @return Collection<string>|Map<int|string, string>
-	 */
-	private function createCowCollection(): Collection|Map
-	{
-		return $this->enumerableOf($this->generateSampleData(self::CowSize)); // @phpstan-ignore return.type
-	}
+    /**
+     * @return Collection<string>|Map<int|string, string>
+     */
+    private function createCowCollection(): Collection|Map
+    {
+        return $this->enumerableOf($this->generateSampleData(self::CowSize)); // @phpstan-ignore return.type
+    }
 
-	#[Test]
-	public function toMutable_uses_copy_on_write(): void
-	{
-		$enumerable = $this->createCowCollection();
+    #[Test]
+    public function toMutable_uses_copy_on_write(): void
+    {
+        $enumerable = $this->createCowCollection();
 
-		// Views materialize data on conversion, COW does not apply
-		if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
-			$this->assertTrue(true); /** @phpstan-ignore-line */
-			return;
-		}
+        // Views materialize data on conversion, COW does not apply
+        if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
+            $this->assertTrue(true); /** @phpstan-ignore-line */
+            return;
+        }
 
-		// Materialize lazy collections
-		$enumerable->count();
+        // Materialize lazy collections
+        $enumerable->count();
 
-		gc_collect_cycles();
-		$before = memory_get_usage();
+        gc_collect_cycles();
+        $before = memory_get_usage();
 
-		$this->cowAnchors[] = $enumerable->toMutable();
+        $this->cowAnchors[] = $enumerable->toMutable();
 
-		gc_collect_cycles();
-		$after = memory_get_usage();
+        gc_collect_cycles();
+        $after = memory_get_usage();
 
-		$increase = max(0, $after - $before);
-		$this->assertCowMemory($increase);
-	}
+        $increase = max(0, $after - $before);
+        $this->assertCowMemory($increase);
+    }
 
-	#[Test]
-	public function toImmutable_uses_copy_on_write(): void
-	{
-		$enumerable = $this->createCowCollection();
+    #[Test]
+    public function toImmutable_uses_copy_on_write(): void
+    {
+        $enumerable = $this->createCowCollection();
 
-		// Views materialize data on conversion, COW does not apply
-		if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
-			$this->assertTrue(true); /** @phpstan-ignore-line */
-			return;
-		}
+        // Views materialize data on conversion, COW does not apply
+        if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
+            $this->assertTrue(true); /** @phpstan-ignore-line */
+            return;
+        }
 
-		// Materialize lazy collections
-		$enumerable->count();
+        // Materialize lazy collections
+        $enumerable->count();
 
-		if ($enumerable instanceof ImmutableCollection || $enumerable instanceof ImmutableMap) {
-			$this->assertSame($enumerable, $enumerable->toImmutable());
-			return;
-		}
+        if ($enumerable instanceof ImmutableCollection || $enumerable instanceof ImmutableMap) {
+            $this->assertSame($enumerable, $enumerable->toImmutable());
+            return;
+        }
 
-		gc_collect_cycles();
-		$before = memory_get_usage();
+        gc_collect_cycles();
+        $before = memory_get_usage();
 
-		$this->cowAnchors[] = $enumerable->toImmutable();
+        $this->cowAnchors[] = $enumerable->toImmutable();
 
-		gc_collect_cycles();
-		$after = memory_get_usage();
+        gc_collect_cycles();
+        $after = memory_get_usage();
 
-		$increase = max(0, $after - $before);
-		$this->assertCowMemory($increase);
-	}
+        $increase = max(0, $after - $before);
+        $this->assertCowMemory($increase);
+    }
 
-	#[Test]
-	public function constructing_from_existing_uses_copy_on_write(): void
-	{
-		$enumerable = $this->createCowCollection();
+    #[Test]
+    public function constructing_from_existing_uses_copy_on_write(): void
+    {
+        $enumerable = $this->createCowCollection();
 
-		// Views materialize data on conversion, COW does not apply
-		if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
-			$this->assertTrue(true); /** @phpstan-ignore-line */
-			return;
-		}
+        // Views materialize data on conversion, COW does not apply
+        if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
+            $this->assertTrue(true); /** @phpstan-ignore-line */
+            return;
+        }
 
-		// Materialize lazy collections
-		$enumerable->count();
+        // Materialize lazy collections
+        $enumerable->count();
 
-		gc_collect_cycles();
-		$before = memory_get_usage();
+        gc_collect_cycles();
+        $before = memory_get_usage();
 
-		if ($enumerable instanceof MutableList) {
-			$this->cowAnchors[] = mutableListOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableList) {
-			$this->cowAnchors[] = listOf($enumerable);
-		} elseif ($enumerable instanceof MutableSet) {
-			$this->cowAnchors[] = mutableSetOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableSet) {
-			$this->cowAnchors[] = setOf($enumerable);
-		} elseif ($enumerable instanceof MutableStringMap) {
-			$this->cowAnchors[] = mutableStringMapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableStringMap) {
-			$this->cowAnchors[] = stringMapOf($enumerable);
-		} elseif ($enumerable instanceof MutableIntMap) {
-			$this->cowAnchors[] = mutableIntMapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableIntMap) {
-			$this->cowAnchors[] = intMapOf($enumerable);
-		} elseif ($enumerable instanceof MutableMap) {
-			$this->cowAnchors[] = mutableMapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableMap) {
-			$this->cowAnchors[] = mapOf($enumerable);
-		} elseif ($enumerable instanceof MutableCollection) {
-			$this->cowAnchors[] = mutableListOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableCollection) {
-			$this->cowAnchors[] = listOf($enumerable);
-		} else {
-			$this->fail('Unsupported enumerable type: ' . $enumerable::class);
-		}
+        if ($enumerable instanceof MutableList) {
+            $this->cowAnchors[] = mutableListOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableList) {
+            $this->cowAnchors[] = listOf($enumerable);
+        } elseif ($enumerable instanceof MutableSet) {
+            $this->cowAnchors[] = mutableSetOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableSet) {
+            $this->cowAnchors[] = setOf($enumerable);
+        } elseif ($enumerable instanceof MutableStringMap) {
+            $this->cowAnchors[] = mutableStringMapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableStringMap) {
+            $this->cowAnchors[] = stringMapOf($enumerable);
+        } elseif ($enumerable instanceof MutableIntMap) {
+            $this->cowAnchors[] = mutableIntMapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableIntMap) {
+            $this->cowAnchors[] = intMapOf($enumerable);
+        } elseif ($enumerable instanceof MutableMap) {
+            $this->cowAnchors[] = mutableMapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableMap) {
+            $this->cowAnchors[] = mapOf($enumerable);
+        } elseif ($enumerable instanceof MutableCollection) {
+            $this->cowAnchors[] = mutableListOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableCollection) {
+            $this->cowAnchors[] = listOf($enumerable);
+        } else {
+            $this->fail('Unsupported enumerable type: ' . $enumerable::class);
+        }
 
-		gc_collect_cycles();
-		$after = memory_get_usage();
+        gc_collect_cycles();
+        $after = memory_get_usage();
 
-		$increase = max(0, $after - $before);
-		$this->assertCowMemory($increase);
-	}
+        $increase = max(0, $after - $before);
+        $this->assertCowMemory($increase);
+    }
 
-	#[Test]
-	public function constructing_cross_type_uses_copy_on_write(): void
-	{
-		$enumerable = $this->createCowCollection();
+    #[Test]
+    public function constructing_cross_type_uses_copy_on_write(): void
+    {
+        $enumerable = $this->createCowCollection();
 
-		// Views materialize data on conversion, COW does not apply
-		if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
-			$this->assertTrue(true); /** @phpstan-ignore-line */
-			return;
-		}
+        // Views materialize data on conversion, COW does not apply
+        if ($enumerable instanceof MapKeySet || $enumerable instanceof MapValueCollection) {
+            $this->assertTrue(true); /** @phpstan-ignore-line */
+            return;
+        }
 
-		// Materialize lazy collections
-		$enumerable->count();
+        // Materialize lazy collections
+        $enumerable->count();
 
-		gc_collect_cycles();
-		$before = memory_get_usage();
+        gc_collect_cycles();
+        $before = memory_get_usage();
 
-		if ($enumerable instanceof MutableList) {
-			$this->cowAnchors[] = listOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableList) {
-			$this->cowAnchors[] = mutableListOf($enumerable);
-		} elseif ($enumerable instanceof MutableSet) {
-			$this->cowAnchors[] = setOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableSet) {
-			$this->cowAnchors[] = mutableSetOf($enumerable);
-		} elseif ($enumerable instanceof MutableStringMap) {
-			$this->cowAnchors[] = stringMapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableStringMap) {
-			$this->cowAnchors[] = mutableStringMapOf($enumerable);
-		} elseif ($enumerable instanceof MutableIntMap) {
-			$this->cowAnchors[] = intMapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableIntMap) {
-			$this->cowAnchors[] = mutableIntMapOf($enumerable);
-		} elseif ($enumerable instanceof MutableMap) {
-			$this->cowAnchors[] = mapOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableMap) {
-			$this->cowAnchors[] = mutableMapOf($enumerable);
-		} elseif ($enumerable instanceof MutableCollection) {
-			$this->cowAnchors[] = listOf($enumerable);
-		} elseif ($enumerable instanceof ImmutableCollection) {
-			$this->cowAnchors[] = mutableListOf($enumerable);
-		} else {
-			$this->fail('Unsupported enumerable type: ' . $enumerable::class);
-		}
+        if ($enumerable instanceof MutableList) {
+            $this->cowAnchors[] = listOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableList) {
+            $this->cowAnchors[] = mutableListOf($enumerable);
+        } elseif ($enumerable instanceof MutableSet) {
+            $this->cowAnchors[] = setOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableSet) {
+            $this->cowAnchors[] = mutableSetOf($enumerable);
+        } elseif ($enumerable instanceof MutableStringMap) {
+            $this->cowAnchors[] = stringMapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableStringMap) {
+            $this->cowAnchors[] = mutableStringMapOf($enumerable);
+        } elseif ($enumerable instanceof MutableIntMap) {
+            $this->cowAnchors[] = intMapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableIntMap) {
+            $this->cowAnchors[] = mutableIntMapOf($enumerable);
+        } elseif ($enumerable instanceof MutableMap) {
+            $this->cowAnchors[] = mapOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableMap) {
+            $this->cowAnchors[] = mutableMapOf($enumerable);
+        } elseif ($enumerable instanceof MutableCollection) {
+            $this->cowAnchors[] = listOf($enumerable);
+        } elseif ($enumerable instanceof ImmutableCollection) {
+            $this->cowAnchors[] = mutableListOf($enumerable);
+        } else {
+            $this->fail('Unsupported enumerable type: ' . $enumerable::class);
+        }
 
-		gc_collect_cycles();
-		$after = memory_get_usage();
+        gc_collect_cycles();
+        $after = memory_get_usage();
 
-		$increase = max(0, $after - $before);
-		$this->assertCowMemory($increase);
-	}
+        $increase = max(0, $after - $before);
+        $this->assertCowMemory($increase);
+    }
 
-	#[Test]
-	public function constructing_from_pairs_uses_copy_on_write(): void
-	{
-		$enumerable = $this->createCowCollection();
+    #[Test]
+    public function constructing_from_pairs_uses_copy_on_write(): void
+    {
+        $enumerable = $this->createCowCollection();
 
-		// Only HashMaps support ofPairs construction
-		if (!$enumerable instanceof MutableHashMap && !$enumerable instanceof ImmutableHashMap) {
-			$this->assertTrue(true); /** @phpstan-ignore-line */
-			return;
-		}
+        // Only HashMaps support ofPairs construction
+        if (!$enumerable instanceof MutableHashMap && !$enumerable instanceof ImmutableHashMap) {
+            $this->assertTrue(true); /** @phpstan-ignore-line */
+            return;
+        }
 
-		// Materialize lazy collections
-		$enumerable->count();
+        // Materialize lazy collections
+        $enumerable->count();
 
-		gc_collect_cycles();
-		$before = memory_get_usage();
+        gc_collect_cycles();
+        $before = memory_get_usage();
 
-		if ($enumerable instanceof MutableHashMap) {
-			$this->cowAnchors[] = mutableMapOfPairs($enumerable); /** @phpstan-ignore-line */
-		} else {
-			$this->cowAnchors[] = mapOfPairs($enumerable); /** @phpstan-ignore-line */
-		}
+        if ($enumerable instanceof MutableHashMap) {
+            $this->cowAnchors[] = mutableMapOfPairs($enumerable); /** @phpstan-ignore-line */
+        } else {
+            $this->cowAnchors[] = mapOfPairs($enumerable); /** @phpstan-ignore-line */
+        }
 
-		gc_collect_cycles();
-		$after = memory_get_usage();
+        gc_collect_cycles();
+        $after = memory_get_usage();
 
-		$increase = max(0, $after - $before);
-		$this->assertCowMemory($increase);
-	}
+        $increase = max(0, $after - $before);
+        $this->assertCowMemory($increase);
+    }
 
-	private function assertCowMemory(int $increase): void
-	{
-		gc_collect_cycles();
-		$refBefore = memory_get_usage();
-		$reference = $this->createCowCollection();
-		$reference->count();
-		$this->cowAnchors[] = $reference;
-		gc_collect_cycles();
-		$refAfter = memory_get_usage();
-		$referenceMemory = max(1, $refAfter - $refBefore);
+    private function assertCowMemory(int $increase): void
+    {
+        gc_collect_cycles();
+        $refBefore = memory_get_usage();
+        $reference = $this->createCowCollection();
+        $reference->count();
+        $this->cowAnchors[] = $reference;
+        gc_collect_cycles();
+        $refAfter = memory_get_usage();
+        $referenceMemory = max(1, $refAfter - $refBefore);
 
-		$percent = ($increase / $referenceMemory) * 100;
+        $percent = ($increase / $referenceMemory) * 100;
 
-		$this->assertLessThan(
-			self::CowMaxMemoryIncreasePercent,
-			$percent,
-			sprintf(
-				'Copy-on-write failed: conversion used %.1f%% of base collection memory',
-				$percent,
-			),
-		);
-	}
+        $this->assertLessThan(
+            self::CowMaxMemoryIncreasePercent,
+            $percent,
+            sprintf(
+                'Copy-on-write failed: conversion used %.1f%% of base collection memory',
+                $percent,
+            ),
+        );
+    }
 }

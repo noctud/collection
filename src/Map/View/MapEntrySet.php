@@ -28,17 +28,17 @@ use Noctud\Collection\Store\KeyValueStore;
  */
 final class MapEntrySet implements Set
 {
-	/** @use SetLogic<MapEntry<K,V>> */
-	use SetLogic;
+    /** @use SetLogic<MapEntry<K,V>> */
+    use SetLogic;
 
-	/** @var ReadOnlyElementStore<MapEntry<K,V>> */
-	protected ReadOnlyElementStore $store;
+    /** @var ReadOnlyElementStore<MapEntry<K,V>> */
+    protected ReadOnlyElementStore $store;
 
-	/**
-	 * @param KeyValueStore<K,V>|ReadOnlyElementStore<MapEntry<K,V>> $store
-	 */
-	public function __construct(KeyValueStore|ReadOnlyElementStore $store)
-	{
-		$this->store = $store instanceof ReadOnlyElementStore ? $store : new MapEntryStore($store);
-	}
+    /**
+     * @param KeyValueStore<K,V>|ReadOnlyElementStore<MapEntry<K,V>> $store
+     */
+    public function __construct(KeyValueStore|ReadOnlyElementStore $store)
+    {
+        $this->store = $store instanceof ReadOnlyElementStore ? $store : new MapEntryStore($store);
+    }
 }

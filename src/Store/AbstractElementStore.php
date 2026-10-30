@@ -35,136 +35,136 @@ use function shuffle;
  */
 abstract class AbstractElementStore implements ReadWriteElementStore
 {
-	// --- Properties ---
+    // --- Properties ---
 
-	/** @var array<int|string,V> */
-	protected array $elements = [];
+    /** @var array<int|string,V> */
+    protected array $elements = [];
 
-	// --- Element Access ---
+    // --- Element Access ---
 
-	public function first(bool $throw = false): mixed
-	{
-		if ($this->isEmpty()) {
-			if (!$throw) {
-				return null;
-			}
+    public function first(bool $throw = false): mixed
+    {
+        if ($this->isEmpty()) {
+            if (!$throw) {
+                return null;
+            }
 
-			throw new NoSuchElementException();
-		}
+            throw new NoSuchElementException();
+        }
 
-		return $this->elements[array_key_first($this->elements)];
-	}
+        return $this->elements[array_key_first($this->elements)];
+    }
 
-	public function last(bool $throw = false): mixed
-	{
-		if ($this->isEmpty()) {
-			if (!$throw) {
-				return null;
-			}
+    public function last(bool $throw = false): mixed
+    {
+        if ($this->isEmpty()) {
+            if (!$throw) {
+                return null;
+            }
 
-			throw new NoSuchElementException();
-		}
+            throw new NoSuchElementException();
+        }
 
-		return $this->elements[array_key_last($this->elements)];
-	}
+        return $this->elements[array_key_last($this->elements)];
+    }
 
-	public function random(bool $throw = false): mixed
-	{
-		if ($this->isEmpty()) {
-			if (!$throw) {
-				return null;
-			}
+    public function random(bool $throw = false): mixed
+    {
+        if ($this->isEmpty()) {
+            if (!$throw) {
+                return null;
+            }
 
-			throw new NoSuchElementException();
-		}
+            throw new NoSuchElementException();
+        }
 
-		return $this->elements[array_rand($this->elements)];
-	}
+        return $this->elements[array_rand($this->elements)];
+    }
 
-	// --- Querying ---
+    // --- Querying ---
 
-	abstract public function contains(mixed $element): bool;
+    abstract public function contains(mixed $element): bool;
 
-	public function isEmpty(): bool
-	{
-		return $this->elements === [];
-	}
+    public function isEmpty(): bool
+    {
+        return $this->elements === [];
+    }
 
-	public function count(): int
-	{
-		return count($this->elements);
-	}
+    public function count(): int
+    {
+        return count($this->elements);
+    }
 
-	// --- Mutation ---
+    // --- Mutation ---
 
-	/**
-	 * Adds all elements from source. Must be implemented by subclasses.
-	 *
-	 * @param iterable<V> $source
-	 */
-	abstract public function addAll(iterable $source): void;
+    /**
+     * Adds all elements from source. Must be implemented by subclasses.
+     *
+     * @param iterable<V> $source
+     */
+    abstract public function addAll(iterable $source): void;
 
-	public function removeFirst(): void
-	{
-		if (!$this->isEmpty()) {
-			array_shift($this->elements);
-		}
-	}
+    public function removeFirst(): void
+    {
+        if (!$this->isEmpty()) {
+            array_shift($this->elements);
+        }
+    }
 
-	public function removeLast(): void
-	{
-		if (!$this->isEmpty()) {
-			array_pop($this->elements);
-		}
-	}
+    public function removeLast(): void
+    {
+        if (!$this->isEmpty()) {
+            array_pop($this->elements);
+        }
+    }
 
-	public function clear(): void
-	{
-		$this->elements = [];
-	}
+    public function clear(): void
+    {
+        $this->elements = [];
+    }
 
-	public function removeIf(callable $predicate): void
-	{
-		$this->elements = array_values(array_filter($this->elements, static fn ($element) => !$predicate($element)));
-	}
+    public function removeIf(callable $predicate): void
+    {
+        $this->elements = array_values(array_filter($this->elements, static fn ($element) => !$predicate($element)));
+    }
 
-	// --- Ordering ---
+    // --- Ordering ---
 
-	public function sort(?callable $comparator = null): void
-	{
-		if ($comparator !== null) {
-			usort($this->elements, $comparator);
-		} else {
-			sort($this->elements);
-		}
-	}
+    public function sort(?callable $comparator = null): void
+    {
+        if ($comparator !== null) {
+            usort($this->elements, $comparator);
+        } else {
+            sort($this->elements);
+        }
+    }
 
-	public function sortBy(callable $selector, bool $descending = false): void
-	{
-		$this->elements = array_values(self::orderedBy($this->elements, $selector, $descending));
-	}
+    public function sortBy(callable $selector, bool $descending = false): void
+    {
+        $this->elements = array_values(self::orderedBy($this->elements, $selector, $descending));
+    }
 
-	/**
-	 * Orders the elements by the value the selector returns for each of them, keeping their keys.
-	 *
-	 * @template T
-	 * @template TKey of array-key
-	 * @param array<TKey,T> $elements
-	 * @param callable(T):mixed $selector
-	 * @return array<TKey,T>
-	 */
-	public static function orderedBy(array $elements, callable $selector, bool $descending = false): array
-	{
-		return array_replace(SortOperation::order(array_map($selector, $elements), $descending), $elements);
-	}
+    /**
+     * Orders the elements by the value the selector returns for each of them, keeping their keys.
+     *
+     * @template T
+     * @template TKey of array-key
+     * @param array<TKey,T> $elements
+     * @param callable(T):mixed $selector
+     * @return array<TKey,T>
+     */
+    public static function orderedBy(array $elements, callable $selector, bool $descending = false): array
+    {
+        return array_replace(SortOperation::order(array_map($selector, $elements), $descending), $elements);
+    }
 
-	public function reverse(): void
-	{
-		$this->elements = array_reverse($this->elements);
-	}
+    public function reverse(): void
+    {
+        $this->elements = array_reverse($this->elements);
+    }
 
-	public function shuffle(): void
-	{
-		shuffle($this->elements);
-	}
+    public function shuffle(): void
+    {
+        shuffle($this->elements);
+    }
 }

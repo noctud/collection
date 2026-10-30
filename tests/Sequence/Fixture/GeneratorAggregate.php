@@ -21,14 +21,14 @@ use Traversable;
  */
 final class GeneratorAggregate implements IteratorAggregate
 {
-	/** @param list<TValue> $values */
-	public function __construct(
-		private readonly array $values,
-	) {}
+    /** @param list<TValue> $values */
+    public function __construct(
+        private readonly array $values,
+    ) {}
 
-	/** @return Traversable<int, TValue> */
-	public function getIterator(): Traversable
-	{
-		yield from $this->values;
-	}
+    /** @return Traversable<int, TValue> */
+    public function getIterator(): Traversable
+    {
+        yield from $this->values;
+    }
 }

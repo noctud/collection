@@ -18,26 +18,26 @@ use function Noctud\Collection\setOf;
 
 final class ImmutableSetTest extends AbstractSetTestCase
 {
-	use CollectionMutateWrite;
-	use SetMutateWrite;
+    use CollectionMutateWrite;
+    use SetMutateWrite;
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableSet<E>
-	 */
-	public function collectionOf(iterable|Closure $data): ImmutableSet
-	{
-		return setOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableSet<E>
+     */
+    public function collectionOf(iterable|Closure $data): ImmutableSet
+    {
+        return setOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableSet<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): ImmutableSet
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableSet<E>
+     */
+    public function enumerableOf(iterable|Closure $data): ImmutableSet
+    {
+        return $this->collectionOf($data);
+    }
 }

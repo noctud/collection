@@ -19,27 +19,27 @@ use function Noctud\Collection\mutableSetOf;
 
 final class MutableSetTest extends AbstractSetTestCase
 {
-	use CollectionMutateWrite;
-	use SetChangedWithNull;
-	use SetMutateWrite;
+    use CollectionMutateWrite;
+    use SetChangedWithNull;
+    use SetMutateWrite;
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableSet<E>
-	 */
-	public function collectionOf(iterable|Closure $data): MutableSet
-	{
-		return mutableSetOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableSet<E>
+     */
+    public function collectionOf(iterable|Closure $data): MutableSet
+    {
+        return mutableSetOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableSet<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): MutableSet
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableSet<E>
+     */
+    public function enumerableOf(iterable|Closure $data): MutableSet
+    {
+        return $this->collectionOf($data);
+    }
 }

@@ -21,34 +21,34 @@ use function count;
  */
 final class ChunkOperation extends AbstractOperation
 {
-	/**
-	 * Yields chunks as they fill up, so a lazy caller never holds more than one
-	 * chunk at a time; an eager one collects them exactly as before. An array source
-	 * is cut by array_chunk() instead.
-	 *
-	 * @return Generator<int, list<V>>
-	 */
-	public function ofSize(int $size): Generator
-	{
-		if ($size <= 0) {
-			return;
-		}
+    /**
+     * Yields chunks as they fill up, so a lazy caller never holds more than one
+     * chunk at a time; an eager one collects them exactly as before. An array source
+     * is cut by array_chunk() instead.
+     *
+     * @return Generator<int, list<V>>
+     */
+    public function ofSize(int $size): Generator
+    {
+        if ($size <= 0) {
+            return;
+        }
 
-		if (is_array($this->data)) {
-			yield from array_chunk($this->data, $size);
-			return;
-		}
+        if (is_array($this->data)) {
+            yield from array_chunk($this->data, $size);
+            return;
+        }
 
-		$buffer = [];
-		foreach ($this->data as $v) {
-			$buffer[] = $v;
-			if (count($buffer) >= $size) {
-				yield $buffer;
-				$buffer = [];
-			}
-		}
-		if ($buffer) {
-			yield $buffer;
-		}
-	}
+        $buffer = [];
+        foreach ($this->data as $v) {
+            $buffer[] = $v;
+            if (count($buffer) >= $size) {
+                yield $buffer;
+                $buffer = [];
+            }
+        }
+        if ($buffer) {
+            yield $buffer;
+        }
+    }
 }

@@ -18,26 +18,26 @@ namespace Noctud\Collection\Store;
  */
 interface ReadOnlyIndexedStore extends ReadOnlyElementStore
 {
-	// --- Element Access ---
+    // --- Element Access ---
 
-	/**
-	 * Returns the value at the given index, or null if not found.
-	 *
-	 * @return ($throw is true ? V : V|null)
-	 */
-	public function get(int $index, bool $throw = false): mixed;
+    /**
+     * Returns the value at the given index, or null if not found.
+     *
+     * @return ($throw is true ? V : V|null)
+     */
+    public function get(int $index, bool $throw = false): mixed;
 
-	/**
-	 * Returns the index of the first occurrence of the value, or -1 if not found.
-	 *
-	 * @param V $value
-	 */
-	public function indexOf(mixed $value): int;
+    /**
+     * Returns the index of the first occurrence of the value, or -1 if not found.
+     *
+     * @param V $value
+     */
+    public function indexOf(mixed $value): int;
 
-	/**
-	 * Returns the index of the last occurrence of the value, or -1 if not found.
-	 *
-	 * @param V $value
-	 */
-	public function lastIndexOf(mixed $value): int;
+    /**
+     * Returns the index of the last occurrence of the value, or -1 if not found.
+     *
+     * @param V $value
+     */
+    public function lastIndexOf(mixed $value): int;
 }

@@ -22,8 +22,8 @@ assertType('Noctud\Collection\Sequence\Sequence<bool>', sequenceOf([1, 2, 3])->m
 
 // A fused filter->map chain carries types through both stages.
 assertType(
-	'Noctud\Collection\Sequence\Sequence<float>',
-	sequenceOf([1, 2, 3])->filter(static fn (int $v): bool => $v > 1)->map(static fn (int $v): float => $v * 2.5),
+    'Noctud\Collection\Sequence\Sequence<float>',
+    sequenceOf([1, 2, 3])->filter(static fn (int $v): bool => $v > 1)->map(static fn (int $v): float => $v * 2.5),
 );
 
 /** @var Sequence<string> $s */

@@ -25,22 +25,22 @@ assertType('Noctud\Collection\Map\ImmutableMap<string, int>', $map->filterValues
 assertType('Noctud\Collection\Map\ImmutableMap<string, int>', stringMapOf(['a' => 1, 'b' => null])->filterValuesNotNull());
 assertType('Noctud\Collection\Map\ImmutableMap<string, int>', mutableStringMapOf(['a' => 1, 'b' => null])->filterValuesNotNull());
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, stdClass>',
-	$map->filterValuesInstanceOf(stdClass::class),
+    'Noctud\Collection\Map\ImmutableMap<string, stdClass>',
+    $map->filterValuesInstanceOf(stdClass::class),
 );
 
 // mapKeys changes the key type; mapValues changes the value type.
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<int, int>',
-	$map->mapKeys(fn (int $v, string $k): int => $v),
+    'Noctud\Collection\Map\ImmutableMap<int, int>',
+    $map->mapKeys(fn (int $v, string $k): int => $v),
 );
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, bool>',
-	$map->mapValues(fn (int $v, string $k): bool => $v > 0),
+    'Noctud\Collection\Map\ImmutableMap<string, bool>',
+    $map->mapValues(fn (int $v, string $k): bool => $v > 0),
 );
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, bool>',
-	$map->mapValuesNotNull(fn (int $v, string $k): ?bool => $v > 0 ? true : null),
+    'Noctud\Collection\Map\ImmutableMap<string, bool>',
+    $map->mapValuesNotNull(fn (int $v, string $k): ?bool => $v > 0 ? true : null),
 );
 
 // flip swaps keys and values.

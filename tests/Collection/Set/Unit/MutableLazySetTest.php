@@ -20,31 +20,31 @@ use function is_callable;
 
 final class MutableLazySetTest extends AbstractSetTestCase
 {
-	use CollectionMutateWrite;
-	use EnumerableLazyInit;
-	use SetMutateWrite;
+    use CollectionMutateWrite;
+    use EnumerableLazyInit;
+    use SetMutateWrite;
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableSet<E>
-	 */
-	public function collectionOf(iterable|Closure $data): MutableSet
-	{
-		if (!is_callable($data)) {
-			return mutableSetOf(fn () => $data);
-		}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableSet<E>
+     */
+    public function collectionOf(iterable|Closure $data): MutableSet
+    {
+        if (!is_callable($data)) {
+            return mutableSetOf(fn () => $data);
+        }
 
-		return mutableSetOf($data);
-	}
+        return mutableSetOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return MutableSet<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): MutableSet
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return MutableSet<E>
+     */
+    public function enumerableOf(iterable|Closure $data): MutableSet
+    {
+        return $this->collectionOf($data);
+    }
 }

@@ -29,23 +29,23 @@ use ReflectionClass;
  */
 class ImmutableArrayList implements ImmutableList
 {
-	/** @use ImmutableListLogic<E> */
-	use ImmutableListLogic;
+    /** @use ImmutableListLogic<E> */
+    use ImmutableListLogic;
 
-	/**
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 */
-	public function __construct(iterable|Closure $data = [])
-	{
-		if ($data instanceof Closure) {
-			$reflector = new ReflectionClass(ArrayIndexStore::class);
-			$this->store = $reflector->newLazyProxy(fn (): ArrayIndexStore => new ArrayIndexStore($data()));
-		} elseif ($data instanceof ArrayIndexStore) {
-			$this->store = clone $data;
-		} elseif ($data instanceof self || $data instanceof MutableArrayList) {
-			$this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
-		} else {
-			$this->store = new ArrayIndexStore($data);
-		}
-	}
+    /**
+     * @param iterable<E>|Closure():iterable<E> $data
+     */
+    public function __construct(iterable|Closure $data = [])
+    {
+        if ($data instanceof Closure) {
+            $reflector = new ReflectionClass(ArrayIndexStore::class);
+            $this->store = $reflector->newLazyProxy(fn (): ArrayIndexStore => new ArrayIndexStore($data()));
+        } elseif ($data instanceof ArrayIndexStore) {
+            $this->store = clone $data;
+        } elseif ($data instanceof self || $data instanceof MutableArrayList) {
+            $this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
+        } else {
+            $this->store = new ArrayIndexStore($data);
+        }
+    }
 }

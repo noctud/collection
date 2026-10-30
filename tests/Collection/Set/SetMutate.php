@@ -13,11 +13,11 @@ use PHPUnit\Framework\Attributes\Test;
 
 trait SetMutate
 {
-	#[Test]
-	public function uniqueness_enforced_on_construction(): void
-	{
-		$set = $this->collectionOf([1, 2, 2, 3, 3, 3]);
-		$this->assertSame([1, 2, 3], $set->toArray());
-		$this->assertSame(3, $set->count());
-	}
+    #[Test]
+    public function uniqueness_enforced_on_construction(): void
+    {
+        $set = $this->collectionOf([1, 2, 2, 3, 3, 3]);
+        $this->assertSame([1, 2, 3], $set->toArray());
+        $this->assertSame(3, $set->count());
+    }
 }

@@ -25,25 +25,25 @@ use NoDiscard;
  */
 class MutableTrackedHashSet implements MutableTrackedSet, TrackedResult
 {
-	/** @use MutableTrackedSetLogic<E> */
-	use MutableTrackedSetLogic;
+    /** @use MutableTrackedSetLogic<E> */
+    use MutableTrackedSetLogic;
 
-	/**
-	 * @param ReadWriteElementStore<E> $store
-	 */
-	public function __construct(ReadWriteElementStore $store)
-	{
-		$this->store = $store;
-	}
+    /**
+     * @param ReadWriteElementStore<E> $store
+     */
+    public function __construct(ReadWriteElementStore $store)
+    {
+        $this->store = $store;
+    }
 
-	/**
-	 * Returns this tracked set (already tracked).
-	 *
-	 * @return MutableTrackedSet<E>
-	 */
-	#[NoDiscard]
-	public function tracked(): MutableTrackedSet
-	{
-		return $this;
-	}
+    /**
+     * Returns this tracked set (already tracked).
+     *
+     * @return MutableTrackedSet<E>
+     */
+    #[NoDiscard]
+    public function tracked(): MutableTrackedSet
+    {
+        return $this;
+    }
 }

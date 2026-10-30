@@ -24,153 +24,153 @@ use function array_map;
  */
 final class ListExtendingTest extends TestCase
 {
-	#[Test]
-	public function trait_filter_returns_subtype(): void
-	{
-		$list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
+    #[Test]
+    public function trait_filter_returns_subtype(): void
+    {
+        $list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
 
-		$swapped = $list->onlySwapped();
+        $swapped = $list->onlySwapped();
 
-		self::assertInstanceOf(LineItems::class, $swapped);
-		self::assertCount(1, $swapped);
-	}
+        self::assertInstanceOf(LineItems::class, $swapped);
+        self::assertCount(1, $swapped);
+    }
 
-	#[Test]
-	public function trait_ordering_returns_subtype(): void
-	{
-		$list = new LineItems([new SwappableItem(3), new SwappableItem(1), new SwappableItem(2)]);
+    #[Test]
+    public function trait_ordering_returns_subtype(): void
+    {
+        $list = new LineItems([new SwappableItem(3), new SwappableItem(1), new SwappableItem(2)]);
 
-		$sorted = $list->sortedById();
+        $sorted = $list->sortedById();
 
-		self::assertInstanceOf(LineItems::class, $sorted);
-		self::assertSame([1, 2, 3], array_map(static fn (SwappableItem $i): int => $i->id, $sorted->toArray()));
-	}
+        self::assertInstanceOf(LineItems::class, $sorted);
+        self::assertSame([1, 2, 3], array_map(static fn (SwappableItem $i): int => $i->id, $sorted->toArray()));
+    }
 
-	#[Test]
-	public function trait_mutation_returns_subtype(): void
-	{
-		$list = new LineItems([new SwappableItem(1)]);
+    #[Test]
+    public function trait_mutation_returns_subtype(): void
+    {
+        $list = new LineItems([new SwappableItem(1)]);
 
-		$appended = $list->append(new SwappableItem(2));
-		$replaced = $appended->replaceAt(0, new SwappableItem(9));
+        $appended = $list->append(new SwappableItem(2));
+        $replaced = $appended->replaceAt(0, new SwappableItem(9));
 
-		self::assertInstanceOf(LineItems::class, $appended);
-		self::assertInstanceOf(LineItems::class, $replaced);
-		self::assertCount(2, $appended);
-		self::assertSame(9, $replaced->first()->id);
-	}
+        self::assertInstanceOf(LineItems::class, $appended);
+        self::assertInstanceOf(LineItems::class, $replaced);
+        self::assertCount(2, $appended);
+        self::assertSame(9, $replaced->first()->id);
+    }
 
-	#[Test]
-	public function trait_slice_and_take_return_subtype(): void
-	{
-		$list = new LineItems([new SwappableItem(1), new SwappableItem(2), new SwappableItem(3), new SwappableItem(4)]);
+    #[Test]
+    public function trait_slice_and_take_return_subtype(): void
+    {
+        $list = new LineItems([new SwappableItem(1), new SwappableItem(2), new SwappableItem(3), new SwappableItem(4)]);
 
-		$firstTwo = $list->firstTwo();
-		$middle = $list->middle();
+        $firstTwo = $list->firstTwo();
+        $middle = $list->middle();
 
-		self::assertInstanceOf(LineItems::class, $firstTwo);
-		self::assertInstanceOf(LineItems::class, $middle);
-		self::assertSame([1, 2], array_map(static fn (SwappableItem $i): int => $i->id, $firstTwo->toArray()));
-		self::assertSame([2, 3], array_map(static fn (SwappableItem $i): int => $i->id, $middle->toArray()));
-	}
+        self::assertInstanceOf(LineItems::class, $firstTwo);
+        self::assertInstanceOf(LineItems::class, $middle);
+        self::assertSame([1, 2], array_map(static fn (SwappableItem $i): int => $i->id, $firstTwo->toArray()));
+        self::assertSame([2, 3], array_map(static fn (SwappableItem $i): int => $i->id, $middle->toArray()));
+    }
 
-	#[Test]
-	public function trait_partition_returns_pair_of_subtype(): void
-	{
-		$list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false), new SwappableItem(3, true)]);
+    #[Test]
+    public function trait_partition_returns_pair_of_subtype(): void
+    {
+        $list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false), new SwappableItem(3, true)]);
 
-		[$swapped, $rest] = $list->splitBySwapped();
+        [$swapped, $rest] = $list->splitBySwapped();
 
-		self::assertInstanceOf(LineItems::class, $swapped);
-		self::assertInstanceOf(LineItems::class, $rest);
-		self::assertCount(2, $swapped);
-		self::assertCount(1, $rest);
-	}
+        self::assertInstanceOf(LineItems::class, $swapped);
+        self::assertInstanceOf(LineItems::class, $rest);
+        self::assertCount(2, $swapped);
+        self::assertCount(1, $rest);
+    }
 
-	#[Test]
-	public function manual_filter_and_sorted_return_subtype(): void
-	{
-		$list = new ManualLineItems([new SwappableItem(2, true), new SwappableItem(1, false)]);
+    #[Test]
+    public function manual_filter_and_sorted_return_subtype(): void
+    {
+        $list = new ManualLineItems([new SwappableItem(2, true), new SwappableItem(1, false)]);
 
-		$swapped = $list->onlySwapped();
-		$sorted = $list->sortedItems();
+        $swapped = $list->onlySwapped();
+        $sorted = $list->sortedItems();
 
-		self::assertInstanceOf(ManualLineItems::class, $swapped);
-		self::assertInstanceOf(ManualLineItems::class, $sorted);
-		self::assertCount(1, $swapped);
-	}
+        self::assertInstanceOf(ManualLineItems::class, $swapped);
+        self::assertInstanceOf(ManualLineItems::class, $sorted);
+        self::assertCount(1, $swapped);
+    }
 
-	#[Test]
-	public function trait_transform_narrows_element_type(): void
-	{
-		$list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
+    #[Test]
+    public function trait_transform_narrows_element_type(): void
+    {
+        $list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
 
-		$ids = $list->toIds();
-		$swappedIds = $list->swappedIds();
-		$withNegatives = $list->idsWithNegatives();
-		$flattened = $list->flattened();
+        $ids = $list->toIds();
+        $swappedIds = $list->swappedIds();
+        $withNegatives = $list->idsWithNegatives();
+        $flattened = $list->flattened();
 
-		// The shape changed, so the static type narrows to the base ImmutableList<int>
-		// (asserted by PHPStan via toIds()'s @return). At runtime the result is a plain
-		// base list too: the subtype constructor (which enforces the SwappableItem
-		// invariant) is never re-entered with transformed elements.
-		self::assertInstanceOf(ImmutableList::class, $ids);
-		self::assertNotInstanceOf(LineItems::class, $ids);
-		self::assertNotInstanceOf(LineItems::class, $swappedIds);
-		self::assertNotInstanceOf(LineItems::class, $withNegatives);
-		self::assertNotInstanceOf(LineItems::class, $flattened);
-		self::assertSame([1, 2], $ids->toArray());
-		self::assertSame([1], $swappedIds->toArray());
-		self::assertSame([1, -1, 2, -2], $withNegatives->toArray());
-		self::assertSame($list->toArray(), $flattened->toArray());
-	}
+        // The shape changed, so the static type narrows to the base ImmutableList<int>
+        // (asserted by PHPStan via toIds()'s @return). At runtime the result is a plain
+        // base list too: the subtype constructor (which enforces the SwappableItem
+        // invariant) is never re-entered with transformed elements.
+        self::assertInstanceOf(ImmutableList::class, $ids);
+        self::assertNotInstanceOf(LineItems::class, $ids);
+        self::assertNotInstanceOf(LineItems::class, $swappedIds);
+        self::assertNotInstanceOf(LineItems::class, $withNegatives);
+        self::assertNotInstanceOf(LineItems::class, $flattened);
+        self::assertSame([1, 2], $ids->toArray());
+        self::assertSame([1], $swappedIds->toArray());
+        self::assertSame([1, -1, 2, -2], $withNegatives->toArray());
+        self::assertSame($list->toArray(), $flattened->toArray());
+    }
 
-	#[Test]
-	public function trait_group_by_with_value_transform_returns_base_type(): void
-	{
-		$list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
+    #[Test]
+    public function trait_group_by_with_value_transform_returns_base_type(): void
+    {
+        $list = new LineItems([new SwappableItem(1, true), new SwappableItem(2, false)]);
 
-		$groups = $list->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n');
-		$ids = $list->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n', static fn (SwappableItem $i): int => $i->id);
+        $groups = $list->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n');
+        $ids = $list->groupBy(static fn (SwappableItem $i): string => $i->swapped ? 'y' : 'n', static fn (SwappableItem $i): int => $i->id);
 
-		// Without a transform the buckets still hold SwappableItem, so they stay LineItems.
-		// With one they hold ints: the subtype constructor must not see them.
-		self::assertInstanceOf(LineItems::class, $groups['y']);
-		self::assertNotInstanceOf(LineItems::class, $ids['y']);
-		self::assertSame([1], $ids['y']->toArray());
-		self::assertSame([2], $ids['n']->toArray());
-	}
+        // Without a transform the buckets still hold SwappableItem, so they stay LineItems.
+        // With one they hold ints: the subtype constructor must not see them.
+        self::assertInstanceOf(LineItems::class, $groups['y']);
+        self::assertNotInstanceOf(LineItems::class, $ids['y']);
+        self::assertSame([1], $ids['y']->toArray());
+        self::assertSame([2], $ids['n']->toArray());
+    }
 
-	#[Test]
-	public function trait_filter_instance_of_returns_base_type(): void
-	{
-		$list = new LineItems([new SwappableItem(1), new SwappableItem(2)]);
+    #[Test]
+    public function trait_filter_instance_of_returns_base_type(): void
+    {
+        $list = new LineItems([new SwappableItem(1), new SwappableItem(2)]);
 
-		$filtered = $list->filterInstanceOf(SwappableItem::class);
+        $filtered = $list->filterInstanceOf(SwappableItem::class);
 
-		// The declared type is the base ImmutableList<T>, so the object must be one
-		// too: a widening add() is allowed by the type and must not hit the subtype guard.
-		self::assertNotInstanceOf(LineItems::class, $filtered);
-		self::assertCount(3, $filtered->add(new stdClass()));
-	}
+        // The declared type is the base ImmutableList<T>, so the object must be one
+        // too: a widening add() is allowed by the type and must not hit the subtype guard.
+        self::assertNotInstanceOf(LineItems::class, $filtered);
+        self::assertCount(3, $filtered->add(new stdClass()));
+    }
 
-	#[Test]
-	public function manual_array_access_allows_omitting_native_return_type(): void
-	{
-		$item = new SwappableItem(1);
-		$list = new ManualLineItems([$item]);
+    #[Test]
+    public function manual_array_access_allows_omitting_native_return_type(): void
+    {
+        $item = new SwappableItem(1);
+        $list = new ManualLineItems([$item]);
 
-		self::assertSame($item, $list[0]);
-	}
+        self::assertSame($item, $list[0]);
+    }
 
-	#[Test]
-	public function manual_transform_returns_base_type(): void
-	{
-		$list = new ManualLineItems([new SwappableItem(1), new SwappableItem(2)]);
+    #[Test]
+    public function manual_transform_returns_base_type(): void
+    {
+        $list = new ManualLineItems([new SwappableItem(1), new SwappableItem(2)]);
 
-		$ids = $list->toIds();
+        $ids = $list->toIds();
 
-		self::assertNotInstanceOf(ManualLineItems::class, $ids);
-		self::assertSame([1, 2], $ids->toArray());
-	}
+        self::assertNotInstanceOf(ManualLineItems::class, $ids);
+        self::assertSame([1, 2], $ids->toArray());
+    }
 }

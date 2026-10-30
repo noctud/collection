@@ -29,61 +29,61 @@ use ReflectionClass;
  */
 final class ImmutableHashMap implements ImmutableMap
 {
-	/** @use ImmutableMapLogic<K,V> */
-	use ImmutableMapLogic;
+    /** @use ImmutableMapLogic<K,V> */
+    use ImmutableMapLogic;
 
-	public function __construct()
-	{
-		$this->store = HashKeyValueStore::empty(); // @phpstan-ignore assign.propertyType
-	}
+    public function __construct()
+    {
+        $this->store = HashKeyValueStore::empty(); // @phpstan-ignore assign.propertyType
+    }
 
-	/**
-	 * @template NK of string|int|bool|float|object
-	 * @template NV
-	 * @param iterable<NK,NV>|Closure():iterable<NK,NV> $data
-	 * @return ImmutableMap<NK,NV>
-	 */
-	public static function of(iterable|Closure $data = []): ImmutableMap
-	{
-		/** @var ImmutableHashMap<NK,NV> $map */
-		$map = new ImmutableHashMap();
+    /**
+     * @template NK of string|int|bool|float|object
+     * @template NV
+     * @param iterable<NK,NV>|Closure():iterable<NK,NV> $data
+     * @return ImmutableMap<NK,NV>
+     */
+    public static function of(iterable|Closure $data = []): ImmutableMap
+    {
+        /** @var ImmutableHashMap<NK,NV> $map */
+        $map = new ImmutableHashMap();
 
-		if ($data instanceof Closure) {
-			$reflector = new ReflectionClass(HashKeyValueStore::class);
-			$map->store = $reflector->newLazyProxy(fn (HashKeyValueStore $object): HashKeyValueStore => $object::fromAssoc($data())); // @phpstan-ignore assign.propertyType
-		} elseif ($data instanceof HashKeyValueStore) {
-			$map->store = clone $data; // @phpstan-ignore assign.propertyType
-		} elseif ($data instanceof self || $data instanceof MutableHashMap) {
-			$map->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
-		} else {
-			$map->store = HashKeyValueStore::fromAssoc($data);
-		}
+        if ($data instanceof Closure) {
+            $reflector = new ReflectionClass(HashKeyValueStore::class);
+            $map->store = $reflector->newLazyProxy(fn (HashKeyValueStore $object): HashKeyValueStore => $object::fromAssoc($data())); // @phpstan-ignore assign.propertyType
+        } elseif ($data instanceof HashKeyValueStore) {
+            $map->store = clone $data; // @phpstan-ignore assign.propertyType
+        } elseif ($data instanceof self || $data instanceof MutableHashMap) {
+            $map->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
+        } else {
+            $map->store = HashKeyValueStore::fromAssoc($data);
+        }
 
-		return $map;
-	}
+        return $map;
+    }
 
-	/**
-	 * @template NK of string|int|bool|float|object
-	 * @template NV
-	 * @param iterable<array{0:NK,1:NV}>|Closure():iterable<array{0:NK,1:NV}> $data
-	 * @return ImmutableMap<NK,NV>
-	 */
-	public static function ofPairs(iterable|Closure $data = []): ImmutableMap
-	{
-		/** @var ImmutableHashMap<NK,NV> $map */
-		$map = new ImmutableHashMap();
+    /**
+     * @template NK of string|int|bool|float|object
+     * @template NV
+     * @param iterable<array{0:NK,1:NV}>|Closure():iterable<array{0:NK,1:NV}> $data
+     * @return ImmutableMap<NK,NV>
+     */
+    public static function ofPairs(iterable|Closure $data = []): ImmutableMap
+    {
+        /** @var ImmutableHashMap<NK,NV> $map */
+        $map = new ImmutableHashMap();
 
-		if ($data instanceof Closure) {
-			$reflector = new ReflectionClass(HashKeyValueStore::class);
-			$map->store = $reflector->newLazyProxy(fn (HashKeyValueStore $object): HashKeyValueStore => $object::fromPairs($data())); // @phpstan-ignore assign.propertyType
-		} elseif ($data instanceof HashKeyValueStore) {
-			$map->store = clone $data; // @phpstan-ignore assign.propertyType
-		} elseif ($data instanceof self || $data instanceof MutableHashMap) {
-			$map->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
-		} else {
-			$map->store = HashKeyValueStore::fromPairs($data);
-		}
+        if ($data instanceof Closure) {
+            $reflector = new ReflectionClass(HashKeyValueStore::class);
+            $map->store = $reflector->newLazyProxy(fn (HashKeyValueStore $object): HashKeyValueStore => $object::fromPairs($data())); // @phpstan-ignore assign.propertyType
+        } elseif ($data instanceof HashKeyValueStore) {
+            $map->store = clone $data; // @phpstan-ignore assign.propertyType
+        } elseif ($data instanceof self || $data instanceof MutableHashMap) {
+            $map->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
+        } else {
+            $map->store = HashKeyValueStore::fromPairs($data);
+        }
 
-		return $map;
-	}
+        return $map;
+    }
 }

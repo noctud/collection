@@ -29,81 +29,81 @@ use function iterator_to_array;
  */
 class TraitItemCollection implements ImmutableSet
 {
-	/** @use SelfPreservingImmutableSetLogic<SwappableItem> */
-	use SelfPreservingImmutableSetLogic;
+    /** @use SelfPreservingImmutableSetLogic<SwappableItem> */
+    use SelfPreservingImmutableSetLogic;
 
-	/** @param iterable<SwappableItem> $data */
-	public function __construct(iterable $data = [])
-	{
-		$items = is_array($data) ? $data : iterator_to_array($data, false);
-		foreach ($items as $item) {
-			if (!$item instanceof SwappableItem) {
-				throw new InvalidArgumentException('TraitItemCollection must only hold SwappableItem instances');
-			}
-		}
+    /** @param iterable<SwappableItem> $data */
+    public function __construct(iterable $data = [])
+    {
+        $items = is_array($data) ? $data : iterator_to_array($data, false);
+        foreach ($items as $item) {
+            if (!$item instanceof SwappableItem) {
+                throw new InvalidArgumentException('TraitItemCollection must only hold SwappableItem instances');
+            }
+        }
 
-		$this->store = new HashElementStore($items);
-	}
+        $this->store = new HashElementStore($items);
+    }
 
-	// Each method below is a compile-time assertion that the narrowed return type
-	// is this class (tests/ is analysed by PHPStan), plus a runtime target.
+    // Each method below is a compile-time assertion that the narrowed return type
+    // is this class (tests/ is analysed by PHPStan), plus a runtime target.
 
-	public function onlySwapped(): self
-	{
-		return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
-	}
+    public function onlySwapped(): self
+    {
+        return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
+    }
 
-	public function sortedById(): self
-	{
-		return $this->sortedBy(static fn (SwappableItem $i): int => $i->id);
-	}
+    public function sortedById(): self
+    {
+        return $this->sortedBy(static fn (SwappableItem $i): int => $i->id);
+    }
 
-	public function with(SwappableItem $item): self
-	{
-		return $this->add($item);
-	}
+    public function with(SwappableItem $item): self
+    {
+        return $this->add($item);
+    }
 
-	public function without(SwappableItem $item): self
-	{
-		return $this->removeElement($item);
-	}
+    public function without(SwappableItem $item): self
+    {
+        return $this->removeElement($item);
+    }
 
-	public function common(self $other): self
-	{
-		return $this->intersect($other);
-	}
+    public function common(self $other): self
+    {
+        return $this->intersect($other);
+    }
 
-	/** @return array{self, self} */
-	public function splitBySwapped(): array
-	{
-		return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
-	}
+    /** @return array{self, self} */
+    public function splitBySwapped(): array
+    {
+        return $this->partition(static fn (SwappableItem $i): bool => $i->swapped);
+    }
 
-	// Transform methods change the element type, so they return the base
-	// ImmutableSet<R> (not self). These assert R is inferred from the closure
-	// rather than collapsed to mixed — the issue #3 follow-up about map().
+    // Transform methods change the element type, so they return the base
+    // ImmutableSet<R> (not self). These assert R is inferred from the closure
+    // rather than collapsed to mixed — the issue #3 follow-up about map().
 
-	/** @return ImmutableSet<int> */
-	public function toIds(): ImmutableSet
-	{
-		return $this->map(static fn (SwappableItem $i): int => $i->id);
-	}
+    /** @return ImmutableSet<int> */
+    public function toIds(): ImmutableSet
+    {
+        return $this->map(static fn (SwappableItem $i): int => $i->id);
+    }
 
-	/** @return ImmutableSet<int> */
-	public function swappedIds(): ImmutableSet
-	{
-		return $this->mapNotNull(static fn (SwappableItem $i): ?int => $i->swapped ? $i->id : null);
-	}
+    /** @return ImmutableSet<int> */
+    public function swappedIds(): ImmutableSet
+    {
+        return $this->mapNotNull(static fn (SwappableItem $i): ?int => $i->swapped ? $i->id : null);
+    }
 
-	/** @return ImmutableSet<int> */
-	public function idsWithNegatives(): ImmutableSet
-	{
-		return $this->flatMap(static fn (SwappableItem $i): array => [$i->id, -$i->id]);
-	}
+    /** @return ImmutableSet<int> */
+    public function idsWithNegatives(): ImmutableSet
+    {
+        return $this->flatMap(static fn (SwappableItem $i): array => [$i->id, -$i->id]);
+    }
 
-	/** @return ImmutableSet<SwappableItem> */
-	public function flattened(): ImmutableSet
-	{
-		return $this->flatten();
-	}
+    /** @return ImmutableSet<SwappableItem> */
+    public function flattened(): ImmutableSet
+    {
+        return $this->flatten();
+    }
 }

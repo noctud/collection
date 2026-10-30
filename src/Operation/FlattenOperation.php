@@ -19,19 +19,19 @@ use function is_iterable;
  */
 final class FlattenOperation extends AbstractOperation
 {
-	/**
-	 * @return Generator<int,V>
-	 */
-	public function items(): Generator
-	{
-		foreach ($this->data as $v) {
-			if (is_iterable($v)) {
-				foreach ($v as $x) {
-					yield $x;
-				}
-			} else {
-				yield $v;
-			}
-		}
-	}
+    /**
+     * @return Generator<int,V>
+     */
+    public function items(): Generator
+    {
+        foreach ($this->data as $v) {
+            if (is_iterable($v)) {
+                foreach ($v as $x) {
+                    yield $x;
+                }
+            } else {
+                yield $v;
+            }
+        }
+    }
 }
