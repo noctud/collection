@@ -26,6 +26,6 @@ assertType('int', $list[0]);
 // toIndexedMap: value defaults to the element type unless a transform is given.
 assertType('Noctud\Collection\Map\ImmutableMap<int, int>', $list->toIndexedMap());
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<int, bool>',
-	$list->toIndexedMap(fn (int $x): bool => $x > 0),
+    'Noctud\Collection\Map\ImmutableMap<int, bool>',
+    $list->toIndexedMap(fn (int $x): bool => $x > 0),
 );

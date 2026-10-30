@@ -14,68 +14,68 @@ use PHPUnit\Framework\Attributes\Test;
 
 trait MapChangedWithNull
 {
-	#[Test]
-	public function put_null_to_new_key_sets_changed_true(): void
-	{
-		$map = $this->mapOf([]);
+    #[Test]
+    public function put_null_to_new_key_sets_changed_true(): void
+    {
+        $map = $this->mapOf([]);
 
-		if (!$map instanceof MutableMap) {
-			$this->markTestSkipped('Only applicable to mutable maps');
-		}
+        if (!$map instanceof MutableMap) {
+            $this->markTestSkipped('Only applicable to mutable maps');
+        }
 
-		$tracked = $map->tracked();
-		$result = $tracked->put($this->sampleKey(), null);
+        $tracked = $map->tracked();
+        $result = $tracked->put($this->sampleKey(), null);
 
-		$this->assertTrue($result->changed);
-	}
+        $this->assertTrue($result->changed);
+    }
 
-	#[Test]
-	public function put_null_to_existing_null_key_sets_changed_false(): void
-	{
-		$map = $this->mapOf([$this->sampleKey() => null]);
+    #[Test]
+    public function put_null_to_existing_null_key_sets_changed_false(): void
+    {
+        $map = $this->mapOf([$this->sampleKey() => null]);
 
-		if (!$map instanceof MutableMap) {
-			$this->markTestSkipped('Only applicable to mutable maps');
-		}
+        if (!$map instanceof MutableMap) {
+            $this->markTestSkipped('Only applicable to mutable maps');
+        }
 
-		$tracked = $map->tracked();
-		$result = $tracked->put($this->sampleKey(), null);
+        $tracked = $map->tracked();
+        $result = $tracked->put($this->sampleKey(), null);
 
-		$this->assertFalse($result->changed);
-	}
+        $this->assertFalse($result->changed);
+    }
 
-	#[Test]
-	public function put_null_to_existing_non_null_key_sets_changed_true(): void
-	{
-		$map = $this->mapOf([$this->sampleKey() => 'value']);
+    #[Test]
+    public function put_null_to_existing_non_null_key_sets_changed_true(): void
+    {
+        $map = $this->mapOf([$this->sampleKey() => 'value']);
 
-		if (!$map instanceof MutableMap) {
-			$this->markTestSkipped('Only applicable to mutable maps');
-		}
+        if (!$map instanceof MutableMap) {
+            $this->markTestSkipped('Only applicable to mutable maps');
+        }
 
-		$tracked = $map->tracked();
-		$result = $tracked->put($this->sampleKey(), null); // @phpstan-ignore argument.type
+        $tracked = $map->tracked();
+        $result = $tracked->put($this->sampleKey(), null); // @phpstan-ignore argument.type
 
-		$this->assertTrue($result->changed);
-	}
+        $this->assertTrue($result->changed);
+    }
 
-	#[Test]
-	public function put_value_to_existing_null_key_sets_changed_true(): void
-	{
-		$map = $this->mapOf([$this->sampleKey() => null]);
+    #[Test]
+    public function put_value_to_existing_null_key_sets_changed_true(): void
+    {
+        $map = $this->mapOf([$this->sampleKey() => null]);
 
-		if (!$map instanceof MutableMap) {
-			$this->markTestSkipped('Only applicable to mutable maps');
-		}
+        if (!$map instanceof MutableMap) {
+            $this->markTestSkipped('Only applicable to mutable maps');
+        }
 
-		$tracked = $map->tracked();
-		$result = $tracked->put($this->sampleKey(), 'new_value'); // @phpstan-ignore argument.type
+        $tracked = $map->tracked();
+        $result = $tracked->put($this->sampleKey(), 'new_value'); // @phpstan-ignore argument.type
 
-		$this->assertTrue($result->changed);
-	}
+        $this->assertTrue($result->changed);
+    }
 
-	/**
-	 * Returns a sample key appropriate for the map type being tested.
-	 */
-	abstract protected function sampleKey(): int|string;
+    /**
+     * Returns a sample key appropriate for the map type being tested.
+     */
+    abstract protected function sampleKey(): int|string;
 }

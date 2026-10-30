@@ -16,21 +16,21 @@ use function sprintf;
 
 final class NoSuchElementException extends LogicException implements NoctudCollectionException
 {
-	use NamesItsSubject;
+    use NamesItsSubject;
 
-	/**
-	 * @param Collection<mixed>|Sequence<mixed> $subject
-	 */
-	public static function emptySubject(Collection|Sequence $subject): self
-	{
-		return new self(sprintf('%s is empty', self::subjectName($subject)));
-	}
+    /**
+     * @param Collection<mixed>|Sequence<mixed> $subject
+     */
+    public static function emptySubject(Collection|Sequence $subject): self
+    {
+        return new self(sprintf('%s is empty', self::subjectName($subject)));
+    }
 
-	/**
-	 * @param Collection<mixed>|Sequence<mixed> $subject
-	 */
-	public static function subjectHasMoreThanOneElement(Collection|Sequence $subject): self
-	{
-		return new self(sprintf('%s contains more than one element', self::subjectName($subject)));
-	}
+    /**
+     * @param Collection<mixed>|Sequence<mixed> $subject
+     */
+    public static function subjectHasMoreThanOneElement(Collection|Sequence $subject): self
+    {
+        return new self(sprintf('%s contains more than one element', self::subjectName($subject)));
+    }
 }

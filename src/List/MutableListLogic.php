@@ -21,70 +21,70 @@ use NoDiscard;
  */
 trait MutableListLogic
 {
-	/** @var ReadWriteIndexedStore<E> */
-	protected ReadWriteIndexedStore $store;
+    /** @var ReadWriteIndexedStore<E> */
+    protected ReadWriteIndexedStore $store;
 
-	/** @use ListLogic<E> */
-	use ListLogic;
+    /** @use ListLogic<E> */
+    use ListLogic;
 
-	/** @use MutableCollectionLogic<E> */
-	use MutableCollectionLogic {
-		ListLogic::newCollectionOf insteadof MutableCollectionLogic;
-	}
+    /** @use MutableCollectionLogic<E> */
+    use MutableCollectionLogic {
+        ListLogic::newCollectionOf insteadof MutableCollectionLogic;
+    }
 
-	// --- Tracking ---
+    // --- Tracking ---
 
-	/**
-	 * @inheritDoc
-	 */
-	#[NoDiscard]
-	public function tracked(): MutableTrackedList
-	{
-		/** @var ArrayIndexStore<E> $store */
-		$store = $this->store;
-		return new MutableTrackedArrayList($store);
-	}
+    /**
+     * @inheritDoc
+     */
+    #[NoDiscard]
+    public function tracked(): MutableTrackedList
+    {
+        /** @var ArrayIndexStore<E> $store */
+        $store = $this->store;
+        return new MutableTrackedArrayList($store);
+    }
 
-	// --- Mutation: List ---
+    // --- Mutation: List ---
 
-	/** {@inheritDoc} */
-	public function set(int $index, mixed $element): MutableList
-	{
-		$this->store->set($index, $element);
-		return $this;
-	}
+    /** {@inheritDoc} */
+    public function set(int $index, mixed $element): MutableList
+    {
+        $this->store->set($index, $element);
+        return $this;
+    }
 
-	/** {@inheritDoc} */
-	public function removeAt(int $index): MutableList
-	{
-		$this->store->removeAt($index);
-		return $this;
-	}
+    /** {@inheritDoc} */
+    public function removeAt(int $index): MutableList
+    {
+        $this->store->removeAt($index);
+        return $this;
+    }
 
-	/** {@inheritDoc} */
-	public function removeEvery(mixed $element): MutableList
-	{
-		$this->store->removeEvery($element);
-		return $this;
-	}
+    /** {@inheritDoc} */
+    public function removeEvery(mixed $element): MutableList
+    {
+        $this->store->removeEvery($element);
+        return $this;
+    }
 
-	// --- ArrayAccess ---
+    // --- ArrayAccess ---
 
-	/**
-	 * @param int|null $offset
-	 * @param E $value
-	 */
-	public function offsetSet(mixed $offset, mixed $value): void
-	{
-		if ($offset === null) {
-			$this->add($value);
-		} else {
-			$this->set($offset, $value);
-		}
-	}
+    /**
+     * @param int|null $offset
+     * @param E $value
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if ($offset === null) {
+            $this->add($value);
+        } else {
+            $this->set($offset, $value);
+        }
+    }
 
-	public function offsetUnset(mixed $offset): void
-	{
-		$this->removeAt($offset);
-	}
+    public function offsetUnset(mixed $offset): void
+    {
+        $this->removeAt($offset);
+    }
 }

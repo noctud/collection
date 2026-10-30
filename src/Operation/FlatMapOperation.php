@@ -18,17 +18,17 @@ use Generator;
  */
 final class FlatMapOperation extends AbstractOperation
 {
-	/**
-	 * @template NV
-	 * @param callable(V):iterable<NV> $transform
-	 * @return Generator<NV>
-	 */
-	public function items(callable $transform): Generator
-	{
-		foreach ($this->data as $v) {
-			foreach ($transform($v) as $x) {
-				yield $x;
-			}
-		}
-	}
+    /**
+     * @template NV
+     * @param callable(V):iterable<NV> $transform
+     * @return Generator<NV>
+     */
+    public function items(callable $transform): Generator
+    {
+        foreach ($this->data as $v) {
+            foreach ($transform($v) as $x) {
+                yield $x;
+            }
+        }
+    }
 }

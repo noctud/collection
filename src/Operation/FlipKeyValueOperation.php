@@ -25,38 +25,38 @@ use function get_debug_type;
  */
 final class FlipKeyValueOperation extends AbstractKeyValueOperation
 {
-	/**
-	 * @return HashKeyValueStore<V, K>
-	 */
-	public function items(KeyCollisionStrategy $strategy): HashKeyValueStore // @phpstan-ignore generics.notSubtype
-	{
-		// Each value is hashed once, straight into the arrays the store is built from: going
-		// through containsKey() and put() hashed it twice, behind two method calls.
-		$keys = [];
-		$values = [];
+    /**
+     * @return HashKeyValueStore<V, K>
+     */
+    public function items(KeyCollisionStrategy $strategy): HashKeyValueStore // @phpstan-ignore generics.notSubtype
+    {
+        // Each value is hashed once, straight into the arrays the store is built from: going
+        // through containsKey() and put() hashed it twice, behind two method calls.
+        $keys = [];
+        $values = [];
 
-		foreach ($this->data as $k => $v) {
-			$hash = KeyHasher::hashMapKey($v); // throws InvalidKeyTypeException for unsupported values
+        foreach ($this->data as $k => $v) {
+            $hash = KeyHasher::hashMapKey($v); // throws InvalidKeyTypeException for unsupported values
 
-			if ($strategy !== KeyCollisionStrategy::KeepLast && isset($keys[$hash])) {
-				if ($strategy === KeyCollisionStrategy::Throw) {
-					throw new ConversionException(sprintf(
-						'Key collision detected during flip. Value "%s" appears multiple times and would cause a key collision.',
-						is_scalar($v) ? (string) $v : get_debug_type($v)
-					));
-				}
+            if ($strategy !== KeyCollisionStrategy::KeepLast && isset($keys[$hash])) {
+                if ($strategy === KeyCollisionStrategy::Throw) {
+                    throw new ConversionException(sprintf(
+                        'Key collision detected during flip. Value "%s" appears multiple times and would cause a key collision.',
+                        is_scalar($v) ? (string) $v : get_debug_type($v)
+                    ));
+                }
 
-				// KeepFirst: skip duplicate
-				continue;
-			}
+                // KeepFirst: skip duplicate
+                continue;
+            }
 
-			$keys[$hash] = $v;
-			$values[$hash] = $k;
-		}
+            $keys[$hash] = $v;
+            $values[$hash] = $k;
+        }
 
-		/** @var HashKeyValueStore<V, K> $store */
-		$store = HashKeyValueStore::fromHashed($keys, $values); // @phpstan-ignore argument.type, argument.templateType, generics.notSubtype
+        /** @var HashKeyValueStore<V, K> $store */
+        $store = HashKeyValueStore::fromHashed($keys, $values); // @phpstan-ignore argument.type, argument.templateType, generics.notSubtype
 
-		return $store;
-	}
+        return $store;
+    }
 }

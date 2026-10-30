@@ -14,9 +14,9 @@ namespace Noctud\Collection\Tests\Collection\Set\Extending;
  */
 final class SwappableItem
 {
-	public function __construct(
-		public readonly int $id,
-		public readonly bool $swapped = false,
-	) {
-	}
+    public function __construct(
+        public readonly int $id,
+        public readonly bool $swapped = false,
+    ) {
+    }
 }

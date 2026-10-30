@@ -11,10 +11,10 @@ namespace Noctud\Collection\Tests\Collection\Fixture;
 
 final class DetailedHashableUser extends HashableUser
 {
-	public function __construct(
-		string $id,
-		public readonly string $email,
-	) {
-		parent::__construct($id);
-	}
+    public function __construct(
+        string $id,
+        public readonly string $email,
+    ) {
+        parent::__construct($id);
+    }
 }

@@ -18,29 +18,29 @@ use function is_callable;
 
 final class ImmutableLazyListTest extends AbstractListTestCase
 {
-	use EnumerableLazyInit;
+    use EnumerableLazyInit;
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	public function collectionOf(iterable|Closure $data): ImmutableList
-	{
-		if (!is_callable($data)) {
-			return listOf(fn () => $data);
-		}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    public function collectionOf(iterable|Closure $data): ImmutableList
+    {
+        if (!is_callable($data)) {
+            return listOf(fn () => $data);
+        }
 
-		return listOf($data);
-	}
+        return listOf($data);
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): ImmutableList
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    public function enumerableOf(iterable|Closure $data): ImmutableList
+    {
+        return $this->collectionOf($data);
+    }
 }

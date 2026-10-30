@@ -17,24 +17,24 @@ use PHPUnit\Framework\Attributes\Test;
  */
 trait EnumerableLoop
 {
-	#[Test]
-	public function loop(): void
-	{
-		$empty = $this->enumerableOf([]);
-		foreach ($empty as $element) {
-			$this->fail('Loop executed on empty collection');
-		}
+    #[Test]
+    public function loop(): void
+    {
+        $empty = $this->enumerableOf([]);
+        foreach ($empty as $element) {
+            $this->fail('Loop executed on empty collection');
+        }
 
-		$one = $this->enumerableOf(['a']);
-		foreach ($one as $k => $v) {
-			$this->assertSame(0, $k);
-			$this->assertSame('a', $v);
-		}
+        $one = $this->enumerableOf(['a']);
+        foreach ($one as $k => $v) {
+            $this->assertSame(0, $k);
+            $this->assertSame('a', $v);
+        }
 
-		$multiple = $this->enumerableOf(['a', 'b', 'c']);
-		$expected = ['a', 'b', 'c'];
-		foreach ($multiple as $k => $v) {
-			$this->assertSame($expected[$k], $v);
-		}
-	}
+        $multiple = $this->enumerableOf(['a', 'b', 'c']);
+        $expected = ['a', 'b', 'c'];
+        foreach ($multiple as $k => $v) {
+            $this->assertSame($expected[$k], $v);
+        }
+    }
 }

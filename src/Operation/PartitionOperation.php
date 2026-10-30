@@ -16,23 +16,23 @@ namespace Noctud\Collection\Operation;
  */
 final class PartitionOperation extends AbstractOperation
 {
-	/**
-	 * @param callable(V, int):bool $predicate
-	 * @return array{list<V>, list<V>}
-	 */
-	public function byPredicate(callable $predicate): array
-	{
-		$matching = [];
-		$nonMatching = [];
+    /**
+     * @param callable(V, int):bool $predicate
+     * @return array{list<V>, list<V>}
+     */
+    public function byPredicate(callable $predicate): array
+    {
+        $matching = [];
+        $nonMatching = [];
 
-		foreach ($this->data as $i => $v) {
-			if ($predicate($v, $i)) {
-				$matching[] = $v;
-			} else {
-				$nonMatching[] = $v;
-			}
-		}
+        foreach ($this->data as $i => $v) {
+            if ($predicate($v, $i)) {
+                $matching[] = $v;
+            } else {
+                $nonMatching[] = $v;
+            }
+        }
 
-		return [$matching, $nonMatching];
-	}
+        return [$matching, $nonMatching];
+    }
 }

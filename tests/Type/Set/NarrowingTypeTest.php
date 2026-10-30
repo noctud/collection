@@ -34,8 +34,8 @@ assertType('Noctud\Collection\Set\Set<int>', $imm->union([1, 2]));
 assertType('Noctud\Collection\Set\Set<int>', $imm->subtract([1, 2]));
 assertType('Noctud\Collection\Set\ImmutableSet<int>', $imm->toImmutable());
 assertType(
-	'array{Noctud\Collection\Set\ImmutableSet<int>, Noctud\Collection\Set\ImmutableSet<int>}',
-	$imm->partition(fn (int $x): bool => $x > 0),
+    'array{Noctud\Collection\Set\ImmutableSet<int>, Noctud\Collection\Set\ImmutableSet<int>}',
+    $imm->partition(fn (int $x): bool => $x > 0),
 );
 
 // Type-changing transforms move to the new element type but stay ImmutableSet.

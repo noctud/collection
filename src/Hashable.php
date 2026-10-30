@@ -17,5 +17,5 @@ namespace Noctud\Collection;
  */
 interface Hashable
 {
-	public function identity(): string|int;
+    public function identity(): string|int;
 }

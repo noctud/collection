@@ -34,62 +34,62 @@ use function is_int;
  */
 class ManualScoreBoard implements ImmutableMap
 {
-	/** @use ImmutableMapLogic<string, int> */
-	use ImmutableMapLogic;
+    /** @use ImmutableMapLogic<string, int> */
+    use ImmutableMapLogic;
 
-	/** @param iterable<string, int> $data */
-	public function __construct(iterable $data = [])
-	{
-		// Buffered into pairs: iterator_to_array() crashes on non-scalar keys before the guard runs
-		$pairs = [];
-		foreach ($data as $name => $score) {
-			self::assertEntry($name, $score);
-			$pairs[] = [$name, $score];
-		}
+    /** @param iterable<string, int> $data */
+    public function __construct(iterable $data = [])
+    {
+        // Buffered into pairs: iterator_to_array() crashes on non-scalar keys before the guard runs
+        $pairs = [];
+        foreach ($data as $name => $score) {
+            self::assertEntry($name, $score);
+            $pairs[] = [$name, $score];
+        }
 
-		$this->store = HashKeyValueStore::fromPairs($pairs);
-	}
+        $this->store = HashKeyValueStore::fromPairs($pairs);
+    }
 
-	// mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
-	// to catch internal rebuilds that would bypass the declared entry types.
-	private static function assertEntry(mixed $name, mixed $score): void
-	{
-		if (!is_string($name) || !is_int($score)) {
-			throw new InvalidArgumentException('ManualScoreBoard must only hold string => int entries');
-		}
-	}
+    // mixed on purpose: the guard checks at runtime what the PHPDoc already promises,
+    // to catch internal rebuilds that would bypass the declared entry types.
+    private static function assertEntry(mixed $name, mixed $score): void
+    {
+        if (!is_string($name) || !is_int($score)) {
+            throw new InvalidArgumentException('ManualScoreBoard must only hold string => int entries');
+        }
+    }
 
-	/**
-	 * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
-	 *
-	 * @param string $offset
-	 * @return int
-	 */
-	#[ReturnTypeWillChange]
-	public function offsetGet(mixed $offset)
-	{
-		return $this->get($offset);
-	}
+    /**
+     * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
+     *
+     * @param string $offset
+     * @return int
+     */
+    #[ReturnTypeWillChange]
+    public function offsetGet(mixed $offset)
+    {
+        return $this->get($offset);
+    }
 
-	/** @param iterable<string, int> $data */
-	protected function newMapOf(iterable $data): ImmutableMap
-	{
-		return new self($data);
-	}
+    /** @param iterable<string, int> $data */
+    protected function newMapOf(iterable $data): ImmutableMap
+    {
+        return new self($data);
+    }
 
-	public function winners(): self
-	{
-		return $this->filterValues(static fn (int $score): bool => $score >= 100);
-	}
+    public function winners(): self
+    {
+        return $this->filterValues(static fn (int $score): bool => $score >= 100);
+    }
 
-	public function ranked(): self
-	{
-		return $this->sortedByValueDesc();
-	}
+    public function ranked(): self
+    {
+        return $this->sortedByValueDesc();
+    }
 
-	/** @return ImmutableMap<string, float> */
-	public function scaled(): ImmutableMap
-	{
-		return $this->mapValues(static fn (int $score): float => $score * 1.5);
-	}
+    /** @return ImmutableMap<string, float> */
+    public function scaled(): ImmutableMap
+    {
+        return $this->mapValues(static fn (int $score): float => $score * 1.5);
+    }
 }

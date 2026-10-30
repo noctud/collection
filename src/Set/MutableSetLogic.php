@@ -22,25 +22,25 @@ use NoDiscard;
  */
 trait MutableSetLogic
 {
-	/** @var ReadWriteElementStore<E> */
-	protected ReadWriteElementStore $store;
+    /** @var ReadWriteElementStore<E> */
+    protected ReadWriteElementStore $store;
 
-	/** @use SetLogic<E> */
-	use SetLogic;
+    /** @use SetLogic<E> */
+    use SetLogic;
 
-	/** @use MutableCollectionLogic<E> */
-	use MutableCollectionLogic;
+    /** @use MutableCollectionLogic<E> */
+    use MutableCollectionLogic;
 
-	// --- Tracking ---
+    // --- Tracking ---
 
-	/**
-	 * @inheritDoc
-	 */
-	#[NoDiscard]
-	public function tracked(): MutableTrackedSet
-	{
-		/** @var HashElementStore<E> $store */
-		$store = $this->store;
-		return new MutableTrackedHashSet($store);
-	}
+    /**
+     * @inheritDoc
+     */
+    #[NoDiscard]
+    public function tracked(): MutableTrackedSet
+    {
+        /** @var HashElementStore<E> $store */
+        $store = $this->store;
+        return new MutableTrackedHashSet($store);
+    }
 }

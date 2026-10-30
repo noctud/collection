@@ -45,521 +45,521 @@ use function shuffle;
  */
 trait ListLogic
 {
-	/** @use CollectionLogic<E> */
-	use CollectionLogic;
+    /** @use CollectionLogic<E> */
+    use CollectionLogic;
 
-	// --- Element Access ---
+    // --- Element Access ---
 
-	/** {@inheritDoc} */
-	public function get(int $index)
-	{
-		return $this->store->get($index, true);
-	}
+    /** {@inheritDoc} */
+    public function get(int $index)
+    {
+        return $this->store->get($index, true);
+    }
 
-	/** {@inheritDoc} */
-	public function getOrNull(int $index): mixed
-	{
-		return $this->store->get($index);
-	}
+    /** {@inheritDoc} */
+    public function getOrNull(int $index): mixed
+    {
+        return $this->store->get($index);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * A list is indexed, so the position is resolved directly instead of walked to.
-	 */
-	public function elementAt(int $index)
-	{
-		return $this->store->get($index, true);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * A list is indexed, so the position is resolved directly instead of walked to.
+     */
+    public function elementAt(int $index)
+    {
+        return $this->store->get($index, true);
+    }
 
-	/** {@inheritDoc} */
-	public function elementAtOrNull(int $index): mixed
-	{
-		return $this->store->get($index);
-	}
+    /** {@inheritDoc} */
+    public function elementAtOrNull(int $index): mixed
+    {
+        return $this->store->get($index);
+    }
 
-	/** {@inheritDoc} */
-	public function getOrDefault(int $index, mixed $default): mixed
-	{
-		try {
-			return $this->store->get($index, true);
-		} catch (IndexOutOfBoundsException) {
-			return $default;
-		}
-	}
+    /** {@inheritDoc} */
+    public function getOrDefault(int $index, mixed $default): mixed
+    {
+        try {
+            return $this->store->get($index, true);
+        } catch (IndexOutOfBoundsException) {
+            return $default;
+        }
+    }
 
-	/** {@inheritDoc} */
-	public function getOrCompute(int $index, Closure $compute): mixed
-	{
-		try {
-			return $this->store->get($index, true);
-		} catch (IndexOutOfBoundsException) {
-			return $compute();
-		}
-	}
+    /** {@inheritDoc} */
+    public function getOrCompute(int $index, Closure $compute): mixed
+    {
+        try {
+            return $this->store->get($index, true);
+        } catch (IndexOutOfBoundsException) {
+            return $compute();
+        }
+    }
 
-	/** {@inheritDoc} */
-	public function indexOf(mixed $element): int
-	{
-		return $this->store->indexOf($element);
-	}
+    /** {@inheritDoc} */
+    public function indexOf(mixed $element): int
+    {
+        return $this->store->indexOf($element);
+    }
 
-	/** {@inheritDoc} */
-	public function lastIndexOf(mixed $element): int
-	{
-		return $this->store->lastIndexOf($element);
-	}
+    /** {@inheritDoc} */
+    public function lastIndexOf(mixed $element): int
+    {
+        return $this->store->lastIndexOf($element);
+    }
 
-	/** {@inheritDoc} */
-	public function indexOfFirst(Closure $predicate): int
-	{
-		foreach ($this->store as $i => $v) {
-			if ($predicate($v, $i)) {
-				return $i;
-			}
-		}
+    /** {@inheritDoc} */
+    public function indexOfFirst(Closure $predicate): int
+    {
+        foreach ($this->store as $i => $v) {
+            if ($predicate($v, $i)) {
+                return $i;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
-	/** {@inheritDoc} */
-	public function indexOfLast(Closure $predicate): int
-	{
-		$elements = $this->store->toArray();
+    /** {@inheritDoc} */
+    public function indexOfLast(Closure $predicate): int
+    {
+        $elements = $this->store->toArray();
 
-		for ($i = count($elements) - 1; $i >= 0; $i--) {
-			if ($predicate($elements[$i], $i)) {
-				return $i;
-			}
-		}
+        for ($i = count($elements) - 1; $i >= 0; $i--) {
+            if ($predicate($elements[$i], $i)) {
+                return $i;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function slice(int $from, int $to): ImmutableList
-	{
-		$from = max(0, $from);
-		$to = max($from, $to);
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function slice(int $from, int $to): ImmutableList
+    {
+        $from = max(0, $from);
+        $to = max($from, $to);
 
-		if ($to > $this->store->count()) {
-			throw new IndexOutOfBoundsException();
-		}
+        if ($to > $this->store->count()) {
+            throw new IndexOutOfBoundsException();
+        }
 
-		return $this->newCollectionOf(array_slice($this->store->toArray(), $from, $to - $from));
-	}
+        return $this->newCollectionOf(array_slice($this->store->toArray(), $from, $to - $from));
+    }
 
-	// --- ArrayAccess ---
+    // --- ArrayAccess ---
 
-	/**
-	 * {@inheritDoc}
-	 * @param mixed $offset
-	 */
-	public function offsetExists(mixed $offset): bool
-	{
-		return is_int($offset) && $offset >= 0 && $offset < $this->store->count();
-	}
+    /**
+     * {@inheritDoc}
+     * @param mixed $offset
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        return is_int($offset) && $offset >= 0 && $offset < $this->store->count();
+    }
 
-	/** {@inheritDoc} */
-	public function offsetGet(mixed $offset): mixed
-	{
-		return $this->get($offset);
-	}
+    /** {@inheritDoc} */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->get($offset);
+    }
 
-	/**
-	 * @param int|null $offset
-	 * @param E $value
-	 */
-	public function offsetSet(mixed $offset, mixed $value): void
-	{
-		throw new UnsupportedOperationException('Cannot modify a read-only List via array access');
-	}
+    /**
+     * @param int|null $offset
+     * @param E $value
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new UnsupportedOperationException('Cannot modify a read-only List via array access');
+    }
 
-	public function offsetUnset(mixed $offset): void
-	{
-		throw new UnsupportedOperationException('Cannot modify a read-only List via array access');
-	}
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new UnsupportedOperationException('Cannot modify a read-only List via array access');
+    }
 
-	// --- Transformation ---
+    // --- Transformation ---
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function filter(Closure $predicate): ImmutableList
-	{
-		$i = 0;
-		return $this->newCollectionOf(new FilterOperation($this->store)->byValue(function ($v) use ($predicate, &$i) {
-			return $predicate($v, $i++);
-		}));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function filter(Closure $predicate): ImmutableList
+    {
+        $i = 0;
+        return $this->newCollectionOf(new FilterOperation($this->store)->byValue(function ($v) use ($predicate, &$i) {
+            return $predicate($v, $i++);
+        }));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<(E is null ? never : E)>
-	 */
-	#[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound (in classes with a concrete E the conditional subject is already substituted)
-	public function filterNotNull(): ImmutableList
-	{
-		return $this->newCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v !== null));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<(E is null ? never : E)>
+     */
+    #[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound (in classes with a concrete E the conditional subject is already substituted)
+    public function filterNotNull(): ImmutableList
+    {
+        return $this->newCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v !== null));
+    }
 
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function filterInstanceOf(string $type): ImmutableList
-	{
-		return $this->newTransformedCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
-	}
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function filterInstanceOf(string $type): ImmutableList
+    {
+        return $this->newTransformedCollectionOf(new FilterOperation($this->store)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @template R
-	 * @param Closure(E, int):R $transform
-	 * @return ImmutableList<R>
-	 */
-	#[NoDiscard]
-	public function map(Closure $transform): ImmutableList
-	{
-		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @template R
+     * @param Closure(E, int):R $transform
+     * @return ImmutableList<R>
+     */
+    #[NoDiscard]
+    public function map(Closure $transform): ImmutableList
+    {
+        return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->items(fn ($v, $k) => $transform($v, $k)));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @template R
-	 * @param Closure(E, int):(R|null) $transform
-	 * @return ImmutableList<R>
-	 */
-	#[NoDiscard]
-	public function mapNotNull(Closure $transform): ImmutableList
-	{
-		return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @template R
+     * @param Closure(E, int):(R|null) $transform
+     * @return ImmutableList<R>
+     */
+    #[NoDiscard]
+    public function mapNotNull(Closure $transform): ImmutableList
+    {
+        return $this->newTransformedCollectionOf(new MapKeyValueOperation($this->store)->itemsNotNull(fn ($v, $k) => $transform($v, $k)));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @template R
-	 * @param Closure(E, int):iterable<R> $transform
-	 * @return ImmutableList<R>
-	 */
-	#[NoDiscard]
-	public function flatMap(Closure $transform): ImmutableList
-	{
-		$i = 0;
-		return $this->newTransformedCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
-			return $transform($v, $i++);
-		}));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @template R
+     * @param Closure(E, int):iterable<R> $transform
+     * @return ImmutableList<R>
+     */
+    #[NoDiscard]
+    public function flatMap(Closure $transform): ImmutableList
+    {
+        $i = 0;
+        return $this->newTransformedCollectionOf(new FlatMapOperation($this->store)->items(function ($v) use ($transform, &$i) {
+            return $transform($v, $i++);
+        }));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<(E is iterable<mixed> ? value-of<E|array{}> : E)>
-	 */
-	#[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound, return.unresolvableType (in classes with a concrete E the conditional subject is already substituted and stays unevaluated)
-	public function flatten(): ImmutableList
-	{
-		return $this->newTransformedCollectionOf(new FlattenOperation($this->store)->items());
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<(E is iterable<mixed> ? value-of<E|array{}> : E)>
+     */
+    #[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound, return.unresolvableType (in classes with a concrete E the conditional subject is already substituted and stays unevaluated)
+    public function flatten(): ImmutableList
+    {
+        return $this->newTransformedCollectionOf(new FlattenOperation($this->store)->items());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function takeFirst(int $n = 1): ImmutableList
-	{
-		return $this->newCollectionOf(new TakeOperation($this->terminalElements())->first($n));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function takeFirst(int $n = 1): ImmutableList
+    {
+        return $this->newCollectionOf(new TakeOperation($this->terminalElements())->first($n));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function dropFirst(int $n = 1): ImmutableList
-	{
-		return $this->newCollectionOf(new DropOperation($this->store->toArray())->first($n));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function dropFirst(int $n = 1): ImmutableList
+    {
+        return $this->newCollectionOf(new DropOperation($this->store->toArray())->first($n));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function takeLast(int $n = 1): ImmutableList
-	{
-		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->last($n));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function takeLast(int $n = 1): ImmutableList
+    {
+        return $this->newCollectionOf(new TakeOperation($this->store->toArray())->last($n));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function dropLast(int $n = 1): ImmutableList
-	{
-		return $this->newCollectionOf(new DropOperation($this->store->toArray())->last($n));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function dropLast(int $n = 1): ImmutableList
+    {
+        return $this->newCollectionOf(new DropOperation($this->store->toArray())->last($n));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function takeWhile(Closure $predicate): ImmutableList
-	{
-		return $this->newCollectionOf(new TakeOperation($this->store)->byPredicate($predicate));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function takeWhile(Closure $predicate): ImmutableList
+    {
+        return $this->newCollectionOf(new TakeOperation($this->store)->byPredicate($predicate));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function dropWhile(Closure $predicate): ImmutableList
-	{
-		return $this->newCollectionOf(new DropOperation($this->store)->byPredicate($predicate));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function dropWhile(Closure $predicate): ImmutableList
+    {
+        return $this->newCollectionOf(new DropOperation($this->store)->byPredicate($predicate));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function takeLastWhile(Closure $predicate): ImmutableList
-	{
-		return $this->newCollectionOf(new TakeOperation($this->store->toArray())->lastByPredicate($predicate));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function takeLastWhile(Closure $predicate): ImmutableList
+    {
+        return $this->newCollectionOf(new TakeOperation($this->store->toArray())->lastByPredicate($predicate));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function dropLastWhile(Closure $predicate): ImmutableList
-	{
-		return $this->newCollectionOf(new DropOperation($this->store->toArray())->lastByPredicate($predicate));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function dropLastWhile(Closure $predicate): ImmutableList
+    {
+        return $this->newCollectionOf(new DropOperation($this->store->toArray())->lastByPredicate($predicate));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function distinct(): ImmutableList
-	{
-		return $this->newCollectionOf(new DistinctOperation($this->store)->items());
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function distinct(): ImmutableList
+    {
+        return $this->newCollectionOf(new DistinctOperation($this->store)->items());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function distinctBy(Closure $selector): ImmutableList
-	{
-		return $this->newCollectionOf(new DistinctOperation($this->store)->bySelector($selector));
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function distinctBy(Closure $selector): ImmutableList
+    {
+        return $this->newCollectionOf(new DistinctOperation($this->store)->bySelector($selector));
+    }
 
-	// --- Ordering ---
+    // --- Ordering ---
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function sorted(): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->sort();
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function sorted(): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->sort();
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function sortedDesc(): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->sort(static fn ($a, $b) => $b <=> $a);
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function sortedDesc(): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->sort(static fn ($a, $b) => $b <=> $a);
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function sortedBy(Closure $selector): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->sortBy($selector);
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function sortedBy(Closure $selector): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->sortBy($selector);
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function sortedByDesc(Closure $selector): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->sortBy($selector, descending: true);
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function sortedByDesc(Closure $selector): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->sortBy($selector, descending: true);
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function sortedWith(Closure $comparator): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->sort($comparator);
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function sortedWith(Closure $comparator): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->sort($comparator);
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function reversed(): ImmutableList
-	{
-		/** @var ReadWriteElementStore<E> $store */
-		$store = clone $this->store;
-		$store->reverse();
-		return $this->newCollectionOf($store);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function reversed(): ImmutableList
+    {
+        /** @var ReadWriteElementStore<E> $store */
+        $store = clone $this->store;
+        $store->reverse();
+        return $this->newCollectionOf($store);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function shuffled(): ImmutableList
-	{
-		$arr = $this->store->toArray();
-		shuffle($arr);
-		return $this->newCollectionOf($arr);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function shuffled(): ImmutableList
+    {
+        $arr = $this->store->toArray();
+        shuffle($arr);
+        return $this->newCollectionOf($arr);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @template GK of string|int|bool|float|object
-	 * @template GV
-	 * @param Closure(E, int):GK $keySelector
-	 * @param (Closure(E, int):GV)|null $valueTransform
-	 * @return ($valueTransform is null ? ImmutableMap<GK, ImmutableList<E>> : ImmutableMap<GK, ImmutableList<GV>>)
-	 * @phpstan-ignore-next-line method.childReturnType
-	 */
-	#[NoDiscard]
-	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
-	{
-		$store = new GroupOperation($this)->byKey($keySelector, $valueTransform);
+    /**
+     * {@inheritDoc}
+     *
+     * @template GK of string|int|bool|float|object
+     * @template GV
+     * @param Closure(E, int):GK $keySelector
+     * @param (Closure(E, int):GV)|null $valueTransform
+     * @return ($valueTransform is null ? ImmutableMap<GK, ImmutableList<E>> : ImmutableMap<GK, ImmutableList<GV>>)
+     * @phpstan-ignore-next-line method.childReturnType
+     */
+    #[NoDiscard]
+    public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
+    {
+        $store = new GroupOperation($this)->byKey($keySelector, $valueTransform);
 
-		foreach ($store as $k => $bucket) {
-			if ($valueTransform !== null) {
-				$store->put($k, $this->newListOf($bucket)); // @phpstan-ignore argument.type
-			} else {
-				$store->put($k, $this->newCollectionOf($bucket)); // @phpstan-ignore argument.type
-			}
-		}
+        foreach ($store as $k => $bucket) {
+            if ($valueTransform !== null) {
+                $store->put($k, $this->newListOf($bucket)); // @phpstan-ignore argument.type
+            } else {
+                $store->put($k, $this->newCollectionOf($bucket)); // @phpstan-ignore argument.type
+            }
+        }
 
-		return $this->newMapOf($store); // @phpstan-ignore return.type
-	}
+        return $this->newMapOf($store); // @phpstan-ignore return.type
+    }
 
-	// --- Conversion ---
+    // --- Conversion ---
 
-	/**
-	 * @return ImmutableList<E>
-	 */
-	#[NoDiscard]
-	public function toImmutable(): ImmutableList
-	{
-		if ($this instanceof ImmutableList) {
-			return $this;
-		}
+    /**
+     * @return ImmutableList<E>
+     */
+    #[NoDiscard]
+    public function toImmutable(): ImmutableList
+    {
+        if ($this instanceof ImmutableList) {
+            return $this;
+        }
 
-		return listOf($this->store); // @phpstan-ignore return.type, argument.templateType
-	}
+        return listOf($this->store); // @phpstan-ignore return.type, argument.templateType
+    }
 
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toIndexedMap(?Closure $valueTransform = null): ImmutableMap
-	{
-		if ($valueTransform === null) {
-			return intMapOf($this->store->toArray());
-		}
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toIndexedMap(?Closure $valueTransform = null): ImmutableMap
+    {
+        if ($valueTransform === null) {
+            return intMapOf($this->store->toArray());
+        }
 
-		return intMapOf((function () use ($valueTransform) {
-			foreach ($this->store as $i => $v) {
-				yield $i => $valueTransform($v, $i);
-			}
-		})());
-	}
+        return intMapOf((function () use ($valueTransform) {
+            foreach ($this->store as $i => $v) {
+                yield $i => $valueTransform($v, $i);
+            }
+        })());
+    }
 
-	// --- Factory Methods ---
+    // --- Factory Methods ---
 
-	/**
-	 * Creates a new immutable list from the given data.
-	 *
-	 * @template NE
-	 * @param iterable<NE> $data
-	 * @return ImmutableList<NE>
-	 */
-	protected function newCollectionOf(iterable $data): ImmutableList
-	{
-		return listOf($data);
-	}
+    /**
+     * Creates a new immutable list from the given data.
+     *
+     * @template NE
+     * @param iterable<NE> $data
+     * @return ImmutableList<NE>
+     */
+    protected function newCollectionOf(iterable $data): ImmutableList
+    {
+        return listOf($data);
+    }
 
-	/**
-	 * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
-	 *
-	 * Not routed through newCollectionOf: a self-preserving subtype rebuilds itself
-	 * there, and a transform result no longer holds elements of E — it must not go
-	 * through the subtype's constructor.
-	 *
-	 * @template NE
-	 * @param iterable<NE> $data
-	 * @return ImmutableList<NE>
-	 */
-	protected function newTransformedCollectionOf(iterable $data): ImmutableList
-	{
-		return listOf($data);
-	}
+    /**
+     * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
+     *
+     * Not routed through newCollectionOf: a self-preserving subtype rebuilds itself
+     * there, and a transform result no longer holds elements of E — it must not go
+     * through the subtype's constructor.
+     *
+     * @template NE
+     * @param iterable<NE> $data
+     * @return ImmutableList<NE>
+     */
+    protected function newTransformedCollectionOf(iterable $data): ImmutableList
+    {
+        return listOf($data);
+    }
 }

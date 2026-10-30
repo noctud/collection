@@ -28,8 +28,8 @@ $immutableList = file_get_contents(__DIR__ . '/../src/List/ImmutableList.php');
 $immutableMap = file_get_contents(__DIR__ . '/../src/Map/ImmutableMap.php');
 
 if ($collection === false || $immutableSet === false || $immutableList === false || $immutableMap === false) {
-	echo "Failed to read source files\n";
-	exit(1);
+    echo "Failed to read source files\n";
+    exit(1);
 }
 
 $start = NarrowingGenerator::SelfPreservingStartMarker;
@@ -40,55 +40,55 @@ $elementBlacklist = ['toImmutable', 'onEach', 'filterInstanceOf', 'map', 'mapNot
 
 // Set: + intersect/union/subtract (return Set, declared on Collection) and partition (array shape).
 $set = NarrowingGenerator::generateSelfPreserving(
-	$immutableSet,
-	$collection,
-	'ImmutableSetLogic',
-	'ImmutableSet',
-	'newCollectionOf',
-	'E',
-	$elementBlacklist,
-	['partition'],
-	['intersect', 'union', 'subtract'],
+    $immutableSet,
+    $collection,
+    'ImmutableSetLogic',
+    'ImmutableSet',
+    'newCollectionOf',
+    'E',
+    $elementBlacklist,
+    ['partition'],
+    ['intersect', 'union', 'subtract'],
 );
 NarrowingGenerator::writeBetweenMarkers(__DIR__ . '/../src/Set/SelfPreservingImmutableSetLogic.php', $set, $start, $end);
 
 // List: + partition. Set operations are excluded (a list's intersect/union/subtract produce a Set).
 $list = NarrowingGenerator::generateSelfPreserving(
-	$immutableList,
-	$collection,
-	'ImmutableListLogic',
-	'ImmutableList',
-	'newCollectionOf',
-	'E',
-	$elementBlacklist,
-	['partition'],
-	[],
+    $immutableList,
+    $collection,
+    'ImmutableListLogic',
+    'ImmutableList',
+    'newCollectionOf',
+    'E',
+    $elementBlacklist,
+    ['partition'],
+    [],
 );
 NarrowingGenerator::writeBetweenMarkers(__DIR__ . '/../src/List/SelfPreservingImmutableListLogic.php', $list, $start, $end);
 
 // Map: key/value-changing methods, sortedWith (MapEntry invariance), views, and conversions excluded.
 $mapBlacklist = [
-	'toImmutable',
-	'filterValuesInstanceOf',
-	'mapKeys',
-	'mapValues',
-	'mapValuesNotNull',
-	'flip',
-	'sortedWith',
-	'onEach',
-	'onEachKey',
-	'onEachValue',
+    'toImmutable',
+    'filterValuesInstanceOf',
+    'mapKeys',
+    'mapValues',
+    'mapValuesNotNull',
+    'flip',
+    'sortedWith',
+    'onEach',
+    'onEachKey',
+    'onEachValue',
 ];
 $map = NarrowingGenerator::generateSelfPreserving(
-	$immutableMap,
-	$collection,
-	'ImmutableMapLogic',
-	'ImmutableMap',
-	'newMapOf',
-	'K,V',
-	$mapBlacklist,
-	[],
-	[],
+    $immutableMap,
+    $collection,
+    'ImmutableMapLogic',
+    'ImmutableMap',
+    'newMapOf',
+    'K,V',
+    $mapBlacklist,
+    [],
+    [],
 );
 NarrowingGenerator::writeBetweenMarkers(__DIR__ . '/../src/Map/SelfPreservingImmutableMapLogic.php', $map, $start, $end);
 

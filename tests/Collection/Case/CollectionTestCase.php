@@ -14,10 +14,10 @@ use Noctud\Collection\Collection;
 
 interface CollectionTestCase
 {
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Collection<E>
-	 */
-	public function collectionOf(iterable|Closure $data): Collection;
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Collection<E>
+     */
+    public function collectionOf(iterable|Closure $data): Collection;
 }

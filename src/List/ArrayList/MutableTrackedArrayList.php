@@ -25,25 +25,25 @@ use NoDiscard;
  */
 class MutableTrackedArrayList implements MutableTrackedList, TrackedResult
 {
-	/** @use MutableTrackedListLogic<E> */
-	use MutableTrackedListLogic;
+    /** @use MutableTrackedListLogic<E> */
+    use MutableTrackedListLogic;
 
-	/**
-	 * @param ReadWriteIndexedStore<E> $store
-	 */
-	public function __construct(ReadWriteIndexedStore $store)
-	{
-		$this->store = $store;
-	}
+    /**
+     * @param ReadWriteIndexedStore<E> $store
+     */
+    public function __construct(ReadWriteIndexedStore $store)
+    {
+        $this->store = $store;
+    }
 
-	/**
-	 * Returns this tracked list (already tracked).
-	 *
-	 * @return MutableTrackedList<E>
-	 */
-	#[NoDiscard]
-	public function tracked(): MutableTrackedList
-	{
-		return $this;
-	}
+    /**
+     * Returns this tracked list (already tracked).
+     *
+     * @return MutableTrackedList<E>
+     */
+    #[NoDiscard]
+    public function tracked(): MutableTrackedList
+    {
+        return $this;
+    }
 }

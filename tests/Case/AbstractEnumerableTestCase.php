@@ -16,20 +16,20 @@ use PHPUnit\Framework\TestCase;
 
 abstract class AbstractEnumerableTestCase extends TestCase
 {
-	use EnumerableCopyOnWrite;
-	use EnumerableCount;
-	use EnumerableLoop;
+    use EnumerableCopyOnWrite;
+    use EnumerableCount;
+    use EnumerableLoop;
 
-	/**
-	 * @return array<int|string, string>
-	 */
-	protected function generateSampleData(int $size): array
-	{
-		$data = [];
-		for ($i = 0; $i < $size; $i++) {
-			$data[] = "value_$i";
-		}
+    /**
+     * @return array<int|string, string>
+     */
+    protected function generateSampleData(int $size): array
+    {
+        $data = [];
+        for ($i = 0; $i < $size; $i++) {
+            $data[] = "value_$i";
+        }
 
-		return $data;
-	}
+        return $data;
+    }
 }

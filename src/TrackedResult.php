@@ -14,7 +14,7 @@ namespace Noctud\Collection;
  */
 interface TrackedResult
 {
-	public bool $changed {
-		get;
-	}
+    public bool $changed {
+        get;
+    }
 }

@@ -51,6 +51,6 @@ assertType('Noctud\Collection\Map\MutableMap<int, string>', mutableIntMapOf([1 =
 /** @var string $seed */
 $seed = 'a';
 assertType(
-	'Noctud\Collection\Sequence\Sequence<string>',
-	generateSequence($seed, static fn (string $v): ?string => strlen($v) < 3 ? $v . 'a' : null),
+    'Noctud\Collection\Sequence\Sequence<string>',
+    generateSequence($seed, static fn (string $v): ?string => strlen($v) < 3 ? $v . 'a' : null),
 );

@@ -27,59 +27,59 @@ use function array_key_exists;
  */
 final class SetOperation extends AbstractOperation
 {
-	/**
-	 * @param iterable<mixed> $other
-	 * @return HashElementStore<V>
-	 */
-	public function intersect(iterable $other): HashElementStore
-	{
-		return HashElementStore::fromHashed(array_intersect_key(self::hashed($this->data), self::hashed($other)));
-	}
+    /**
+     * @param iterable<mixed> $other
+     * @return HashElementStore<V>
+     */
+    public function intersect(iterable $other): HashElementStore
+    {
+        return HashElementStore::fromHashed(array_intersect_key(self::hashed($this->data), self::hashed($other)));
+    }
 
-	/**
-	 * @template U
-	 * @param iterable<U> $other
-	 * @return HashElementStore<V|U>
-	 */
-	public function union(iterable $other): HashElementStore
-	{
-		return HashElementStore::fromHashed(self::hashed($this->data) + self::hashed($other));
-	}
+    /**
+     * @template U
+     * @param iterable<U> $other
+     * @return HashElementStore<V|U>
+     */
+    public function union(iterable $other): HashElementStore
+    {
+        return HashElementStore::fromHashed(self::hashed($this->data) + self::hashed($other));
+    }
 
-	/**
-	 * @param iterable<mixed> $other
-	 * @return HashElementStore<V>
-	 */
-	public function subtract(iterable $other): HashElementStore
-	{
-		return HashElementStore::fromHashed(array_diff_key(self::hashed($this->data), self::hashed($other)));
-	}
+    /**
+     * @param iterable<mixed> $other
+     * @return HashElementStore<V>
+     */
+    public function subtract(iterable $other): HashElementStore
+    {
+        return HashElementStore::fromHashed(array_diff_key(self::hashed($this->data), self::hashed($other)));
+    }
 
-	/**
-	 * Keys each element by its hash, keeping its first occurrence. A hash set already holds them so.
-	 *
-	 * @template T
-	 * @param iterable<T> $data
-	 * @return array<int|string,T>
-	 */
-	private static function hashed(iterable $data): array
-	{
-		if ($data instanceof ImmutableHashSet || $data instanceof MutableHashSet) {
-			$data = $data->__internalCollectionStore();
-		}
+    /**
+     * Keys each element by its hash, keeping its first occurrence. A hash set already holds them so.
+     *
+     * @template T
+     * @param iterable<T> $data
+     * @return array<int|string,T>
+     */
+    private static function hashed(iterable $data): array
+    {
+        if ($data instanceof ImmutableHashSet || $data instanceof MutableHashSet) {
+            $data = $data->__internalCollectionStore();
+        }
 
-		if ($data instanceof HashElementStore) {
-			return $data->toHashedArray();
-		}
+        if ($data instanceof HashElementStore) {
+            return $data->toHashedArray();
+        }
 
-		$hashed = [];
-		foreach ($data as $v) {
-			$hash = KeyHasher::hashSetKey($v);
-			if (!array_key_exists($hash, $hashed)) {
-				$hashed[$hash] = $v;
-			}
-		}
+        $hashed = [];
+        foreach ($data as $v) {
+            $hash = KeyHasher::hashSetKey($v);
+            if (!array_key_exists($hash, $hashed)) {
+                $hashed[$hash] = $v;
+            }
+        }
 
-		return $hashed;
-	}
+        return $hashed;
+    }
 }

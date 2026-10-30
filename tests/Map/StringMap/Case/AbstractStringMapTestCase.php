@@ -25,32 +25,32 @@ use Noctud\Collection\Tests\Map\StringMap\StringMapBasics;
  */
 abstract class AbstractStringMapTestCase extends TestCase implements StringMapTestCase
 {
-	use EnumerableCopyOnWrite;
-	use StringMapBasics;
-	use StringMapConvert;
-	use StringMapCopyOnWrite;
-	use StringMapKeyEnforcement;
+    use EnumerableCopyOnWrite;
+    use StringMapBasics;
+    use StringMapConvert;
+    use StringMapCopyOnWrite;
+    use StringMapKeyEnforcement;
 
-	/**
-	 * @template V
-	 * @param iterable<string,V>|Closure():iterable<string,V> $data
-	 * @return Map<string,V>
-	 */
-	public function enumerableOf(iterable|Closure $data): Collection|Map
-	{
-		return $this->mapOf($data);
-	}
+    /**
+     * @template V
+     * @param iterable<string,V>|Closure():iterable<string,V> $data
+     * @return Map<string,V>
+     */
+    public function enumerableOf(iterable|Closure $data): Collection|Map
+    {
+        return $this->mapOf($data);
+    }
 
-	/**
-	 * @return array<string, string>
-	 */
-	protected function generateSampleData(int $size): array
-	{
-		$data = [];
-		for ($i = 0; $i < $size; $i++) {
-			$data["key_$i"] = "value_$i";
-		}
+    /**
+     * @return array<string, string>
+     */
+    protected function generateSampleData(int $size): array
+    {
+        $data = [];
+        for ($i = 0; $i < $size; $i++) {
+            $data["key_$i"] = "value_$i";
+        }
 
-		return $data;
-	}
+        return $data;
+    }
 }

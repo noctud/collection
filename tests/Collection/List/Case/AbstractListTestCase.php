@@ -19,10 +19,10 @@ use Noctud\Collection\Tests\Collection\List\ListMutate;
 
 abstract class AbstractListTestCase extends AbstractCollectionTestCase
 {
-	use CollectionMutateWrite;
-	use ListAccess;
-	use ListConvert;
-	use ListCopyOnWrite;
-	use ListIndex;
-	use ListMutate;
+    use CollectionMutateWrite;
+    use ListAccess;
+    use ListConvert;
+    use ListCopyOnWrite;
+    use ListIndex;
+    use ListMutate;
 }

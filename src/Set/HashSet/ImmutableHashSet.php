@@ -27,23 +27,23 @@ use ReflectionClass;
  */
 class ImmutableHashSet implements ImmutableSet
 {
-	/** @use ImmutableSetLogic<E> */
-	use ImmutableSetLogic;
+    /** @use ImmutableSetLogic<E> */
+    use ImmutableSetLogic;
 
-	/**
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 */
-	public function __construct(iterable|Closure $data = [])
-	{
-		if ($data instanceof Closure) {
-			$reflector = new ReflectionClass(HashElementStore::class);
-			$this->store = $reflector->newLazyProxy(fn (): HashElementStore => new HashElementStore($data()));
-		} elseif ($data instanceof HashElementStore) {
-			$this->store = clone $data;
-		} elseif ($data instanceof self || $data instanceof MutableHashSet) {
-			$this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
-		} else {
-			$this->store = new HashElementStore($data);
-		}
-	}
+    /**
+     * @param iterable<E>|Closure():iterable<E> $data
+     */
+    public function __construct(iterable|Closure $data = [])
+    {
+        if ($data instanceof Closure) {
+            $reflector = new ReflectionClass(HashElementStore::class);
+            $this->store = $reflector->newLazyProxy(fn (): HashElementStore => new HashElementStore($data()));
+        } elseif ($data instanceof HashElementStore) {
+            $this->store = clone $data;
+        } elseif ($data instanceof self || $data instanceof MutableHashSet) {
+            $this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
+        } else {
+            $this->store = new HashElementStore($data);
+        }
+    }
 }

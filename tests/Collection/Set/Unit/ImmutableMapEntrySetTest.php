@@ -16,23 +16,23 @@ use function Noctud\Collection\mapOf;
 
 final class ImmutableMapEntrySetTest extends AbstractSetTestCase
 {
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Set<E>
-	 */
-	public function collectionOf(iterable|Closure $data): Set
-	{
-		return mapOf($data)->entries->map(fn ($entry) => $entry->value); // @phpstan-ignore argument.templateType
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Set<E>
+     */
+    public function collectionOf(iterable|Closure $data): Set
+    {
+        return mapOf($data)->entries->map(fn ($entry) => $entry->value); // @phpstan-ignore argument.templateType
+    }
 
-	/**
-	 * @template E
-	 * @param iterable<E>|Closure():iterable<E> $data
-	 * @return Set<E>
-	 */
-	public function enumerableOf(iterable|Closure $data): Set
-	{
-		return $this->collectionOf($data);
-	}
+    /**
+     * @template E
+     * @param iterable<E>|Closure():iterable<E> $data
+     * @return Set<E>
+     */
+    public function enumerableOf(iterable|Closure $data): Set
+    {
+        return $this->collectionOf($data);
+    }
 }

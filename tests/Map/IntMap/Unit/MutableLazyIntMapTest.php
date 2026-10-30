@@ -18,34 +18,34 @@ use function is_callable;
 
 final class MutableLazyIntMapTest extends AbstractIntMapTestCase
 {
-	/**
-	 * @template V
-	 * @param iterable<int,V>|Closure():iterable<int,V> $data
-	 * @return MutableMap<int,V>
-	 */
-	public function mapOf(iterable|Closure $data): MutableMap
-	{
-		if (!is_callable($data)) {
-			return mutableIntMapOf(fn () => $data);
-		}
+    /**
+     * @template V
+     * @param iterable<int,V>|Closure():iterable<int,V> $data
+     * @return MutableMap<int,V>
+     */
+    public function mapOf(iterable|Closure $data): MutableMap
+    {
+        if (!is_callable($data)) {
+            return mutableIntMapOf(fn () => $data);
+        }
 
-		return mutableIntMapOf($data);
-	}
+        return mutableIntMapOf($data);
+    }
 
-	#[Test]
-	public function lazy_init_from_closure(): void
-	{
-		$called = false;
-		$map = mutableIntMapOf(function () use (&$called) {
-			$called = true;
-			return [1 => 'a', 2 => 'b'];
-		});
+    #[Test]
+    public function lazy_init_from_closure(): void
+    {
+        $called = false;
+        $map = mutableIntMapOf(function () use (&$called) {
+            $called = true;
+            return [1 => 'a', 2 => 'b'];
+        });
 
-		// Not called yet
-		$this->assertFalse($called);
+        // Not called yet
+        $this->assertFalse($called);
 
-		// Triggers initialization
-		$this->assertSame(2, $map->count());
-		$this->assertTrue($called); // @phpstan-ignore method.impossibleType
-	}
+        // Triggers initialization
+        $this->assertSame(2, $map->count());
+        $this->assertTrue($called); // @phpstan-ignore method.impossibleType
+    }
 }

@@ -38,22 +38,22 @@ $writableCollectionContent = file_get_contents($writableCollectionFile);
 $mutableCollectionContent = file_get_contents($mutableCollectionFile);
 
 if ($collectionContent === false || $immutableCollectionContent === false || $writableCollectionContent === false || $mutableCollectionContent === false) {
-	echo "Failed to read source files\n";
-	exit(1);
+    echo "Failed to read source files\n";
+    exit(1);
 }
 
 // Generate ListInterface narrowing (Collection -> ListInterface)
 $listNarrowing = NarrowingGenerator::generateListNarrowing($collectionContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($listFile, $listNarrowing)) {
-	echo "Failed to update ListInterface.php\n";
-	exit(1);
+    echo "Failed to update ListInterface.php\n";
+    exit(1);
 }
 
 // Generate ImmutableList narrowing (ImmutableCollection -> ImmutableList)
 $immutableListNarrowing = NarrowingGenerator::generateImmutableListNarrowing($immutableCollectionContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($immutableListFile, $immutableListNarrowing)) {
-	echo "Failed to update ImmutableList.php\n";
-	exit(1);
+    echo "Failed to update ImmutableList.php\n";
+    exit(1);
 }
 
 // Generate WritableList narrowing:
@@ -63,30 +63,30 @@ $writableListMutationNarrowing = NarrowingGenerator::generateWritableListNarrowi
 $writableListTransformationNarrowing = NarrowingGenerator::generateWritableListTransformationNarrowing($collectionContent, ['onEach']);
 $writableListNarrowing = $writableListMutationNarrowing . "\n\n" . $writableListTransformationNarrowing;
 if (!NarrowingGenerator::writeBetweenMarkers($writableListFile, $writableListNarrowing)) {
-	echo "Failed to update WritableList.php\n";
-	exit(1);
+    echo "Failed to update WritableList.php\n";
+    exit(1);
 }
 
 // Generate MutableList narrowing (MutableCollection + WritableList -> MutableList)
 // Must run after WritableList narrowing since it reads the updated file
 $writableListContent = file_get_contents($writableListFile);
 if ($writableListContent === false) {
-	echo "Failed to read WritableList.php\n";
-	exit(1);
+    echo "Failed to read WritableList.php\n";
+    exit(1);
 }
 
 // Generate WritableTrackedList narrowing (WritableList -> WritableTrackedList&TrackedResult)
 $writableTrackedListFile = __DIR__ . '/../src/List/WritableTrackedList.php';
 $wtlNarrowing = NarrowingGenerator::generateWritableTrackedListNarrowing($writableListContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($writableTrackedListFile, $wtlNarrowing)) {
-	echo "Failed to update WritableTrackedList.php\n";
-	exit(1);
+    echo "Failed to update WritableTrackedList.php\n";
+    exit(1);
 }
 
 $mutableListNarrowing = NarrowingGenerator::generateMutableListNarrowing($mutableCollectionContent, [], $writableListContent);
 if (!NarrowingGenerator::writeBetweenMarkers($mutableListFile, $mutableListNarrowing)) {
-	echo "Failed to update MutableList.php\n";
-	exit(1);
+    echo "Failed to update MutableList.php\n";
+    exit(1);
 }
 
 // Generate MutableTrackedList narrowing (MutableList -> MutableTrackedList&TrackedResult)
@@ -94,14 +94,14 @@ if (!NarrowingGenerator::writeBetweenMarkers($mutableListFile, $mutableListNarro
 $trackedListFile = __DIR__ . '/../src/List/MutableTrackedList.php';
 $mutableListContent = file_get_contents($mutableListFile);
 if ($mutableListContent === false) {
-	echo "Failed to read MutableList.php\n";
-	exit(1);
+    echo "Failed to read MutableList.php\n";
+    exit(1);
 }
 
 $trackedListNarrowing = NarrowingGenerator::generateTrackedListNarrowing($mutableListContent, []);
 if (!NarrowingGenerator::writeBetweenMarkers($trackedListFile, $trackedListNarrowing)) {
-	echo "Failed to update MutableTrackedList.php\n";
-	exit(1);
+    echo "Failed to update MutableTrackedList.php\n";
+    exit(1);
 }
 
 echo "Done!\n";

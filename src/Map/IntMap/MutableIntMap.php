@@ -36,81 +36,81 @@ use function Noctud\Collection\mutableIntMapOf;
  */
 final class MutableIntMap implements MutableMap
 {
-	/** @use MutableMapLogic<int,V> */
-	use MutableMapLogic;
+    /** @use MutableMapLogic<int,V> */
+    use MutableMapLogic;
 
-	/**
-	 * @param iterable<int,V>|Closure():iterable<int,V> $data
-	 */
-	public function __construct(iterable|Closure $data = [])
-	{
-		if ($data instanceof Closure) {
-			$reflector = new ReflectionClass(IntKeyValueStore::class);
-			$this->store = $reflector->newLazyProxy(fn (IntKeyValueStore $object): IntKeyValueStore => $object::fromAssoc($data()));
-		} elseif ($data instanceof IntKeyValueStore) {
-			$this->store = clone $data;
-		} elseif ($data instanceof self || $data instanceof ImmutableIntMap) {
-			$this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
-		} else {
-			$this->store = IntKeyValueStore::fromAssoc($data);
-		}
-	}
+    /**
+     * @param iterable<int,V>|Closure():iterable<int,V> $data
+     */
+    public function __construct(iterable|Closure $data = [])
+    {
+        if ($data instanceof Closure) {
+            $reflector = new ReflectionClass(IntKeyValueStore::class);
+            $this->store = $reflector->newLazyProxy(fn (IntKeyValueStore $object): IntKeyValueStore => $object::fromAssoc($data()));
+        } elseif ($data instanceof IntKeyValueStore) {
+            $this->store = clone $data;
+        } elseif ($data instanceof self || $data instanceof ImmutableIntMap) {
+            $this->store = clone $data->__internalCollectionStore(); // @phpstan-ignore assign.propertyType
+        } else {
+            $this->store = IntKeyValueStore::fromAssoc($data);
+        }
+    }
 
-	/**
-	 * Returns HashMap since transformed keys may be non-int.
-	 *
-	 * @template NK of string|int|bool|float|object
-	 * @param Closure(V, int):NK $transform
-	 * @return ImmutableMap<NK,V>
-	 */
-	#[NoDiscard]
-	public function mapKeys(Closure $transform): ImmutableMap
-	{
-		return mapOf(new MapKeyValueOperation($this->store)->keys($transform));
-	}
+    /**
+     * Returns HashMap since transformed keys may be non-int.
+     *
+     * @template NK of string|int|bool|float|object
+     * @param Closure(V, int):NK $transform
+     * @return ImmutableMap<NK,V>
+     */
+    #[NoDiscard]
+    public function mapKeys(Closure $transform): ImmutableMap
+    {
+        return mapOf(new MapKeyValueOperation($this->store)->keys($transform));
+    }
 
-	/**
-	 * Returns HashMap since values become keys and may be non-int.
-	 *
-	 * @return ImmutableMap<V,int>
-	 */
-	#[NoDiscard] // @phpstan-ignore generics.notSubtype
-	public function flip(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): ImmutableMap
-	{
-		return mapOf(new FlipKeyValueOperation($this->store)->items($onCollision)); // @phpstan-ignore return.type, argument.type, argument.templateType
-	}
+    /**
+     * Returns HashMap since values become keys and may be non-int.
+     *
+     * @return ImmutableMap<V,int>
+     */
+    #[NoDiscard] // @phpstan-ignore generics.notSubtype
+    public function flip(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): ImmutableMap
+    {
+        return mapOf(new FlipKeyValueOperation($this->store)->items($onCollision)); // @phpstan-ignore return.type, argument.type, argument.templateType
+    }
 
-	/**
-	 * @template NV
-	 * @param iterable<int,NV> $data
-	 * @return ImmutableMap<int,NV>
-	 */
-	protected function newMapOf(iterable $data): ImmutableMap
-	{
-		return intMapOf($data);
-	}
+    /**
+     * @template NV
+     * @param iterable<int,NV> $data
+     * @return ImmutableMap<int,NV>
+     */
+    protected function newMapOf(iterable $data): ImmutableMap
+    {
+        return intMapOf($data);
+    }
 
-	/**
-	 * @template NV
-	 * @param iterable<int,NV> $data
-	 * @return ImmutableMap<int,NV>
-	 */
-	protected function newValueTransformedMapOf(iterable $data): ImmutableMap
-	{
-		return intMapOf($data);
-	}
+    /**
+     * @template NV
+     * @param iterable<int,NV> $data
+     * @return ImmutableMap<int,NV>
+     */
+    protected function newValueTransformedMapOf(iterable $data): ImmutableMap
+    {
+        return intMapOf($data);
+    }
 
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toImmutable(): ImmutableMap
-	{
-		return intMapOf($this->store);
-	}
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toImmutable(): ImmutableMap
+    {
+        return intMapOf($this->store);
+    }
 
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toMutable(): MutableMap
-	{
-		return mutableIntMapOf($this->store);
-	}
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toMutable(): MutableMap
+    {
+        return mutableIntMapOf($this->store);
+    }
 }

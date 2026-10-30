@@ -18,12 +18,12 @@ $c = listOf(['a', 'b', 'c']);
 
 // toMap: value defaults to the element type unless a value transform is given.
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, string>',
-	$c->toMap(fn (string $x): string => $x),
+    'Noctud\Collection\Map\ImmutableMap<string, string>',
+    $c->toMap(fn (string $x): string => $x),
 );
 assertType(
-	'Noctud\Collection\Map\ImmutableMap<string, bool>',
-	$c->toMap(fn (string $x): string => $x, fn (string $x): bool => $x !== ''),
+    'Noctud\Collection\Map\ImmutableMap<string, bool>',
+    $c->toMap(fn (string $x): string => $x, fn (string $x): bool => $x !== ''),
 );
 
 assertType('Noctud\Collection\List\ImmutableList<string>', $c->toList());

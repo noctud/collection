@@ -15,10 +15,10 @@ use Noctud\Collection\Map\MutableMap;
 
 interface StringMapTestCase
 {
-	/**
-	 * @template V
-	 * @param iterable<string,V>|Closure():iterable<string,V> $data
-	 * @return ImmutableMap<string,V>|MutableMap<string,V>
-	 */
-	public function mapOf(iterable|Closure $data): ImmutableMap|MutableMap;
+    /**
+     * @template V
+     * @param iterable<string,V>|Closure():iterable<string,V> $data
+     * @return ImmutableMap<string,V>|MutableMap<string,V>
+     */
+    public function mapOf(iterable|Closure $data): ImmutableMap|MutableMap;
 }

@@ -17,17 +17,17 @@ use Noctud\Collection\Hashable;
  */
 interface MapEntry extends Hashable
 {
-	/**
-	 * @var K
-	 */
-	public string|int|bool|float|object $key {
-		get;
-	}
+    /**
+     * @var K
+     */
+    public string|int|bool|float|object $key {
+        get;
+    }
 
-	/**
-	 * @var V
-	 */
-	public mixed $value {
-		get;
-	}
+    /**
+     * @var V
+     */
+    public mixed $value {
+        get;
+    }
 }

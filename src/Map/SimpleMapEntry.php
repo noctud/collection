@@ -18,18 +18,18 @@ use Noctud\Collection\KeyHasher;
  */
 final class SimpleMapEntry implements MapEntry
 {
-	/**
-	 * @param K $key
-	 */
-	public function __construct(
-		/** @var K */
-		public readonly string|int|bool|float|object $key,
-		/** @var V */
-		public readonly mixed $value,
-	) {}
+    /**
+     * @param K $key
+     */
+    public function __construct(
+        /** @var K */
+        public readonly string|int|bool|float|object $key,
+        /** @var V */
+        public readonly mixed $value,
+    ) {}
 
-	public function identity(): string
-	{
-		return KeyHasher::hashMapKey($this->key) . ':' . KeyHasher::hashSetKey($this->value);
-	}
+    public function identity(): string
+    {
+        return KeyHasher::hashMapKey($this->key) . ':' . KeyHasher::hashSetKey($this->value);
+    }
 }

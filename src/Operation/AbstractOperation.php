@@ -16,10 +16,10 @@ namespace Noctud\Collection\Operation;
  */
 abstract class AbstractOperation
 {
-	/**
-	 * @param iterable<K,V> $data
-	 */
-	public function __construct(
-		protected iterable $data,
-	) {}
+    /**
+     * @param iterable<K,V> $data
+     */
+    public function __construct(
+        protected iterable $data,
+    ) {}
 }

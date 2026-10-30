@@ -19,15 +19,15 @@ use Generator;
  */
 final class FlatMapKeyValueOperation extends AbstractOperation
 {
-	/**
-	 * @template R
-	 * @param callable(V,K):iterable<R> $transform
-	 * @return Generator<R>
-	 */
-	public function items(callable $transform): Generator
-	{
-		foreach ($this->data as $k => $v) {
-			yield from $transform($v, $k);
-		}
-	}
+    /**
+     * @template R
+     * @param callable(V,K):iterable<R> $transform
+     * @return Generator<R>
+     */
+    public function items(callable $transform): Generator
+    {
+        foreach ($this->data as $k => $v) {
+            yield from $transform($v, $k);
+        }
+    }
 }

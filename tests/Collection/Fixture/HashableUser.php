@@ -13,13 +13,13 @@ use Noctud\Collection\Hashable;
 
 class HashableUser implements Hashable
 {
-	public function __construct(
-		private readonly string $id,
-	) {
-	}
+    public function __construct(
+        private readonly string $id,
+    ) {
+    }
 
-	public function identity(): string
-	{
-		return "user:{$this->id}";
-	}
+    public function identity(): string
+    {
+        return "user:{$this->id}";
+    }
 }

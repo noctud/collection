@@ -29,27 +29,27 @@ use function Noctud\Collection\listOf;
  */
 final class MapValueCollection implements Collection
 {
-	/** @use CollectionLogic<E> */
-	use CollectionLogic;
+    /** @use CollectionLogic<E> */
+    use CollectionLogic;
 
-	/** @var ReadOnlyElementStore<E> */
-	protected ReadOnlyElementStore $store;
+    /** @var ReadOnlyElementStore<E> */
+    protected ReadOnlyElementStore $store;
 
-	/**
-	 * @template TK of string|int|bool|float|object
-	 * @param KeyValueStore<TK,E>|ReadOnlyElementStore<E> $store
-	 */
-	public function __construct(KeyValueStore|ReadOnlyElementStore $store)
-	{
-		$this->store = $store instanceof ReadOnlyElementStore ? $store : new MapValueStore($store);
-	}
+    /**
+     * @template TK of string|int|bool|float|object
+     * @param KeyValueStore<TK,E>|ReadOnlyElementStore<E> $store
+     */
+    public function __construct(KeyValueStore|ReadOnlyElementStore $store)
+    {
+        $this->store = $store instanceof ReadOnlyElementStore ? $store : new MapValueStore($store);
+    }
 
-	/**
-	 * @param iterable<E> $data
-	 * @return ImmutableList<E>
-	 */
-	protected function newCollectionOf(iterable $data): ImmutableCollection
-	{
-		return listOf($data);
-	}
+    /**
+     * @param iterable<E> $data
+     * @return ImmutableList<E>
+     */
+    protected function newCollectionOf(iterable $data): ImmutableCollection
+    {
+        return listOf($data);
+    }
 }

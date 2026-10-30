@@ -13,49 +13,49 @@ use PHPUnit\Framework\Attributes\Test;
 
 trait MapCount
 {
-	#[Test]
-	public function count_without_predicate(): void
-	{
-		$map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
+    #[Test]
+    public function count_without_predicate(): void
+    {
+        $map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
 
-		$this->assertSame(3, $map->count());
-	}
+        $this->assertSame(3, $map->count());
+    }
 
-	#[Test]
-	public function countWhere_with_predicate(): void
-	{
-		$map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4]);
+    #[Test]
+    public function countWhere_with_predicate(): void
+    {
+        $map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4]);
 
-		$this->assertSame(2, $map->countWhere(fn ($v) => $v % 2 === 0));
-	}
+        $this->assertSame(2, $map->countWhere(fn ($v) => $v % 2 === 0));
+    }
 
-	#[Test]
-	public function countWhere_receives_key(): void
-	{
-		$map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
-		$keys = [];
+    #[Test]
+    public function countWhere_receives_key(): void
+    {
+        $map = $this->mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
+        $keys = [];
 
-		$map->countWhere(function ($v, $k) use (&$keys) {
-			$keys[] = $k;
-			return true;
-		});
+        $map->countWhere(function ($v, $k) use (&$keys) {
+            $keys[] = $k;
+            return true;
+        });
 
-		$this->assertSame(['a', 'b', 'c'], $keys);
-	}
+        $this->assertSame(['a', 'b', 'c'], $keys);
+    }
 
-	#[Test]
-	public function countWhere_no_match(): void
-	{
-		$map = $this->mapOf(['a' => 1, 'b' => 3, 'c' => 5]);
+    #[Test]
+    public function countWhere_no_match(): void
+    {
+        $map = $this->mapOf(['a' => 1, 'b' => 3, 'c' => 5]);
 
-		$this->assertSame(0, $map->countWhere(fn ($v) => $v % 2 === 0));
-	}
+        $this->assertSame(0, $map->countWhere(fn ($v) => $v % 2 === 0));
+    }
 
-	#[Test]
-	public function countWhere_empty(): void
-	{
-		$map = $this->mapOf([]);
+    #[Test]
+    public function countWhere_empty(): void
+    {
+        $map = $this->mapOf([]);
 
-		$this->assertSame(0, $map->countWhere(fn ($v) => true));
-	}
+        $this->assertSame(0, $map->countWhere(fn ($v) => true));
+    }
 }

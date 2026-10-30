@@ -22,66 +22,66 @@ use Traversable;
  */
 interface ReadOnlyElementStore extends IteratorAggregate
 {
-	// --- Element Access ---
+    // --- Element Access ---
 
-	/**
-	 * Returns the first element.
-	 *
-	 * @return ($throw is true ? E : E|null)
-	 * @throws NoSuchElementException
-	 */
-	public function first(bool $throw = false): mixed;
+    /**
+     * Returns the first element.
+     *
+     * @return ($throw is true ? E : E|null)
+     * @throws NoSuchElementException
+     */
+    public function first(bool $throw = false): mixed;
 
-	/**
-	 * Returns the last element.
-	 *
-	 * @return ($throw is true ? E : E|null)
-	 * @throws NoSuchElementException
-	 */
-	public function last(bool $throw = false): mixed;
+    /**
+     * Returns the last element.
+     *
+     * @return ($throw is true ? E : E|null)
+     * @throws NoSuchElementException
+     */
+    public function last(bool $throw = false): mixed;
 
-	/**
-	 * Returns a random element.
-	 *
-	 * @return ($throw is true ? E : E|null)
-	 * @throws NoSuchElementException
-	 */
-	public function random(bool $throw = false): mixed;
+    /**
+     * Returns a random element.
+     *
+     * @return ($throw is true ? E : E|null)
+     * @throws NoSuchElementException
+     */
+    public function random(bool $throw = false): mixed;
 
-	// --- Querying ---
+    // --- Querying ---
 
-	/**
-	 * Returns true if the storage contains the given value (strict comparison).
-	 *
-	 * @param mixed $element
-	 */
-	public function contains(mixed $element): bool;
+    /**
+     * Returns true if the storage contains the given value (strict comparison).
+     *
+     * @param mixed $element
+     */
+    public function contains(mixed $element): bool;
 
-	/**
-	 * Returns true if the storage is empty.
-	 */
-	public function isEmpty(): bool;
+    /**
+     * Returns true if the storage is empty.
+     */
+    public function isEmpty(): bool;
 
-	/**
-	 * Returns the number of elements.
-	 */
-	public function count(): int;
+    /**
+     * Returns the number of elements.
+     */
+    public function count(): int;
 
-	// --- Conversion ---
+    // --- Conversion ---
 
-	/**
-	 * Returns all elements as a PHP array.
-	 *
-	 * @return list<E>
-	 */
-	public function toArray(): array;
+    /**
+     * Returns all elements as a PHP array.
+     *
+     * @return list<E>
+     */
+    public function toArray(): array;
 
-	// --- Internal ---
+    // --- Internal ---
 
-	/**
-	 * Returns an iterator over all elements.
-	 *
-	 * @return Traversable<non-negative-int,E>
-	 */
-	public function getIterator(): Traversable;
+    /**
+     * Returns an iterator over all elements.
+     *
+     * @return Traversable<non-negative-int,E>
+     */
+    public function getIterator(): Traversable;
 }

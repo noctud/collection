@@ -15,11 +15,11 @@ use Noctud\Collection\Map\Map;
 
 interface EnumerableTestCase
 {
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return Collection<V>|Map<K,V>
-	 */
-	public function enumerableOf(iterable|Closure $data): Collection|Map;
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return Collection<V>|Map<K,V>
+     */
+    public function enumerableOf(iterable|Closure $data): Collection|Map;
 }

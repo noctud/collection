@@ -54,615 +54,615 @@ use function is_iterable;
  */
 trait SequenceLogic
 {
-	/** @use IterableTerminalsLogic<E> */
-	use IterableTerminalsLogic;
-
-	/**
-	 * containsAll() scans the wanted elements with in_array() up to this many, and looks them up
-	 * in a StrictElementLookup past it: every walked value then costs a method call and a hash
-	 * instead of a scan in C, which is measured to pay off from about this count.
-	 */
-	private const int ContainsAllLookupThreshold = 320;
-
-	/** @var iterable<E>|Closure():iterable<E> */
-	private iterable|Closure $source;
-
-	/** Whether a single-pass source has already been handed out. */
-	private bool $consumed = false;
-
-	/** Whether this sequence is limited to a single pass, whatever its source kind. */
-	private bool $constrainOnce = false;
-
-	/**
-	 * Iterator the source produced on the previous pass, compared by identity in
-	 * resolveProducedIterable(). Held weakly so a consumed iterator - and the file handle or
-	 * cursor behind it - is freed as soon as nothing else uses it: a collected one leaves
-	 * get() returning null, and an iterator nobody holds cannot be handed back to us.
-	 *
-	 * @var WeakReference<Traversable>|null
-	 */
-	private ?WeakReference $lastProduced = null;
-
-	/**
-	 * A sequence is walked once per terminal, through its own iterator.
-	 *
-	 * @return iterable<int, E>
-	 */
-	protected function terminalElements(): iterable
-	{
-		return $this;
-	}
-
-	/**
-	 * @return Generator<int, E>
-	 */
-	public function getIterator(): Generator
-	{
-		$iterable = $this->resolveSourceForThisPass();
-
-		return (static function () use ($iterable): Generator {
-			$i = 0;
-			foreach ($iterable as $value) {
-				yield $i++ => $value;
-			}
-		})();
-	}
-
-	// --- Transformation ---
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function filter(Closure $predicate): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->byPredicate($predicate));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @return Sequence<(E is null ? never : E)>
-	 */
-	#[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound (in classes with a concrete E the conditional subject is already substituted)
-	public function filterNotNull(): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->notNullValues());
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function filterInstanceOf(string $type): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function map(Closure $transform): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->items($transform));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function mapNotNull(Closure $transform): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->itemsNotNull($transform));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function flatMap(Closure $transform): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new FlatMapKeyValueOperation($this)->items($transform));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function flatten(): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new FlattenOperation($this)->items());
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function takeFirst(int $n = 1): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new TakeOperation($this)->first($n));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function dropFirst(int $n = 1): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new DropOperation($this)->first($n));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function takeWhile(Closure $predicate): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new TakeOperation($this)->byPredicate($predicate));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function dropWhile(Closure $predicate): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new DropOperation($this)->byPredicate($predicate));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function distinct(): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new DistinctOperation($this)->items());
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function distinctBy(Closure $selector): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new DistinctOperation($this)->bySelector($selector));
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function chunked(int $size): Sequence
-	{
-		return $this->newSequenceOf(function () use ($size): iterable {
-			foreach (new ChunkOperation($this)->ofSize($size) as $chunk) {
-				yield listOf($chunk);
-			}
-		});
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function windowed(int $size, int $step = 1, bool $partialWindows = false): Sequence
-	{
-		return $this->newSequenceOf(function () use ($size, $step, $partialWindows): iterable {
-			foreach (new WindowOperation($this)->ofSize($size, $step, $partialWindows) as $window) {
-				yield listOf($window);
-			}
-		});
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function zip(iterable $other): Sequence
-	{
-		// Deciding whether the other side can be walked again belongs next to the cursor() that
-		// rewinds it, or the two classifications drift apart; remembering that a pass already
-		// walked it is sequence-only state and stays here.
-		$otherIsReplayable = ZipOperation::isReplayable($other);
-		$otherConsumed = false;
-
-		return $this->newSequenceOf(function () use ($other, $otherIsReplayable, &$otherConsumed): iterable {
-			if (!$otherIsReplayable && $otherConsumed) {
-				throw NonReplayableSourceException::zippedIterableAlreadyIterated();
-			}
-
-			// Marked per pair rather than per pass: a pass that pairs nothing never positions
-			// the other side, which stays where it was and replayable - so it must not be
-			// counted as consumed.
-			return (function () use ($other, &$otherConsumed): Generator {
-				foreach (new ZipOperation($this)->with($other) as $pair) {
-					$otherConsumed = true;
-
-					yield $pair;
-				}
-			})();
-		});
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function zipWithNext(): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new ZipWithNextOperation($this)->pairs());
-	}
-
-	// --- Iteration ---
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function onEach(Closure $action): Sequence
-	{
-		return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->items(function ($v, $k) use ($action) {
-			$action($v, $k);
-
-			return $v;
-		}));
-	}
-
-	// --- Element Access ---
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * The eager side answers this from its store; a sequence has to pull, and returning inside
-	 * the foreach is what keeps it to a single element.
-	 */
-	public function first()
-	{
-		foreach ($this as $v) {
-			return $v;
-		}
-
-		throw NoSuchElementException::emptySubject($this);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Kotlin's index accessor rather than a List's: a negative index is rejected up front, but
-	 * there is no length to bounds-check against, so an index past the end is only known once
-	 * the source runs out.
-	 */
-	public function elementAt(int $index)
-	{
-		// @phpstan-ignore smaller.alwaysFalse (defensive guard: the phpdoc type does not bind untyped callers)
-		if ($index < 0) {
-			throw new IndexOutOfBoundsException('Cannot use a negative index.');
-		}
-
-		foreach ($this as $i => $v) {
-			if ($i === $index) {
-				return $v;
-			}
-		}
-
-		throw new IndexOutOfBoundsException('Index out of bounds: ' . $index);
-	}
-
-	/** {@inheritDoc} */
-	public function elementAtOrNull(int $index): mixed
-	{
-		// Early return: a negative index can never match, and walking for it would drain
-		// the source, or never end on an infinite one.
-		if ($index < 0) {
-			return null;
-		}
-
-		foreach ($this as $i => $v) {
-			if ($i === $index) {
-				return $v;
-			}
-		}
-
-		return null;
-	}
-
-	/** {@inheritDoc} */
-	public function firstOrNull(): mixed
-	{
-		foreach ($this as $v) {
-			return $v;
-		}
-
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * No array_key_last to lean on here: the last element is only knowable once the source is
-	 * exhausted, so this drains it.
-	 */
-	public function last()
-	{
-		$found = false;
-		$result = null;
-
-		foreach ($this as $v) {
-			$result = $v;
-			$found = true;
-		}
-
-		if (!$found) {
-			throw NoSuchElementException::emptySubject($this);
-		}
-
-		return $result; // @phpstan-ignore return.type
-	}
-
-	/** {@inheritDoc} */
-	public function lastOrNull(): mixed
-	{
-		$result = null;
-
-		foreach ($this as $v) {
-			$result = $v;
-		}
-
-		return $result;
-	}
-
-	// --- Querying ---
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * The eager side reads its store; here a single element settles the question, so nothing
-	 * beyond the first is pulled.
-	 */
-	public function isEmpty(): bool
-	{
-		foreach ($this as $ignored) { // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * No hash index to ask, so this is the linear scan the eager side avoids - it does stop at
-	 * the first match.
-	 */
-	public function contains(mixed $element): bool
-	{
-		foreach ($this as $v) {
-			if ($v === $element) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Unlike its Collection counterpart this cannot look each value up in turn - that would cost
-	 * one pass per value, which a single-pass source cannot give. So the values still being looked
-	 * for are carried through a single walk, and dropped as they are met.
-	 */
-	public function containsAll(iterable $elements): bool
-	{
-		$missing = [];
-		foreach ($elements as $element) {
-			$missing[] = $element;
-		}
-
-		if ($missing === []) {
-			return true;
-		}
-
-		if (count($missing) > self::ContainsAllLookupThreshold) {
-			return $this->containsAllOf(new StrictElementLookup($missing));
-		}
-
-		foreach ($this as $v) {
-			if (!in_array($v, $missing, true)) {
-				continue;
-			}
-
-			// Every equal entry drops, not just the first: containsAll([1, 1]) asks whether 1 is
-			// there, not whether it is there twice - the same answer the eager side gives.
-			foreach (array_keys($missing, $v, true) as $key) {
-				unset($missing[$key]);
-			}
-
-			if ($missing === []) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private function containsAllOf(StrictElementLookup $missing): bool
-	{
-		foreach ($this as $v) {
-			$missing->remove($v);
-
-			if ($missing->isEmpty()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * O(n) where the eager side is O(1), and draining: the count is only known once the source
-	 * runs out.
-	 *
-	 * @return int<0, max>
-	 */
-	public function count(): int
-	{
-		/** @var int<0, max> $count */
-		$count = 0;
-		foreach ($this as $_) { // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
-			$count++;
-		}
-
-		return $count;
-	}
-
-	// --- Conversion ---
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toList(): ImmutableList
-	{
-		return listOf($this);
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toSet(): ImmutableSet
-	{
-		return setOf($this);
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toArray(): array
-	{
-		return iterator_to_array($this, false);
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
-	{
-		return mapOf((function () use ($keySelector, $valueTransform) {
-			foreach ($this as $i => $v) {
-				yield $keySelector($v, $i) => $valueTransform === null ? $v : $valueTransform($v, $i);
-			}
-		})());
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
-	{
-		$groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-		foreach ($groups as $key => $bucket) {
-			$groups->put($key, listOf($bucket)); // @phpstan-ignore argument.type
-		}
-
-		return mapOf($groups); // @phpstan-ignore return.type
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function countBy(Closure $keySelector): ImmutableMap
-	{
-		return mapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function partition(Closure $predicate): array
-	{
-		[$matching, $rest] = new PartitionOperation($this)->byPredicate($predicate);
-
-		return [listOf($matching), listOf($rest)];
-	}
-
-	/** {@inheritDoc} */
-	#[NoDiscard]
-	public function unzip(): array
-	{
-		[$first, $second] = new UnzipOperation($this)->pairs();
-
-		return [listOf($first), listOf($second)];
-	}
-
-	/**
-	 * Chains a lazy stage. The factory is invoked once per pass (never at chain-build
-	 * time), so every pass runs a fresh Operation generator and replayability follows
-	 * the root source.
-	 *
-	 * @template R
-	 * @param Closure():iterable<R> $factory
-	 * @return Sequence<R>
-	 */
-	protected function newSequenceOf(Closure $factory): Sequence
-	{
-		return new GeneratorSequence($factory);
-	}
-
-	/**
-	 * Resolves the source for one pass, enforcing the replayability contract: an array
-	 * replays freely, a Closure and an IteratorAggregate are both producers asked for an
-	 * iterable once per pass (and must hand back a fresh one each time), and any other
-	 * Traversable is single-pass - even when technically rewindable, matching Kotlin's
-	 * Iterator.asSequence(). The guard runs here, at getIterator() call time, so a
-	 * violation throws at the start of the offending pass instead of silently yielding
-	 * nothing.
-	 *
-	 * @return iterable<E>
-	 */
-	private function resolveSourceForThisPass(): iterable
-	{
-		$source = $this->source;
-
-		if ($this->constrainOnce) {
-			if ($this->consumed) {
-				throw NonReplayableSourceException::constrainedOnceSequenceAlreadyIterated();
-			}
-
-			$this->consumed = true;
-
-			// this sequence has exactly one pass, so the per-kind guards below have nothing
-			// left to protect: the source is handed over as it is
-			return $source instanceof Closure ? $this->produceFromClosure($source) : $source;
-		}
-
-		if ($source instanceof Closure) {
-			return $this->resolveProducedIterable($this->produceFromClosure($source));
-		}
-
-		if (is_array($source)) {
-			return $source;
-		}
-
-		if ($source instanceof IteratorAggregate) {
-			return $this->resolveProducedIterable($source);
-		}
-
-		if ($this->consumed) {
-			throw NonReplayableSourceException::sequenceSourceAlreadyIterated();
-		}
-
-		$this->consumed = true;
-
-		return $source;
-	}
-
-	/**
-	 * Invokes a source Closure for one pass, rejecting a producer that does not hand back
-	 * an iterable - its return type is a PHPDoc promise PHP cannot enforce.
-	 *
-	 * @param Closure():iterable<E> $source
-	 * @return iterable<E>
-	 */
-	private function produceFromClosure(Closure $source): iterable
-	{
-		$produced = $source();
-
-		// @phpstan-ignore function.alreadyNarrowedType (the closure's return type is a PHPDoc promise PHP cannot enforce)
-		if (!is_iterable($produced)) {
-			throw InvalidSequenceSourceException::closureReturnedNonIterable($produced);
-		}
-
-		return $produced;
-	}
-
-	/**
-	 * Rejects a producer - a source Closure or an IteratorAggregate - handing back the
-	 * cursor of the previous pass: implementing IteratorAggregate promises nothing about
-	 * replayability, getIterator() is free to return a Generator the object keeps around,
-	 * and traversing that one again would yield nothing (or leak a raw PHP error).
-	 *
-	 * @param iterable<E> $produced
-	 * @return iterable<E>
-	 */
-	private function resolveProducedIterable(iterable $produced): iterable
-	{
-		if ($produced instanceof IteratorAggregate) {
-			$produced = $produced->getIterator();
-		}
-
-		// Cursors only: an array is a value, always replayable, and a nested aggregate is itself
-		// a producer, re-invoked per pass by the foreach that unwraps it.
-		if ($produced instanceof Traversable && !$produced instanceof IteratorAggregate) {
-			if ($this->lastProduced?->get() === $produced) {
-				throw NonReplayableSourceException::sourceReturnedSameIterator();
-			}
-
-			$this->lastProduced = WeakReference::create($produced);
-		}
-
-		return $produced;
-	}
+    /** @use IterableTerminalsLogic<E> */
+    use IterableTerminalsLogic;
+
+    /**
+     * containsAll() scans the wanted elements with in_array() up to this many, and looks them up
+     * in a StrictElementLookup past it: every walked value then costs a method call and a hash
+     * instead of a scan in C, which is measured to pay off from about this count.
+     */
+    private const int ContainsAllLookupThreshold = 320;
+
+    /** @var iterable<E>|Closure():iterable<E> */
+    private iterable|Closure $source;
+
+    /** Whether a single-pass source has already been handed out. */
+    private bool $consumed = false;
+
+    /** Whether this sequence is limited to a single pass, whatever its source kind. */
+    private bool $constrainOnce = false;
+
+    /**
+     * Iterator the source produced on the previous pass, compared by identity in
+     * resolveProducedIterable(). Held weakly so a consumed iterator - and the file handle or
+     * cursor behind it - is freed as soon as nothing else uses it: a collected one leaves
+     * get() returning null, and an iterator nobody holds cannot be handed back to us.
+     *
+     * @var WeakReference<Traversable>|null
+     */
+    private ?WeakReference $lastProduced = null;
+
+    /**
+     * A sequence is walked once per terminal, through its own iterator.
+     *
+     * @return iterable<int, E>
+     */
+    protected function terminalElements(): iterable
+    {
+        return $this;
+    }
+
+    /**
+     * @return Generator<int, E>
+     */
+    public function getIterator(): Generator
+    {
+        $iterable = $this->resolveSourceForThisPass();
+
+        return (static function () use ($iterable): Generator {
+            $i = 0;
+            foreach ($iterable as $value) {
+                yield $i++ => $value;
+            }
+        })();
+    }
+
+    // --- Transformation ---
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function filter(Closure $predicate): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->byPredicate($predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return Sequence<(E is null ? never : E)>
+     */
+    #[NoDiscard] // @phpstan-ignore conditionalType.subjectNotFound (in classes with a concrete E the conditional subject is already substituted)
+    public function filterNotNull(): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->notNullValues());
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function filterInstanceOf(string $type): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new FilterOperation($this)->byValue(fn ($v) => $v instanceof $type)); // @phpstan-ignore return.type
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function map(Closure $transform): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->items($transform));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function mapNotNull(Closure $transform): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->itemsNotNull($transform));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function flatMap(Closure $transform): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new FlatMapKeyValueOperation($this)->items($transform));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function flatten(): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new FlattenOperation($this)->items());
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function takeFirst(int $n = 1): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new TakeOperation($this)->first($n));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function dropFirst(int $n = 1): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new DropOperation($this)->first($n));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function takeWhile(Closure $predicate): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new TakeOperation($this)->byPredicate($predicate));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function dropWhile(Closure $predicate): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new DropOperation($this)->byPredicate($predicate));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function distinct(): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new DistinctOperation($this)->items());
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function distinctBy(Closure $selector): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new DistinctOperation($this)->bySelector($selector));
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function chunked(int $size): Sequence
+    {
+        return $this->newSequenceOf(function () use ($size): iterable {
+            foreach (new ChunkOperation($this)->ofSize($size) as $chunk) {
+                yield listOf($chunk);
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function windowed(int $size, int $step = 1, bool $partialWindows = false): Sequence
+    {
+        return $this->newSequenceOf(function () use ($size, $step, $partialWindows): iterable {
+            foreach (new WindowOperation($this)->ofSize($size, $step, $partialWindows) as $window) {
+                yield listOf($window);
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function zip(iterable $other): Sequence
+    {
+        // Deciding whether the other side can be walked again belongs next to the cursor() that
+        // rewinds it, or the two classifications drift apart; remembering that a pass already
+        // walked it is sequence-only state and stays here.
+        $otherIsReplayable = ZipOperation::isReplayable($other);
+        $otherConsumed = false;
+
+        return $this->newSequenceOf(function () use ($other, $otherIsReplayable, &$otherConsumed): iterable {
+            if (!$otherIsReplayable && $otherConsumed) {
+                throw NonReplayableSourceException::zippedIterableAlreadyIterated();
+            }
+
+            // Marked per pair rather than per pass: a pass that pairs nothing never positions
+            // the other side, which stays where it was and replayable - so it must not be
+            // counted as consumed.
+            return (function () use ($other, &$otherConsumed): Generator {
+                foreach (new ZipOperation($this)->with($other) as $pair) {
+                    $otherConsumed = true;
+
+                    yield $pair;
+                }
+            })();
+        });
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function zipWithNext(): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new ZipWithNextOperation($this)->pairs());
+    }
+
+    // --- Iteration ---
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function onEach(Closure $action): Sequence
+    {
+        return $this->newSequenceOf(fn (): iterable => new MapKeyValueOperation($this)->items(function ($v, $k) use ($action) {
+            $action($v, $k);
+
+            return $v;
+        }));
+    }
+
+    // --- Element Access ---
+
+    /**
+     * {@inheritDoc}
+     *
+     * The eager side answers this from its store; a sequence has to pull, and returning inside
+     * the foreach is what keeps it to a single element.
+     */
+    public function first()
+    {
+        foreach ($this as $v) {
+            return $v;
+        }
+
+        throw NoSuchElementException::emptySubject($this);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Kotlin's index accessor rather than a List's: a negative index is rejected up front, but
+     * there is no length to bounds-check against, so an index past the end is only known once
+     * the source runs out.
+     */
+    public function elementAt(int $index)
+    {
+        // @phpstan-ignore smaller.alwaysFalse (defensive guard: the phpdoc type does not bind untyped callers)
+        if ($index < 0) {
+            throw new IndexOutOfBoundsException('Cannot use a negative index.');
+        }
+
+        foreach ($this as $i => $v) {
+            if ($i === $index) {
+                return $v;
+            }
+        }
+
+        throw new IndexOutOfBoundsException('Index out of bounds: ' . $index);
+    }
+
+    /** {@inheritDoc} */
+    public function elementAtOrNull(int $index): mixed
+    {
+        // Early return: a negative index can never match, and walking for it would drain
+        // the source, or never end on an infinite one.
+        if ($index < 0) {
+            return null;
+        }
+
+        foreach ($this as $i => $v) {
+            if ($i === $index) {
+                return $v;
+            }
+        }
+
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    public function firstOrNull(): mixed
+    {
+        foreach ($this as $v) {
+            return $v;
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * No array_key_last to lean on here: the last element is only knowable once the source is
+     * exhausted, so this drains it.
+     */
+    public function last()
+    {
+        $found = false;
+        $result = null;
+
+        foreach ($this as $v) {
+            $result = $v;
+            $found = true;
+        }
+
+        if (!$found) {
+            throw NoSuchElementException::emptySubject($this);
+        }
+
+        return $result; // @phpstan-ignore return.type
+    }
+
+    /** {@inheritDoc} */
+    public function lastOrNull(): mixed
+    {
+        $result = null;
+
+        foreach ($this as $v) {
+            $result = $v;
+        }
+
+        return $result;
+    }
+
+    // --- Querying ---
+
+    /**
+     * {@inheritDoc}
+     *
+     * The eager side reads its store; here a single element settles the question, so nothing
+     * beyond the first is pulled.
+     */
+    public function isEmpty(): bool
+    {
+        foreach ($this as $ignored) { // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * No hash index to ask, so this is the linear scan the eager side avoids - it does stop at
+     * the first match.
+     */
+    public function contains(mixed $element): bool
+    {
+        foreach ($this as $v) {
+            if ($v === $element) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Unlike its Collection counterpart this cannot look each value up in turn - that would cost
+     * one pass per value, which a single-pass source cannot give. So the values still being looked
+     * for are carried through a single walk, and dropped as they are met.
+     */
+    public function containsAll(iterable $elements): bool
+    {
+        $missing = [];
+        foreach ($elements as $element) {
+            $missing[] = $element;
+        }
+
+        if ($missing === []) {
+            return true;
+        }
+
+        if (count($missing) > self::ContainsAllLookupThreshold) {
+            return $this->containsAllOf(new StrictElementLookup($missing));
+        }
+
+        foreach ($this as $v) {
+            if (!in_array($v, $missing, true)) {
+                continue;
+            }
+
+            // Every equal entry drops, not just the first: containsAll([1, 1]) asks whether 1 is
+            // there, not whether it is there twice - the same answer the eager side gives.
+            foreach (array_keys($missing, $v, true) as $key) {
+                unset($missing[$key]);
+            }
+
+            if ($missing === []) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function containsAllOf(StrictElementLookup $missing): bool
+    {
+        foreach ($this as $v) {
+            $missing->remove($v);
+
+            if ($missing->isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * O(n) where the eager side is O(1), and draining: the count is only known once the source
+     * runs out.
+     *
+     * @return int<0, max>
+     */
+    public function count(): int
+    {
+        /** @var int<0, max> $count */
+        $count = 0;
+        foreach ($this as $_) { // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
+            $count++;
+        }
+
+        return $count;
+    }
+
+    // --- Conversion ---
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toList(): ImmutableList
+    {
+        return listOf($this);
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toSet(): ImmutableSet
+    {
+        return setOf($this);
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toArray(): array
+    {
+        return iterator_to_array($this, false);
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
+    {
+        return mapOf((function () use ($keySelector, $valueTransform) {
+            foreach ($this as $i => $v) {
+                yield $keySelector($v, $i) => $valueTransform === null ? $v : $valueTransform($v, $i);
+            }
+        })());
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
+    {
+        $groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
+
+        foreach ($groups as $key => $bucket) {
+            $groups->put($key, listOf($bucket)); // @phpstan-ignore argument.type
+        }
+
+        return mapOf($groups); // @phpstan-ignore return.type
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function countBy(Closure $keySelector): ImmutableMap
+    {
+        return mapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function partition(Closure $predicate): array
+    {
+        [$matching, $rest] = new PartitionOperation($this)->byPredicate($predicate);
+
+        return [listOf($matching), listOf($rest)];
+    }
+
+    /** {@inheritDoc} */
+    #[NoDiscard]
+    public function unzip(): array
+    {
+        [$first, $second] = new UnzipOperation($this)->pairs();
+
+        return [listOf($first), listOf($second)];
+    }
+
+    /**
+     * Chains a lazy stage. The factory is invoked once per pass (never at chain-build
+     * time), so every pass runs a fresh Operation generator and replayability follows
+     * the root source.
+     *
+     * @template R
+     * @param Closure():iterable<R> $factory
+     * @return Sequence<R>
+     */
+    protected function newSequenceOf(Closure $factory): Sequence
+    {
+        return new GeneratorSequence($factory);
+    }
+
+    /**
+     * Resolves the source for one pass, enforcing the replayability contract: an array
+     * replays freely, a Closure and an IteratorAggregate are both producers asked for an
+     * iterable once per pass (and must hand back a fresh one each time), and any other
+     * Traversable is single-pass - even when technically rewindable, matching Kotlin's
+     * Iterator.asSequence(). The guard runs here, at getIterator() call time, so a
+     * violation throws at the start of the offending pass instead of silently yielding
+     * nothing.
+     *
+     * @return iterable<E>
+     */
+    private function resolveSourceForThisPass(): iterable
+    {
+        $source = $this->source;
+
+        if ($this->constrainOnce) {
+            if ($this->consumed) {
+                throw NonReplayableSourceException::constrainedOnceSequenceAlreadyIterated();
+            }
+
+            $this->consumed = true;
+
+            // this sequence has exactly one pass, so the per-kind guards below have nothing
+            // left to protect: the source is handed over as it is
+            return $source instanceof Closure ? $this->produceFromClosure($source) : $source;
+        }
+
+        if ($source instanceof Closure) {
+            return $this->resolveProducedIterable($this->produceFromClosure($source));
+        }
+
+        if (is_array($source)) {
+            return $source;
+        }
+
+        if ($source instanceof IteratorAggregate) {
+            return $this->resolveProducedIterable($source);
+        }
+
+        if ($this->consumed) {
+            throw NonReplayableSourceException::sequenceSourceAlreadyIterated();
+        }
+
+        $this->consumed = true;
+
+        return $source;
+    }
+
+    /**
+     * Invokes a source Closure for one pass, rejecting a producer that does not hand back
+     * an iterable - its return type is a PHPDoc promise PHP cannot enforce.
+     *
+     * @param Closure():iterable<E> $source
+     * @return iterable<E>
+     */
+    private function produceFromClosure(Closure $source): iterable
+    {
+        $produced = $source();
+
+        // @phpstan-ignore function.alreadyNarrowedType (the closure's return type is a PHPDoc promise PHP cannot enforce)
+        if (!is_iterable($produced)) {
+            throw InvalidSequenceSourceException::closureReturnedNonIterable($produced);
+        }
+
+        return $produced;
+    }
+
+    /**
+     * Rejects a producer - a source Closure or an IteratorAggregate - handing back the
+     * cursor of the previous pass: implementing IteratorAggregate promises nothing about
+     * replayability, getIterator() is free to return a Generator the object keeps around,
+     * and traversing that one again would yield nothing (or leak a raw PHP error).
+     *
+     * @param iterable<E> $produced
+     * @return iterable<E>
+     */
+    private function resolveProducedIterable(iterable $produced): iterable
+    {
+        if ($produced instanceof IteratorAggregate) {
+            $produced = $produced->getIterator();
+        }
+
+        // Cursors only: an array is a value, always replayable, and a nested aggregate is itself
+        // a producer, re-invoked per pass by the foreach that unwraps it.
+        if ($produced instanceof Traversable && !$produced instanceof IteratorAggregate) {
+            if ($this->lastProduced?->get() === $produced) {
+                throw NonReplayableSourceException::sourceReturnedSameIterator();
+            }
+
+            $this->lastProduced = WeakReference::create($produced);
+        }
+
+        return $produced;
+    }
 }

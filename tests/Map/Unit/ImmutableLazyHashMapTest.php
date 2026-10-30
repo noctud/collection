@@ -19,50 +19,50 @@ use function is_callable;
 
 final class ImmutableLazyHashMapTest extends AbstractMapTestCase
 {
-	use EnumerableLazyInit;
+    use EnumerableLazyInit;
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return ImmutableMap<K,V>
-	 */
-	public function mapOf(iterable|Closure $data): ImmutableMap
-	{
-		if (!is_callable($data)) {
-			return mapOf(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return ImmutableMap<K,V>
+     */
+    public function mapOf(iterable|Closure $data): ImmutableMap
+    {
+        if (!is_callable($data)) {
+            return mapOf(fn () => $data);
+        }
 
-		return mapOf($data);
-	}
+        return mapOf($data);
+    }
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
-	 * @return ImmutableMap<K,V>
-	 */
-	public function mapOfPairs(iterable|Closure $data): ImmutableMap
-	{
-		if (!is_callable($data)) {
-			return mapOfPairs(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<array{0:K,1:V}>|Closure():iterable<array{0:K,1:V}> $data
+     * @return ImmutableMap<K,V>
+     */
+    public function mapOfPairs(iterable|Closure $data): ImmutableMap
+    {
+        if (!is_callable($data)) {
+            return mapOfPairs(fn () => $data);
+        }
 
-		return mapOfPairs($data);
-	}
+        return mapOfPairs($data);
+    }
 
-	/**
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param iterable<K,V>|Closure():iterable<K,V> $data
-	 * @return ImmutableMap<K,V>
-	 */
-	public function enumerableOf(iterable|Closure $data): ImmutableMap
-	{
-		if (!is_callable($data)) {
-			return mapOf(fn () => $data);
-		}
+    /**
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param iterable<K,V>|Closure():iterable<K,V> $data
+     * @return ImmutableMap<K,V>
+     */
+    public function enumerableOf(iterable|Closure $data): ImmutableMap
+    {
+        if (!is_callable($data)) {
+            return mapOf(fn () => $data);
+        }
 
-		return mapOf($data);
-	}
+        return mapOf($data);
+    }
 }

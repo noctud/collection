@@ -25,32 +25,32 @@ use Noctud\Collection\Tests\Map\IntMap\IntMapBasics;
  */
 abstract class AbstractIntMapTestCase extends TestCase implements IntMapTestCase
 {
-	use EnumerableCopyOnWrite;
-	use IntMapBasics;
-	use IntMapConvert;
-	use IntMapCopyOnWrite;
-	use IntMapKeyEnforcement;
+    use EnumerableCopyOnWrite;
+    use IntMapBasics;
+    use IntMapConvert;
+    use IntMapCopyOnWrite;
+    use IntMapKeyEnforcement;
 
-	/**
-	 * @template V
-	 * @param iterable<int,V>|Closure():iterable<int,V> $data
-	 * @return Map<int,V>
-	 */
-	public function enumerableOf(iterable|Closure $data): Collection|Map
-	{
-		return $this->mapOf($data);
-	}
+    /**
+     * @template V
+     * @param iterable<int,V>|Closure():iterable<int,V> $data
+     * @return Map<int,V>
+     */
+    public function enumerableOf(iterable|Closure $data): Collection|Map
+    {
+        return $this->mapOf($data);
+    }
 
-	/**
-	 * @return array<int, string>
-	 */
-	protected function generateSampleData(int $size): array
-	{
-		$data = [];
-		for ($i = 0; $i < $size; $i++) {
-			$data[$i] = "value_$i";
-		}
+    /**
+     * @return array<int, string>
+     */
+    protected function generateSampleData(int $size): array
+    {
+        $data = [];
+        for ($i = 0; $i < $size; $i++) {
+            $data[$i] = "value_$i";
+        }
 
-		return $data;
-	}
+        return $data;
+    }
 }

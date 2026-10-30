@@ -31,22 +31,22 @@ use Noctud\Collection\Tests\Collection\CollectionTransform;
 
 abstract class AbstractCollectionTestCase extends AbstractEnumerableTestCase implements CollectionTestCase
 {
-	use CollectionAggregate;
-	use CollectionCallbackIndex;
-	use CollectionContains;
-	use CollectionCount;
-	use CollectionConvert;
-	use CollectionFilter;
-	use CollectionFirstLast;
-	use CollectionForEach;
-	use CollectionGroupAndZip;
-	use CollectionMutate;
-	use CollectionQuantifiers;
-	use CollectionRandom;
-	use CollectionReduce;
-	use CollectionSingle;
-	use CollectionSlice;
-	use CollectionSort;
-	use CollectionMapNotNull;
-	use CollectionTransform;
+    use CollectionAggregate;
+    use CollectionCallbackIndex;
+    use CollectionContains;
+    use CollectionCount;
+    use CollectionConvert;
+    use CollectionFilter;
+    use CollectionFirstLast;
+    use CollectionForEach;
+    use CollectionGroupAndZip;
+    use CollectionMutate;
+    use CollectionQuantifiers;
+    use CollectionRandom;
+    use CollectionReduce;
+    use CollectionSingle;
+    use CollectionSlice;
+    use CollectionSort;
+    use CollectionMapNotNull;
+    use CollectionTransform;
 }

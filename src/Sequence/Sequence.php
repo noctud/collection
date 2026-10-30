@@ -60,674 +60,674 @@ use NoDiscard;
  */
 interface Sequence extends IteratorAggregate
 {
-	// --- Transformation ---
-
-	/**
-	 * Filter elements by predicate.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function filter(Closure $predicate): Sequence;
-
-	/**
-	 * Filter non-null elements.
-	 *
-	 * @return Sequence<(E is null ? never : E)>
-	 */
-	#[NoDiscard]
-	public function filterNotNull(): Sequence;
-
-	/**
-	 * Filter elements that are instances of the given class or interface.
-	 *
-	 * @template T
-	 * @param class-string<T> $type
-	 * @return Sequence<T>
-	 */
-	#[NoDiscard]
-	public function filterInstanceOf(string $type): Sequence;
-
-	/**
-	 * Map elements to a new sequence.
-	 * The transform receives the element and optionally the index.
-	 *
-	 * @template R
-	 * @param Closure(E, int):R $transform
-	 * @return Sequence<R>
-	 */
-	#[NoDiscard]
-	public function map(Closure $transform): Sequence;
-
-	/**
-	 * Transforms each element using the given function and excludes null results.
-	 * Combines map and filterNotNull in a single operation.
-	 *
-	 * @template R
-	 * @param Closure(E, int):(R|null) $transform
-	 * @return Sequence<R>
-	 */
-	#[NoDiscard]
-	public function mapNotNull(Closure $transform): Sequence;
-
-	/**
-	 * Flat map elements to a new sequence.
-	 * Each iterable returned by the transform is consumed lazily, element by element.
-	 *
-	 * @template R
-	 * @param Closure(E, int):iterable<R> $transform
-	 * @return Sequence<R>
-	 */
-	#[NoDiscard]
-	public function flatMap(Closure $transform): Sequence;
-
-	/**
-	 * Flatten a sequence of iterables into a single sequence.
-	 * Iterable elements are flattened one level; non-iterable elements are kept as-is.
-	 * The array{} in value-of keeps the type resolvable when E is never (empty sequences).
-	 *
-	 * @return Sequence<(E is iterable<mixed> ? value-of<E|array{}> : E)>
-	 */
-	#[NoDiscard]
-	public function flatten(): Sequence;
-
-	/**
-	 * Take the first N elements.
-	 * The source is not pulled any further once N elements have been yielded.
-	 *
-	 * @param non-negative-int $n
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function takeFirst(int $n = 1): Sequence;
-
-	/**
-	 * Drops the first N elements.
-	 *
-	 * @param non-negative-int $n
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function dropFirst(int $n = 1): Sequence;
-
-	/**
-	 * Takes elements while the predicate is true.
-	 * The source is not pulled any further once the predicate has returned false.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function takeWhile(Closure $predicate): Sequence;
-
-	/**
-	 * Drops elements while the predicate is true, then returns the rest.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function dropWhile(Closure $predicate): Sequence;
-
-	/**
-	 * Distinct elements by identity.
-	 * Elements already seen during the current pass are skipped, so the memory held grows
-	 * with the number of distinct elements.
-	 *
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function distinct(): Sequence;
-
-	/**
-	 * Distinct elements by selector.
-	 *
-	 * @template K
-	 * @param Closure(E, int):K $selector
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function distinctBy(Closure $selector): Sequence;
-
-	/**
-	 * Splits the sequence into chunks of the given size, yielded as they fill up.
-	 * The last chunk may be smaller. A non-positive size yields nothing.
-	 *
-	 * Stateful but bounded: only the chunk being filled is held, never the whole source.
-	 *
-	 * @param positive-int $size
-	 * @return Sequence<ImmutableList<E>>
-	 */
-	#[NoDiscard]
-	public function chunked(int $size): Sequence;
-
-	/**
-	 * Yields a window of the given size sliding along this sequence with the given step.
-	 * When $partialWindows is true, the shorter windows at the end are yielded too.
-	 * A non-positive size or step yields nothing.
-	 *
-	 * Stateful but bounded: at most $size elements are held at a time.
-	 *
-	 * @param positive-int $size
-	 * @param positive-int $step
-	 * @return Sequence<ImmutableList<E>>
-	 */
-	#[NoDiscard]
-	public function windowed(int $size, int $step = 1, bool $partialWindows = false): Sequence;
-
-	/**
-	 * Combines this sequence with another iterable by pairing elements at the same position.
-	 * The resulting sequence has the length of the shorter input.
-	 *
-	 * The other side is pulled in lockstep rather than copied. A Generator resumes from its
-	 * current position, so the head of a stream can be consumed before zipping the rest; any
-	 * other iterator is rewound first, and an already advanced one therefore restarts from its
-	 * first element - wrap it in a NoRewindIterator to resume it instead.
-	 *
-	 * @template U
-	 * @param iterable<U> $other
-	 * @return Sequence<array{E, U}>
-	 */
-	#[NoDiscard]
-	public function zip(iterable $other): Sequence;
-
-	/**
-	 * Returns a sequence of pairs of each two adjacent elements in this sequence.
-	 * If the sequence has fewer than two elements, yields nothing.
-	 *
-	 * @return Sequence<array{E, E}>
-	 */
-	#[NoDiscard]
-	public function zipWithNext(): Sequence;
-
-	// --- Iteration ---
-
-	/**
-	 * Returns a sequence applying the given action to each element as it goes through,
-	 * then yielding the element unchanged.
-	 *
-	 * The lazy, chainable counterpart of forEach: the action runs once per element and per
-	 * pass, while the element flows through the pipeline - nothing happens before a
-	 * terminal operation pulls.
-	 *
-	 * @param Closure(E, int):void $action
-	 * @return Sequence<E>
-	 */
-	#[NoDiscard]
-	public function onEach(Closure $action): Sequence;
-
-	/**
-	 * Runs the given action once per element and returns nothing, consuming one pass.
-	 *
-	 * The terminal counterpart of onEach: onEach taps a pipeline still being built, forEach
-	 * is what makes it run. It returns no sequence, so it ends the chain instead of looking
-	 * like it could continue.
-	 *
-	 * @param Closure(E, int):void $action
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function forEach(Closure $action): void;
-
-	// --- Element Access ---
-
-	/**
-	 * Returns the first element, consuming one pass. Pulls exactly one element.
-	 *
-	 * @return E
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function first();
-
-	/**
-	 * Returns the first element, or null if the sequence is empty. Pulls exactly one element.
-	 *
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function firstOrNull(): mixed;
-
-	/**
-	 * Returns the last element, consuming one pass.
-	 * Unlike its Collection counterpart this drains the whole sequence - the last element is
-	 * only knowable at the end.
-	 *
-	 * @return E
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function last();
-
-	/**
-	 * Returns the last element, or null if the sequence is empty. Drains the sequence.
-	 *
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function lastOrNull(): mixed;
-
-	/**
-	 * Returns the single element, consuming one pass. Pulls at most two elements: a second one
-	 * existing is already an error.
-	 *
-	 * @return E
-	 * @throws NoSuchElementException If the sequence is empty or holds more than one element
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function single();
-
-	/**
-	 * Returns the single element, or null if the sequence is empty or holds more than one.
-	 *
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function singleOrNull(): mixed;
-
-	/**
-	 * Returns the element at the given position, consuming one pass.
-	 * Pulls up to that position and no further; there is no length to check the index against
-	 * beforehand, so an index past the end is only known once the sequence runs out.
-	 *
-	 * @param non-negative-int $index
-	 * @return E
-	 * @throws IndexOutOfBoundsException If the sequence holds fewer elements than that or if the index is a negative int
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function elementAt(int $index);
-
-	/**
-	 * Returns the element at the given position, or null when there is no element there -
-	 * a negative index included, matching Collection::elementAtOrNull().
-	 *
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function elementAtOrNull(int $index): mixed;
-
-	/**
-	 * Returns the first element matching the predicate, or null if none does.
-	 * Stops pulling at the first match.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function find(Closure $predicate): mixed;
-
-	/**
-	 * Returns the first element matching the predicate, throwing if none does.
-	 * Stops pulling at the first match.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return E
-	 * @throws NoSuchElementException If no element matches the predicate
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function expect(Closure $predicate);
-
-	/**
-	 * Returns the last element matching the predicate, or null if none does.
-	 * Drains the sequence: the last match is only known once the source runs out.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function findLast(Closure $predicate): mixed;
-
-	/**
-	 * Returns the last element matching the predicate, throwing if none does.
-	 * Drains the sequence: the last match is only known once the source runs out.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return E
-	 * @throws NoSuchElementException If no element matches the predicate
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function expectLast(Closure $predicate);
-
-	// --- Querying ---
-
-	/**
-	 * Whether the sequence does not contain any elements. Pulls exactly one element.
-	 *
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function isEmpty(): bool;
-
-	/**
-	 * Whether the sequence contains at least one element. Pulls exactly one element.
-	 *
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function isNotEmpty(): bool;
-
-	/**
-	 * Whether the sequence contains a value (strict comparison).
-	 * Stops pulling at the first match.
-	 *
-	 * @param E $element
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function contains(mixed $element): bool;
-
-	/**
-	 * Whether the sequence contains all the provided values.
-	 * Walks the sequence once, stopping as soon as none is left to look for.
-	 *
-	 * @param iterable<E> $elements
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function containsAll(iterable $elements): bool;
-
-	/**
-	 * Returns true if all elements match the predicate.
-	 * Stops pulling at the first element that does not.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function all(Closure $predicate): bool;
-
-	/**
-	 * Returns true if any element matches the predicate.
-	 * Stops pulling at the first match.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function any(Closure $predicate): bool;
-
-	/**
-	 * Returns true if no element matches the predicate.
-	 * Stops pulling at the first match.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function none(Closure $predicate): bool;
-
-	/**
-	 * Returns the number of elements in the sequence, draining it.
-	 * The O(n) counterpart of a Collection's O(1) count: a sequence has no length to read, only
-	 * elements to pull, which is why the cost has to be asked for explicitly.
-	 *
-	 * @return int<0, max>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function count(): int;
-
-	/**
-	 * Returns the number of elements matching the predicate, draining the sequence.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return int<0, max>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function countWhere(Closure $predicate): int;
-
-	// --- Aggregation ---
-
-	/**
-	 * Left fold. Accumulates a result starting from the initial value by applying the operation
-	 * to each element sequentially. Drains the sequence.
-	 *
-	 * @template R
-	 * @param R $initial
-	 * @param Closure(R, E):R $operation
-	 * @return R
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function fold(mixed $initial, Closure $operation): mixed;
-
-	/**
-	 * Reduce with a binary operation, draining the sequence.
-	 *
-	 * @param Closure(E, E):E $operation
-	 * @return E
-	 * @throws UnsupportedOperationException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function reduce(Closure $operation);
-
-	/**
-	 * Reduces the sequence using a binary operation, or returns null if it is empty.
-	 * Drains the sequence.
-	 *
-	 * @param Closure(E, E):E $operation
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function reduceOrNull(Closure $operation): mixed;
-
-	/**
-	 * Returns the sum of all elements or values returned by the selector. Drains the sequence.
-	 *
-	 * @template TSum
-	 * @param (Closure(E, int):TSum)|null $selector
-	 * @return ($selector is null ? (E is int ? int : int|float) : (TSum is int ? int : int|float))
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function sum(?Closure $selector = null): int|float;
-
-	/**
-	 * Returns the average of all elements or values returned by the selector, draining the
-	 * sequence. Throws if it is empty.
-	 *
-	 * @param Closure(E, int):(int|float)|null $selector
-	 * @throws UnsupportedOperationException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function avg(?Closure $selector = null): float;
-
-	/**
-	 * Returns the average of all elements or values returned by the selector, or null if the
-	 * sequence is empty. Drains the sequence.
-	 *
-	 * @param Closure(E, int):(int|float)|null $selector
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function avgOrNull(?Closure $selector = null): float|null;
-
-	/**
-	 * Returns the element with the minimum value, draining the sequence.
-	 * When a selector is given, returns the element whose selector value is minimum.
-	 *
-	 * @param Closure(E, int):mixed|null $selector
-	 * @return E
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function min(?Closure $selector = null): mixed;
-
-	/**
-	 * Returns the element with the minimum value, or null if the sequence is empty.
-	 * Drains the sequence.
-	 *
-	 * @param Closure(E, int):mixed|null $selector
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function minOrNull(?Closure $selector = null): mixed;
-
-	/**
-	 * Returns the element with the maximum value, draining the sequence.
-	 * When a selector is given, returns the element whose selector value is maximum.
-	 *
-	 * @param Closure(E, int):mixed|null $selector
-	 * @return E
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function max(?Closure $selector = null): mixed;
-
-	/**
-	 * Returns the element with the maximum value, or null if the sequence is empty.
-	 * Drains the sequence.
-	 *
-	 * @param Closure(E, int):mixed|null $selector
-	 * @return E|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function maxOrNull(?Closure $selector = null): mixed;
-
-	/**
-	 * Returns the minimum value produced by the selector, draining the sequence.
-	 *
-	 * @template R of mixed
-	 * @param Closure(E, int):R $selector
-	 * @return R
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function minOf(Closure $selector): mixed;
-
-	/**
-	 * Returns the minimum value produced by the selector, or null if the sequence is empty.
-	 * Drains the sequence.
-	 *
-	 * @template R of mixed
-	 * @param Closure(E, int):R $selector
-	 * @return R|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function minOfOrNull(Closure $selector): mixed;
-
-	/**
-	 * Returns the maximum value produced by the selector, draining the sequence.
-	 *
-	 * @template R of mixed
-	 * @param Closure(E, int):R $selector
-	 * @return R
-	 * @throws NoSuchElementException If the sequence is empty
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function maxOf(Closure $selector): mixed;
-
-	/**
-	 * Returns the maximum value produced by the selector, or null if the sequence is empty.
-	 * Drains the sequence.
-	 *
-	 * @template R of mixed
-	 * @param Closure(E, int):R $selector
-	 * @return R|null
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function maxOfOrNull(Closure $selector): mixed;
-
-	/**
-	 * Joins elements into a string with the given separator, prefix, postfix, and optional
-	 * transform.
-	 *
-	 * The one aggregation that can stop early: a non-negative $limit stops pulling after
-	 * $limit + 1 elements - the extra one tells whether $truncated applies - so joining the head
-	 * of a long stream costs only that head. Without a limit it drains.
-	 *
-	 * When no transform is provided, elements are converted to strings using (string) cast.
-	 * Scalars, null, and Stringable objects are supported. Non-stringable objects and arrays
-	 * will throw a ConversionException.
-	 *
-	 * @param Closure(E, int):string|null $transform Optional transform to apply to each element
-	 * @throws ConversionException When an element cannot be converted to string and no transform is provided
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	public function joinToString(string $separator = ', ', string $prefix = '', string $postfix = '', int $limit = -1, string $truncated = '...', ?Closure $transform = null): string;
-
-	// --- Conversion ---
-
-	/**
-	 * Convert to an immutable list, consuming one pass of the sequence.
-	 *
-	 * @return ImmutableList<E>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function toList(): ImmutableList;
-
-	/**
-	 * Convert to an immutable set (duplicates removed), consuming one pass of the sequence.
-	 *
-	 * @return ImmutableSet<E>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function toSet(): ImmutableSet;
-
-	/**
-	 * Convert to a primitive PHP array, consuming one pass of the sequence.
-	 *
-	 * @return list<E>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function toArray(): array;
-
-	/**
-	 * Convert to Map using key and value selectors, consuming one pass of the sequence.
-	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V = E
-	 * @param Closure(E, int):K $keySelector
-	 * @param ?Closure(E, int):V $valueTransform
-	 * @return ImmutableMap<K,V>
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
-
-	/**
-	 * Groups elements by the key returned by the selector, consuming one pass of the sequence.
-	 * When a value transform is provided, each element is transformed before being added
-	 * to its group.
-	 *
-	 * Unlike the lazy stages, this holds every element it has seen: a sequence is walked
-	 * once, so the last element may still belong to the first group.
-	 *
-	 * @template K of string|int|bool|float|object
-	 * @template V
-	 * @param Closure(E, int):K $keySelector
-	 * @param (Closure(E, int):V)|null $valueTransform
-	 * @return ($valueTransform is null ? ImmutableMap<K, ImmutableList<E>> : ImmutableMap<K, ImmutableList<V>>)
-	 * @throws InvalidKeyTypeException If the key selector returns a value that cannot be a map key (e.g. null or an array)
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
-
-	/**
-	 * Counts elements per key, consuming one pass of the sequence.
-	 * Only one counter per key is held, never the elements themselves.
-	 *
-	 * @template NK of string|int|bool|float|object
-	 * @param Closure(E, int):NK $keySelector
-	 * @return ImmutableMap<NK, int>
-	 * @throws InvalidKeyTypeException If the key selector returns a value that cannot be a map key (e.g. null or an array)
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function countBy(Closure $keySelector): ImmutableMap;
-
-	/**
-	 * Splits the sequence into two lists - the elements matching the predicate,
-	 * then the rest - consuming one pass of the sequence.
-	 *
-	 * @param Closure(E, int):bool $predicate
-	 * @return array{ImmutableList<E>, ImmutableList<E>}
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function partition(Closure $predicate): array;
-
-	/**
-	 * Splits a sequence of pairs into two lists - one from the first component, one from
-	 * the second - consuming one pass of the sequence. This is the inverse of zip().
-	 *
-	 * @return array{ImmutableList<mixed>, ImmutableList<mixed>}
-	 * @throws UnsupportedOperationException If an element is not a pair
-	 * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
-	 */
-	#[NoDiscard]
-	public function unzip(): array;
+    // --- Transformation ---
+
+    /**
+     * Filter elements by predicate.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function filter(Closure $predicate): Sequence;
+
+    /**
+     * Filter non-null elements.
+     *
+     * @return Sequence<(E is null ? never : E)>
+     */
+    #[NoDiscard]
+    public function filterNotNull(): Sequence;
+
+    /**
+     * Filter elements that are instances of the given class or interface.
+     *
+     * @template T
+     * @param class-string<T> $type
+     * @return Sequence<T>
+     */
+    #[NoDiscard]
+    public function filterInstanceOf(string $type): Sequence;
+
+    /**
+     * Map elements to a new sequence.
+     * The transform receives the element and optionally the index.
+     *
+     * @template R
+     * @param Closure(E, int):R $transform
+     * @return Sequence<R>
+     */
+    #[NoDiscard]
+    public function map(Closure $transform): Sequence;
+
+    /**
+     * Transforms each element using the given function and excludes null results.
+     * Combines map and filterNotNull in a single operation.
+     *
+     * @template R
+     * @param Closure(E, int):(R|null) $transform
+     * @return Sequence<R>
+     */
+    #[NoDiscard]
+    public function mapNotNull(Closure $transform): Sequence;
+
+    /**
+     * Flat map elements to a new sequence.
+     * Each iterable returned by the transform is consumed lazily, element by element.
+     *
+     * @template R
+     * @param Closure(E, int):iterable<R> $transform
+     * @return Sequence<R>
+     */
+    #[NoDiscard]
+    public function flatMap(Closure $transform): Sequence;
+
+    /**
+     * Flatten a sequence of iterables into a single sequence.
+     * Iterable elements are flattened one level; non-iterable elements are kept as-is.
+     * The array{} in value-of keeps the type resolvable when E is never (empty sequences).
+     *
+     * @return Sequence<(E is iterable<mixed> ? value-of<E|array{}> : E)>
+     */
+    #[NoDiscard]
+    public function flatten(): Sequence;
+
+    /**
+     * Take the first N elements.
+     * The source is not pulled any further once N elements have been yielded.
+     *
+     * @param non-negative-int $n
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function takeFirst(int $n = 1): Sequence;
+
+    /**
+     * Drops the first N elements.
+     *
+     * @param non-negative-int $n
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function dropFirst(int $n = 1): Sequence;
+
+    /**
+     * Takes elements while the predicate is true.
+     * The source is not pulled any further once the predicate has returned false.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function takeWhile(Closure $predicate): Sequence;
+
+    /**
+     * Drops elements while the predicate is true, then returns the rest.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function dropWhile(Closure $predicate): Sequence;
+
+    /**
+     * Distinct elements by identity.
+     * Elements already seen during the current pass are skipped, so the memory held grows
+     * with the number of distinct elements.
+     *
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function distinct(): Sequence;
+
+    /**
+     * Distinct elements by selector.
+     *
+     * @template K
+     * @param Closure(E, int):K $selector
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function distinctBy(Closure $selector): Sequence;
+
+    /**
+     * Splits the sequence into chunks of the given size, yielded as they fill up.
+     * The last chunk may be smaller. A non-positive size yields nothing.
+     *
+     * Stateful but bounded: only the chunk being filled is held, never the whole source.
+     *
+     * @param positive-int $size
+     * @return Sequence<ImmutableList<E>>
+     */
+    #[NoDiscard]
+    public function chunked(int $size): Sequence;
+
+    /**
+     * Yields a window of the given size sliding along this sequence with the given step.
+     * When $partialWindows is true, the shorter windows at the end are yielded too.
+     * A non-positive size or step yields nothing.
+     *
+     * Stateful but bounded: at most $size elements are held at a time.
+     *
+     * @param positive-int $size
+     * @param positive-int $step
+     * @return Sequence<ImmutableList<E>>
+     */
+    #[NoDiscard]
+    public function windowed(int $size, int $step = 1, bool $partialWindows = false): Sequence;
+
+    /**
+     * Combines this sequence with another iterable by pairing elements at the same position.
+     * The resulting sequence has the length of the shorter input.
+     *
+     * The other side is pulled in lockstep rather than copied. A Generator resumes from its
+     * current position, so the head of a stream can be consumed before zipping the rest; any
+     * other iterator is rewound first, and an already advanced one therefore restarts from its
+     * first element - wrap it in a NoRewindIterator to resume it instead.
+     *
+     * @template U
+     * @param iterable<U> $other
+     * @return Sequence<array{E, U}>
+     */
+    #[NoDiscard]
+    public function zip(iterable $other): Sequence;
+
+    /**
+     * Returns a sequence of pairs of each two adjacent elements in this sequence.
+     * If the sequence has fewer than two elements, yields nothing.
+     *
+     * @return Sequence<array{E, E}>
+     */
+    #[NoDiscard]
+    public function zipWithNext(): Sequence;
+
+    // --- Iteration ---
+
+    /**
+     * Returns a sequence applying the given action to each element as it goes through,
+     * then yielding the element unchanged.
+     *
+     * The lazy, chainable counterpart of forEach: the action runs once per element and per
+     * pass, while the element flows through the pipeline - nothing happens before a
+     * terminal operation pulls.
+     *
+     * @param Closure(E, int):void $action
+     * @return Sequence<E>
+     */
+    #[NoDiscard]
+    public function onEach(Closure $action): Sequence;
+
+    /**
+     * Runs the given action once per element and returns nothing, consuming one pass.
+     *
+     * The terminal counterpart of onEach: onEach taps a pipeline still being built, forEach
+     * is what makes it run. It returns no sequence, so it ends the chain instead of looking
+     * like it could continue.
+     *
+     * @param Closure(E, int):void $action
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function forEach(Closure $action): void;
+
+    // --- Element Access ---
+
+    /**
+     * Returns the first element, consuming one pass. Pulls exactly one element.
+     *
+     * @return E
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function first();
+
+    /**
+     * Returns the first element, or null if the sequence is empty. Pulls exactly one element.
+     *
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function firstOrNull(): mixed;
+
+    /**
+     * Returns the last element, consuming one pass.
+     * Unlike its Collection counterpart this drains the whole sequence - the last element is
+     * only knowable at the end.
+     *
+     * @return E
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function last();
+
+    /**
+     * Returns the last element, or null if the sequence is empty. Drains the sequence.
+     *
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function lastOrNull(): mixed;
+
+    /**
+     * Returns the single element, consuming one pass. Pulls at most two elements: a second one
+     * existing is already an error.
+     *
+     * @return E
+     * @throws NoSuchElementException If the sequence is empty or holds more than one element
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function single();
+
+    /**
+     * Returns the single element, or null if the sequence is empty or holds more than one.
+     *
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function singleOrNull(): mixed;
+
+    /**
+     * Returns the element at the given position, consuming one pass.
+     * Pulls up to that position and no further; there is no length to check the index against
+     * beforehand, so an index past the end is only known once the sequence runs out.
+     *
+     * @param non-negative-int $index
+     * @return E
+     * @throws IndexOutOfBoundsException If the sequence holds fewer elements than that or if the index is a negative int
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function elementAt(int $index);
+
+    /**
+     * Returns the element at the given position, or null when there is no element there -
+     * a negative index included, matching Collection::elementAtOrNull().
+     *
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function elementAtOrNull(int $index): mixed;
+
+    /**
+     * Returns the first element matching the predicate, or null if none does.
+     * Stops pulling at the first match.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function find(Closure $predicate): mixed;
+
+    /**
+     * Returns the first element matching the predicate, throwing if none does.
+     * Stops pulling at the first match.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return E
+     * @throws NoSuchElementException If no element matches the predicate
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function expect(Closure $predicate);
+
+    /**
+     * Returns the last element matching the predicate, or null if none does.
+     * Drains the sequence: the last match is only known once the source runs out.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function findLast(Closure $predicate): mixed;
+
+    /**
+     * Returns the last element matching the predicate, throwing if none does.
+     * Drains the sequence: the last match is only known once the source runs out.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return E
+     * @throws NoSuchElementException If no element matches the predicate
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function expectLast(Closure $predicate);
+
+    // --- Querying ---
+
+    /**
+     * Whether the sequence does not contain any elements. Pulls exactly one element.
+     *
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function isEmpty(): bool;
+
+    /**
+     * Whether the sequence contains at least one element. Pulls exactly one element.
+     *
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function isNotEmpty(): bool;
+
+    /**
+     * Whether the sequence contains a value (strict comparison).
+     * Stops pulling at the first match.
+     *
+     * @param E $element
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function contains(mixed $element): bool;
+
+    /**
+     * Whether the sequence contains all the provided values.
+     * Walks the sequence once, stopping as soon as none is left to look for.
+     *
+     * @param iterable<E> $elements
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function containsAll(iterable $elements): bool;
+
+    /**
+     * Returns true if all elements match the predicate.
+     * Stops pulling at the first element that does not.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function all(Closure $predicate): bool;
+
+    /**
+     * Returns true if any element matches the predicate.
+     * Stops pulling at the first match.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function any(Closure $predicate): bool;
+
+    /**
+     * Returns true if no element matches the predicate.
+     * Stops pulling at the first match.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function none(Closure $predicate): bool;
+
+    /**
+     * Returns the number of elements in the sequence, draining it.
+     * The O(n) counterpart of a Collection's O(1) count: a sequence has no length to read, only
+     * elements to pull, which is why the cost has to be asked for explicitly.
+     *
+     * @return int<0, max>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function count(): int;
+
+    /**
+     * Returns the number of elements matching the predicate, draining the sequence.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return int<0, max>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function countWhere(Closure $predicate): int;
+
+    // --- Aggregation ---
+
+    /**
+     * Left fold. Accumulates a result starting from the initial value by applying the operation
+     * to each element sequentially. Drains the sequence.
+     *
+     * @template R
+     * @param R $initial
+     * @param Closure(R, E):R $operation
+     * @return R
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function fold(mixed $initial, Closure $operation): mixed;
+
+    /**
+     * Reduce with a binary operation, draining the sequence.
+     *
+     * @param Closure(E, E):E $operation
+     * @return E
+     * @throws UnsupportedOperationException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function reduce(Closure $operation);
+
+    /**
+     * Reduces the sequence using a binary operation, or returns null if it is empty.
+     * Drains the sequence.
+     *
+     * @param Closure(E, E):E $operation
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function reduceOrNull(Closure $operation): mixed;
+
+    /**
+     * Returns the sum of all elements or values returned by the selector. Drains the sequence.
+     *
+     * @template TSum
+     * @param (Closure(E, int):TSum)|null $selector
+     * @return ($selector is null ? (E is int ? int : int|float) : (TSum is int ? int : int|float))
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function sum(?Closure $selector = null): int|float;
+
+    /**
+     * Returns the average of all elements or values returned by the selector, draining the
+     * sequence. Throws if it is empty.
+     *
+     * @param Closure(E, int):(int|float)|null $selector
+     * @throws UnsupportedOperationException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function avg(?Closure $selector = null): float;
+
+    /**
+     * Returns the average of all elements or values returned by the selector, or null if the
+     * sequence is empty. Drains the sequence.
+     *
+     * @param Closure(E, int):(int|float)|null $selector
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function avgOrNull(?Closure $selector = null): float|null;
+
+    /**
+     * Returns the element with the minimum value, draining the sequence.
+     * When a selector is given, returns the element whose selector value is minimum.
+     *
+     * @param Closure(E, int):mixed|null $selector
+     * @return E
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function min(?Closure $selector = null): mixed;
+
+    /**
+     * Returns the element with the minimum value, or null if the sequence is empty.
+     * Drains the sequence.
+     *
+     * @param Closure(E, int):mixed|null $selector
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function minOrNull(?Closure $selector = null): mixed;
+
+    /**
+     * Returns the element with the maximum value, draining the sequence.
+     * When a selector is given, returns the element whose selector value is maximum.
+     *
+     * @param Closure(E, int):mixed|null $selector
+     * @return E
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function max(?Closure $selector = null): mixed;
+
+    /**
+     * Returns the element with the maximum value, or null if the sequence is empty.
+     * Drains the sequence.
+     *
+     * @param Closure(E, int):mixed|null $selector
+     * @return E|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function maxOrNull(?Closure $selector = null): mixed;
+
+    /**
+     * Returns the minimum value produced by the selector, draining the sequence.
+     *
+     * @template R of mixed
+     * @param Closure(E, int):R $selector
+     * @return R
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function minOf(Closure $selector): mixed;
+
+    /**
+     * Returns the minimum value produced by the selector, or null if the sequence is empty.
+     * Drains the sequence.
+     *
+     * @template R of mixed
+     * @param Closure(E, int):R $selector
+     * @return R|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function minOfOrNull(Closure $selector): mixed;
+
+    /**
+     * Returns the maximum value produced by the selector, draining the sequence.
+     *
+     * @template R of mixed
+     * @param Closure(E, int):R $selector
+     * @return R
+     * @throws NoSuchElementException If the sequence is empty
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function maxOf(Closure $selector): mixed;
+
+    /**
+     * Returns the maximum value produced by the selector, or null if the sequence is empty.
+     * Drains the sequence.
+     *
+     * @template R of mixed
+     * @param Closure(E, int):R $selector
+     * @return R|null
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function maxOfOrNull(Closure $selector): mixed;
+
+    /**
+     * Joins elements into a string with the given separator, prefix, postfix, and optional
+     * transform.
+     *
+     * The one aggregation that can stop early: a non-negative $limit stops pulling after
+     * $limit + 1 elements - the extra one tells whether $truncated applies - so joining the head
+     * of a long stream costs only that head. Without a limit it drains.
+     *
+     * When no transform is provided, elements are converted to strings using (string) cast.
+     * Scalars, null, and Stringable objects are supported. Non-stringable objects and arrays
+     * will throw a ConversionException.
+     *
+     * @param Closure(E, int):string|null $transform Optional transform to apply to each element
+     * @throws ConversionException When an element cannot be converted to string and no transform is provided
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    public function joinToString(string $separator = ', ', string $prefix = '', string $postfix = '', int $limit = -1, string $truncated = '...', ?Closure $transform = null): string;
+
+    // --- Conversion ---
+
+    /**
+     * Convert to an immutable list, consuming one pass of the sequence.
+     *
+     * @return ImmutableList<E>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function toList(): ImmutableList;
+
+    /**
+     * Convert to an immutable set (duplicates removed), consuming one pass of the sequence.
+     *
+     * @return ImmutableSet<E>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function toSet(): ImmutableSet;
+
+    /**
+     * Convert to a primitive PHP array, consuming one pass of the sequence.
+     *
+     * @return list<E>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function toArray(): array;
+
+    /**
+     * Convert to Map using key and value selectors, consuming one pass of the sequence.
+     *
+     * @template K of string|int|bool|float|object
+     * @template V = E
+     * @param Closure(E, int):K $keySelector
+     * @param ?Closure(E, int):V $valueTransform
+     * @return ImmutableMap<K,V>
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
+
+    /**
+     * Groups elements by the key returned by the selector, consuming one pass of the sequence.
+     * When a value transform is provided, each element is transformed before being added
+     * to its group.
+     *
+     * Unlike the lazy stages, this holds every element it has seen: a sequence is walked
+     * once, so the last element may still belong to the first group.
+     *
+     * @template K of string|int|bool|float|object
+     * @template V
+     * @param Closure(E, int):K $keySelector
+     * @param (Closure(E, int):V)|null $valueTransform
+     * @return ($valueTransform is null ? ImmutableMap<K, ImmutableList<E>> : ImmutableMap<K, ImmutableList<V>>)
+     * @throws InvalidKeyTypeException If the key selector returns a value that cannot be a map key (e.g. null or an array)
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;
+
+    /**
+     * Counts elements per key, consuming one pass of the sequence.
+     * Only one counter per key is held, never the elements themselves.
+     *
+     * @template NK of string|int|bool|float|object
+     * @param Closure(E, int):NK $keySelector
+     * @return ImmutableMap<NK, int>
+     * @throws InvalidKeyTypeException If the key selector returns a value that cannot be a map key (e.g. null or an array)
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function countBy(Closure $keySelector): ImmutableMap;
+
+    /**
+     * Splits the sequence into two lists - the elements matching the predicate,
+     * then the rest - consuming one pass of the sequence.
+     *
+     * @param Closure(E, int):bool $predicate
+     * @return array{ImmutableList<E>, ImmutableList<E>}
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function partition(Closure $predicate): array;
+
+    /**
+     * Splits a sequence of pairs into two lists - one from the first component, one from
+     * the second - consuming one pass of the sequence. This is the inverse of zip().
+     *
+     * @return array{ImmutableList<mixed>, ImmutableList<mixed>}
+     * @throws UnsupportedOperationException If an element is not a pair
+     * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     */
+    #[NoDiscard]
+    public function unzip(): array;
 }

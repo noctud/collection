@@ -35,53 +35,53 @@ use function iterator_to_array;
  */
 class ManualLineItems implements ImmutableList
 {
-	/** @use ImmutableListLogic<SwappableItem> */
-	use ImmutableListLogic;
+    /** @use ImmutableListLogic<SwappableItem> */
+    use ImmutableListLogic;
 
-	/** @param iterable<SwappableItem> $data */
-	public function __construct(iterable $data = [])
-	{
-		$items = is_array($data) ? $data : iterator_to_array($data, false);
-		foreach ($items as $item) {
-			if (!$item instanceof SwappableItem) {
-				throw new InvalidArgumentException('ManualLineItems must only hold SwappableItem instances');
-			}
-		}
+    /** @param iterable<SwappableItem> $data */
+    public function __construct(iterable $data = [])
+    {
+        $items = is_array($data) ? $data : iterator_to_array($data, false);
+        foreach ($items as $item) {
+            if (!$item instanceof SwappableItem) {
+                throw new InvalidArgumentException('ManualLineItems must only hold SwappableItem instances');
+            }
+        }
 
-		$this->store = new ArrayIndexStore($items);
-	}
+        $this->store = new ArrayIndexStore($items);
+    }
 
-	/**
-	 * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
-	 *
-	 * @param int $offset
-	 * @return SwappableItem
-	 */
-	#[ReturnTypeWillChange]
-	public function offsetGet(mixed $offset)
-	{
-		return $this->get($offset);
-	}
+    /**
+     * Deliberately omits a native return type to exercise legacy ArrayAccess compatibility.
+     *
+     * @param int $offset
+     * @return SwappableItem
+     */
+    #[ReturnTypeWillChange]
+    public function offsetGet(mixed $offset)
+    {
+        return $this->get($offset);
+    }
 
-	/** @param iterable<SwappableItem> $data */
-	protected function newCollectionOf(iterable $data): ImmutableList
-	{
-		return new self($data);
-	}
+    /** @param iterable<SwappableItem> $data */
+    protected function newCollectionOf(iterable $data): ImmutableList
+    {
+        return new self($data);
+    }
 
-	public function onlySwapped(): self
-	{
-		return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
-	}
+    public function onlySwapped(): self
+    {
+        return $this->filter(static fn (SwappableItem $i): bool => $i->swapped);
+    }
 
-	public function sortedItems(): self
-	{
-		return $this->sorted();
-	}
+    public function sortedItems(): self
+    {
+        return $this->sorted();
+    }
 
-	/** @return ImmutableList<int> */
-	public function toIds(): ImmutableList
-	{
-		return $this->map(static fn (SwappableItem $i): int => $i->id);
-	}
+    /** @return ImmutableList<int> */
+    public function toIds(): ImmutableList
+    {
+        return $this->map(static fn (SwappableItem $i): int => $i->id);
+    }
 }

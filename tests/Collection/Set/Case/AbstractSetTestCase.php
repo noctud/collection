@@ -14,5 +14,5 @@ use Noctud\Collection\Tests\Collection\Set\SetMutate;
 
 abstract class AbstractSetTestCase extends AbstractCollectionTestCase
 {
-	use SetMutate;
+    use SetMutate;
 }

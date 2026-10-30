@@ -32,8 +32,8 @@ assertType('Noctud\Collection\List\ImmutableList<int>', $imm->reversed());
 assertType('Noctud\Collection\List\ImmutableList<int>', $imm->shuffled());
 assertType('Noctud\Collection\List\ImmutableList<int>', $imm->slice(0, 2));
 assertType(
-	'array{Noctud\Collection\List\ImmutableList<int>, Noctud\Collection\List\ImmutableList<int>}',
-	$imm->partition(fn (int $x): bool => $x > 0),
+    'array{Noctud\Collection\List\ImmutableList<int>, Noctud\Collection\List\ImmutableList<int>}',
+    $imm->partition(fn (int $x): bool => $x > 0),
 );
 
 // Type-changing transforms move to the new element type but stay ImmutableList.
@@ -45,8 +45,8 @@ assertType('Noctud\Collection\List\ImmutableList<int>', listOf([listOf([1, 2]), 
 
 // Only one level is flattened.
 assertType(
-	'Noctud\Collection\List\ImmutableList<Noctud\Collection\List\ImmutableList<int>>',
-	listOf([listOf([listOf([1])])])->flatten(),
+    'Noctud\Collection\List\ImmutableList<Noctud\Collection\List\ImmutableList<int>>',
+    listOf([listOf([listOf([1])])])->flatten(),
 );
 
 // Non-iterable elements are kept as-is.
