@@ -476,6 +476,14 @@ Callback parameters like `fn ($v) =>` inside `filter()`, `map()`, or any higher-
 
 </div>
 
+## Stable Releases
+
+Don't let the `0.x` fool you. Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. Composer's default `^0.2` constraint only installs releases from the same series, and those never break your code.
+
+`0.1.x` had nine releases from March to October 2026 with no breaking changes. The move to `0.2` came with an [upgrade guide](https://github.com/noctud/collection/blob/0.2.x/UPGRADE-0.2.md), and `0.1.8` already shipped the new APIs, so you could fix everything before bumping the constraint.
+
+[Read about versioning →](/collection/versioning)
+
 ## Inspiration
 
 The API is heavily inspired by [Kotlin Collections](https://kotlinlang.org/docs/collections-overview.html) — factory functions, the mutable/immutable split, `OrNull` conventions, and method naming all follow Kotlin patterns. The type hierarchy draws from the Java Collections Framework with clear separation of mutability/immutability.

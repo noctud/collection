@@ -36,6 +36,7 @@ export default defineConfig({
           { text: "Cheatsheet", link: "/collection/cheatsheet" },
           { text: "Design", link: "/collection/design" },
           { text: "FAQ", link: "/collection/faq" },
+          { text: "Versioning", link: "/collection/versioning" },
         ],
       },
       {

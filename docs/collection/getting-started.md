@@ -8,6 +8,10 @@ composer require noctud/collection
 
 Requires **PHP 8.4** or later.
 
+::: tip Stable despite the 0.x
+Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules. See [Versioning](./versioning).
+:::
+
 ## Architecture
 
 Three core types in mutable and immutable variants, plus a lazy `Sequence`:

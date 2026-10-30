@@ -12,6 +12,10 @@ Type-safe, mutable/immutable, sortable and key-preserving List/Map/Set collectio
 composer require noctud/collection
 ```
 
+**Stable despite the 0.x:** each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`.
+With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules.
+See [Versioning](https://noctud.dev/collection/versioning).
+
 ## ✨ Features
 - **Type-safe**: Full generics support. Static analyzers understand every element type through the chain.
 - **Key-preserving**: Map keys like `float`, `bool` or `"1"` retain their original types. No silent type casting.
@@ -275,3 +279,4 @@ Generics are fully supported by PHPStan and Psalm. PhpStorm has known limitation
 - [Sequence](https://noctud.dev/collection/sequence) — Lazy, element-by-element pipelines
 - [Extending](https://noctud.dev/collection/extending) — Custom implementations, stores, traits
 - [API reference](https://noctud.dev/collection/api/collection) — All method signatures
+- [Versioning](https://noctud.dev/collection/versioning) — Release rules, backward compatibility, supported versions
