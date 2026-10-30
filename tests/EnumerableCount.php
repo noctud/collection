@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests;
 
 use Noctud\Collection\Set\Set;
 use PHPUnit\Framework\Attributes\Test;
+use function count;
 
 trait EnumerableCount
 {

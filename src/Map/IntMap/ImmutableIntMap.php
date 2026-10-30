@@ -23,6 +23,7 @@ use ReflectionClass;
 use function Noctud\Collection\intMapOf;
 use function Noctud\Collection\mapOf;
 use function Noctud\Collection\mutableIntMapOf;
+use function iterator_to_array;
 
 /**
  * Immutable int-key map with optimized single-array storage.

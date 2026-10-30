@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Operation;
 
 use Generator;
+use function is_iterable;
 
 /**
  * @internal

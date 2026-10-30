@@ -14,6 +14,7 @@ use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Tests\Map\StringMap\Case\AbstractStringMapTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\stringMapOf;
+use function is_callable;
 
 final class ImmutableLazyStringMapTest extends AbstractStringMapTestCase
 {

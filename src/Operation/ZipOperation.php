@@ -16,6 +16,7 @@ use IteratorIterator;
 use Noctud\Collection\Exception\NonReplayableSourceException;
 use NoRewindIterator;
 use Throwable;
+use function is_array;
 
 /**
  * @internal

@@ -14,6 +14,7 @@ use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Tests\Map\IntMap\Case\AbstractIntMapTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\intMapOf;
+use function is_callable;
 
 final class ImmutableLazyIntMapTest extends AbstractIntMapTestCase
 {

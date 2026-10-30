@@ -12,6 +12,16 @@ namespace Noctud\Collection;
 use Closure;
 use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Traversable;
+use function iterator_to_array;
+use function array_values;
+use function count;
+use function in_array;
+use function array_keys;
+use function is_string;
+use function is_int;
+use function is_object;
+use function spl_object_id;
+use function is_array;
 
 /**
  * Strict (===) membership test against a list of elements.

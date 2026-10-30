@@ -16,6 +16,8 @@ use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\ImmutableListLogic;
 use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
 use ReturnTypeWillChange;
+use function is_array;
+use function iterator_to_array;
 
 /**
  * Extension style #2 (List): base ImmutableListLogic + class-level `@method self`

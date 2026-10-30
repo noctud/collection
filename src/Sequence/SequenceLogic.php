@@ -41,6 +41,12 @@ use WeakReference;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mapOf;
 use function Noctud\Collection\setOf;
+use function count;
+use function in_array;
+use function array_keys;
+use function iterator_to_array;
+use function is_array;
+use function is_iterable;
 
 /**
  * @template E

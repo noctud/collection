@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
+use function range;
 
 final class SequenceQueryTest extends TestCase
 {

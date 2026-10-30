@@ -27,6 +27,11 @@ use Noctud\Collection\Map\ImmutableMap;
 use NoDiscard;
 use function Noctud\Collection\intMapOf;
 use function Noctud\Collection\listOf;
+use function count;
+use function max;
+use function array_slice;
+use function is_int;
+use function shuffle;
 
 /**
  * Shared logic for all List implementations.

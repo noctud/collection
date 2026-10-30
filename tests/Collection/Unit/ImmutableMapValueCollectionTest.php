@@ -16,6 +16,7 @@ use Noctud\Collection\Map\View\MapValueCollection;
 use Noctud\Collection\Tests\Collection\Case\AbstractCollectionTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\mapOf;
+use function strlen;
 
 final class ImmutableMapValueCollectionTest extends AbstractCollectionTestCase
 {

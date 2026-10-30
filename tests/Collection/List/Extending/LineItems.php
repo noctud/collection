@@ -14,6 +14,8 @@ use Noctud\Collection\List\ArrayList\ArrayIndexStore;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\SelfPreservingImmutableListLogic;
 use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
+use function is_array;
+use function iterator_to_array;
 
 /**
  * Extension style #1 (List): the SelfPreservingImmutableListLogic trait.

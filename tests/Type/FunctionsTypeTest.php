@@ -23,6 +23,7 @@ use function Noctud\Collection\mutableStringMapOf;
 use function Noctud\Collection\setOf;
 use function Noctud\Collection\stringMapOf;
 use function PHPStan\Testing\assertType;
+use function strlen;
 
 // Lists
 assertType('Noctud\Collection\List\ImmutableList<string>', listOf(['a', 'b']));

@@ -14,6 +14,8 @@ use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\StringMap\ImmutableStringMap;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
+use function count;
+use function str_starts_with;
 
 trait StringMapBasics
 {

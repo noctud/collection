@@ -14,6 +14,9 @@ use Noctud\Collection\Exception\ConversionException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Exception\UnsupportedOperationException;
 use Stringable;
+use function is_scalar;
+use function sprintf;
+use function get_debug_type;
 
 /**
  * Terminal operations implemented by walking the elements and nothing else, shared by the eager

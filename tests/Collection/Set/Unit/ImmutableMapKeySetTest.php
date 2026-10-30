@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use function Noctud\Collection\mapOf;
 use function Noctud\Collection\setOf;
+use function strtoupper;
 
 final class ImmutableMapKeySetTest extends AbstractSetTestCase
 {

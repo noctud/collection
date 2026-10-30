@@ -20,6 +20,8 @@ use Noctud\Collection\Tests\Map\Unit\Enum\TestStatus;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use function Noctud\Collection\setOf;
+use function spl_object_id;
+use function json_encode;
 
 trait MapConvert
 {

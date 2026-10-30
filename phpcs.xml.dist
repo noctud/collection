@@ -222,7 +222,7 @@
     <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly">
         <properties>
             <property name="searchAnnotations" value="true"/>
-            <property name="allowFallbackGlobalFunctions" value="true"/>
+            <property name="allowFallbackGlobalFunctions" value="false"/>
             <property name="allowFallbackGlobalConstants" value="true"/>
             <property name="allowFullyQualifiedNameForCollidingClasses" value="true"/>
         </properties>

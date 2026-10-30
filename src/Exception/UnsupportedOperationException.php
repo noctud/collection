@@ -12,6 +12,8 @@ namespace Noctud\Collection\Exception;
 use LogicException;
 use Noctud\Collection\Collection;
 use Noctud\Collection\Sequence\Sequence;
+use function sprintf;
+use function lcfirst;
 
 /**
  * Thrown when a mutating method is called on an immutable collection/map or when a

@@ -16,6 +16,7 @@ use Noctud\Collection\Tests\Collection\Set\Case\AbstractSetTestCase;
 use Noctud\Collection\Tests\Collection\Set\SetMutateWrite;
 use Noctud\Collection\Tests\EnumerableLazyInit;
 use function Noctud\Collection\mutableSetOf;
+use function is_callable;
 
 final class MutableLazySetTest extends AbstractSetTestCase
 {

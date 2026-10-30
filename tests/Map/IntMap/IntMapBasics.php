@@ -14,6 +14,7 @@ use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\IntMap\ImmutableIntMap;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
+use function count;
 
 trait IntMapBasics
 {

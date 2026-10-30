@@ -17,6 +17,7 @@ use Noctud\Collection\Tests\Map\StringMap\Case\AbstractStringMapTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use function Noctud\Collection\stringMapOf;
+use function strlen;
 
 final class ImmutableStringMapTest extends AbstractStringMapTestCase
 {

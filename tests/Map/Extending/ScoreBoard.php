@@ -13,6 +13,8 @@ use InvalidArgumentException;
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\SelfPreservingImmutableMapLogic;
+use function is_string;
+use function is_int;
 
 /**
  * Extension style #1 (Map): the SelfPreservingImmutableMapLogic trait.

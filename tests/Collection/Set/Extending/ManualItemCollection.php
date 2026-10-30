@@ -14,6 +14,8 @@ use InvalidArgumentException;
 use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\ImmutableSet;
 use Noctud\Collection\Set\ImmutableSetLogic;
+use function is_array;
+use function iterator_to_array;
 
 /**
  * Extension style #2: the base ImmutableSetLogic with hand-written class-level

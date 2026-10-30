@@ -13,6 +13,7 @@ use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function array_map;
 
 /**
  * Verifies that extending a Set self-preserves the subtype at runtime.

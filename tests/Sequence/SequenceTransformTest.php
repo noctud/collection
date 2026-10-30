@@ -23,6 +23,9 @@ use SplStack;
 use stdClass;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
+use function str_split;
+use function strlen;
+use function intdiv;
 
 final class SequenceTransformTest extends TestCase
 {
