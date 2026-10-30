@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Map;
 use Noctud\Collection\Map\MapEntry;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
+use function strlen;
 
 trait MapOrdering
 {

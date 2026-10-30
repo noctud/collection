@@ -14,6 +14,7 @@ use Noctud\Collection\Map\SimpleMapEntry;
 use Noctud\Collection\Store\ReadOnlyElementStore;
 use Noctud\Collection\Store\KeyValueStore;
 use Traversable;
+use function iterator_to_array;
 
 /**
  * @template K of string|int|bool|float|object

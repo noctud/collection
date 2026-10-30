@@ -11,6 +11,7 @@ namespace Noctud\Collection\Operation;
 
 use Generator;
 use Noctud\Collection\KeyHasher;
+use function array_key_exists;
 
 /**
  * @internal

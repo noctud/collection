@@ -18,6 +18,9 @@ use Noctud\Collection\Map\ImmutableMap;
 use NoRewindIterator;
 use PHPUnit\Framework\Attributes\Test;
 use SplStack;
+use function strtoupper;
+use function strlen;
+use function iterator_to_array;
 
 trait CollectionGroupAndZip
 {

@@ -26,6 +26,7 @@ use WeakReference;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mutableListOf;
 use function Noctud\Collection\sequenceOf;
+use function gc_collect_cycles;
 
 final class SequenceIterationTest extends TestCase
 {

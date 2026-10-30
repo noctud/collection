@@ -16,6 +16,25 @@ use Noctud\Collection\Map\KeyCollisionStrategy;
 use Noctud\Collection\Operation\SortOperation;
 use Noctud\Collection\Store\KeyValueStore;
 use Traversable;
+use function is_array;
+use function count;
+use function is_string;
+use function array_key_exists;
+use function in_array;
+use function array_key_first;
+use function array_key_last;
+use function array_rand;
+use function sprintf;
+use function get_debug_type;
+use function usort;
+use function array_replace;
+use function array_slice;
+use function array_reverse;
+use function array_keys;
+use function shuffle;
+use function array_map;
+use function strval;
+use function array_values;
 
 /**
  * Internal single-array entry storage for string-key maps.

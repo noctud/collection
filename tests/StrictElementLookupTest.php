@@ -18,6 +18,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function range;
+use function fopen;
+use function fclose;
 
 final class StrictElementLookupTest extends TestCase
 {

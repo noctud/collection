@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Operation;
 
+use function uasort;
+
 /**
  * @internal
  */

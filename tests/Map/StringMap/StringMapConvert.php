@@ -12,6 +12,8 @@ namespace Noctud\Collection\Tests\Map\StringMap;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\MutableMap;
 use PHPUnit\Framework\Attributes\Test;
+use function json_encode;
+use function spl_object_id;
 
 trait StringMapConvert
 {

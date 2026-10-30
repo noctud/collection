@@ -13,6 +13,8 @@ use InvalidArgumentException;
 use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\ImmutableSet;
 use Noctud\Collection\Set\SelfPreservingImmutableSetLogic;
+use function is_array;
+use function iterator_to_array;
 
 /**
  * Extension style #1: the SelfPreservingImmutableSetLogic trait.

@@ -10,6 +10,9 @@ declare(strict_types=1);
 namespace Noctud\Collection\Operation;
 
 use Generator;
+use function is_array;
+use function array_chunk;
+use function count;
 
 /**
  * @internal

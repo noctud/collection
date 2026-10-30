@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Type\Sequence;
 use Noctud\Collection\Sequence\Sequence;
 use function Noctud\Collection\sequenceOf;
 use function PHPStan\Testing\assertType;
+use function strlen;
 
 /** @var Sequence<string> $s */
 $s = sequenceOf(['a', 'b', 'c']);

@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use function Noctud\Collection\generateSequence;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
+use function strlen;
+use function strtoupper;
 
 final class SequenceFactoryTest extends TestCase
 {

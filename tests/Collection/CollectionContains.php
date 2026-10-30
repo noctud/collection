@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Collection;
 use Generator;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
+use function range;
 
 trait CollectionContains
 {

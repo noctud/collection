@@ -22,6 +22,8 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
+use function strlen;
+use function strtoupper;
 
 final class SequenceAggregateTest extends TestCase
 {

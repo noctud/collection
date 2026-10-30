@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests\Collection;
 
 use Noctud\Collection\Set\Set as SetInterface;
 use PHPUnit\Framework\Attributes\Test;
+use function strtoupper;
 
 trait CollectionMapNotNull
 {

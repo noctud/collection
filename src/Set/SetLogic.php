@@ -26,6 +26,12 @@ use Noctud\Collection\Store\AbstractElementStore;
 use NoDiscard;
 use function Noctud\Collection\mutableSetOf;
 use function Noctud\Collection\setOf;
+use function sort;
+use function rsort;
+use function array_values;
+use function usort;
+use function array_reverse;
+use function shuffle;
 
 /**
  * Shared logic for all Set implementations.

@@ -12,6 +12,10 @@ namespace Noctud\Collection\Tests\Map\StringMap;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\mutableStringMapOf;
 use function Noctud\Collection\stringMapOf;
+use function gc_collect_cycles;
+use function memory_get_usage;
+use function max;
+use function sprintf;
 
 trait StringMapCopyOnWrite
 {

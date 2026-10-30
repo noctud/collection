@@ -14,6 +14,14 @@ use Noctud\Collection\KeyHasher;
 use Noctud\Collection\Store\AbstractElementStore;
 use Noctud\Collection\Store\ReadWriteElementStore;
 use Traversable;
+use function array_key_exists;
+use function array_key_first;
+use function uasort;
+use function asort;
+use function array_reverse;
+use function array_keys;
+use function shuffle;
+use function array_values;
 
 /**
  * Internal storage for HashSet.

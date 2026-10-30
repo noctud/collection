@@ -14,6 +14,7 @@ use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Tests\Collection\List\Case\AbstractListTestCase;
 use Noctud\Collection\Tests\EnumerableLazyInit;
 use function Noctud\Collection\listOf;
+use function is_callable;
 
 final class ImmutableLazyListTest extends AbstractListTestCase
 {

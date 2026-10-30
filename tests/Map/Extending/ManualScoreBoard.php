@@ -15,6 +15,8 @@ use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\ImmutableMapLogic;
 use ReturnTypeWillChange;
+use function is_string;
+use function is_int;
 
 /**
  * Extension style #2 (Map): base ImmutableMapLogic + class-level `@method self`

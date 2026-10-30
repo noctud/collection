@@ -10,6 +10,20 @@ declare(strict_types=1);
 namespace Noctud\Collection;
 
 use Noctud\Collection\Exception\InvalidKeyTypeException;
+use function is_int;
+use function is_string;
+use function is_null;
+use function is_bool;
+use function is_float;
+use function sprintf;
+use function is_object;
+use function spl_object_id;
+use function is_array;
+use function hash;
+use function serialize;
+use function is_resource;
+use function get_resource_id;
+use function get_debug_type;
 
 /**
  * @internal

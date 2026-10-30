@@ -14,6 +14,7 @@ use Noctud\Collection\Sequence\Sequence;
 use Noctud\Collection\Set\ImmutableSet;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use function array_is_list;
 
 trait CollectionConvert
 {

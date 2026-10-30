@@ -12,6 +12,7 @@ namespace Noctud\Collection\Exception;
 use LogicException;
 use Noctud\Collection\Collection;
 use Noctud\Collection\Sequence\Sequence;
+use function sprintf;
 
 final class NoSuchElementException extends LogicException implements NoctudCollectionException
 {

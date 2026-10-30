@@ -12,6 +12,10 @@ namespace Noctud\Collection\Tests\Map\IntMap;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\intMapOf;
 use function Noctud\Collection\mutableIntMapOf;
+use function gc_collect_cycles;
+use function memory_get_usage;
+use function max;
+use function sprintf;
 
 trait IntMapCopyOnWrite
 {

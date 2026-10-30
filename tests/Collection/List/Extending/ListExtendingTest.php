@@ -14,6 +14,7 @@ use Noctud\Collection\Tests\Collection\Set\Extending\SwappableItem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function array_map;
 
 /**
  * Verifies that extending a List self-preserves the subtype at runtime.

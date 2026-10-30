@@ -13,6 +13,9 @@ use Noctud\Collection\Exception\ConversionException;
 use Noctud\Collection\KeyHasher;
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\KeyCollisionStrategy;
+use function sprintf;
+use function is_scalar;
+use function get_debug_type;
 
 /**
  * @internal

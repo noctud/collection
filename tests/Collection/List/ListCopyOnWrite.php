@@ -12,6 +12,10 @@ namespace Noctud\Collection\Tests\Collection\List;
 use PHPUnit\Framework\Attributes\Test;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mutableListOf;
+use function gc_collect_cycles;
+use function memory_get_usage;
+use function max;
+use function sprintf;
 
 trait ListCopyOnWrite
 {

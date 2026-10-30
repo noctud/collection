@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Map;
 
 use PHPUnit\Framework\Attributes\Test;
+use function strtoupper;
 
 trait MapMap
 {

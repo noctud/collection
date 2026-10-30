@@ -14,6 +14,17 @@ use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Store\AbstractElementStore;
 use Noctud\Collection\Store\ReadWriteIndexedStore;
 use Traversable;
+use function is_array;
+use function array_is_list;
+use function array_values;
+use function array_push;
+use function array_unshift;
+use function array_key_exists;
+use function array_search;
+use function count;
+use function array_splice;
+use function array_keys;
+use function in_array;
 
 /**
  * Internal storage for ArrayList.

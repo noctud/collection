@@ -10,6 +10,12 @@ declare(strict_types=1);
 namespace Noctud\Collection\Operation;
 
 use Generator;
+use function is_array;
+use function array_slice;
+use function max;
+use function array_values;
+use function iterator_to_array;
+use function count;
 
 /**
  * @internal

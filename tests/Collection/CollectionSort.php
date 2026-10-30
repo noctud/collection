@@ -12,6 +12,8 @@ namespace Noctud\Collection\Tests\Collection;
 use Noctud\Collection\MutableCollection;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
+use function strlen;
+use function array_keys;
 
 trait CollectionSort
 {

@@ -14,6 +14,8 @@ use Noctud\Collection\Tests\Collection\Fixture\Dog;
 use Noctud\Collection\Tests\Collection\Fixture\Walkable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use function is_string;
+use function str_contains;
 
 trait MapFilter
 {

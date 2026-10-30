@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Exception;
 
+use function sprintf;
+use function get_debug_type;
+
 /**
  * Thrown when a sequence source closure returns a non-iterable value.
  */

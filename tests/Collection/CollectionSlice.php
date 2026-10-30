@@ -12,6 +12,7 @@ namespace Noctud\Collection\Tests\Collection;
 use Noctud\Collection\Set\Set;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
+use function strlen;
 
 trait CollectionSlice
 {

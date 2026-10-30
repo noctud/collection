@@ -27,6 +27,9 @@ use Traversable;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\mapOf;
 use function Noctud\Collection\mutableMapOf;
+use function max;
+use function count;
+use function array_slice;
 
 /**
  * Shared logic for all Map implementations.

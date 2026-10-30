@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Noctud\Collection\Operation;
 
 use Noctud\Collection\Exception\UnsupportedOperationException;
+use function is_array;
+use function array_key_exists;
 
 /**
  * @internal

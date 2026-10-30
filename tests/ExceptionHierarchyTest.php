@@ -23,6 +23,13 @@ use SplFileInfo;
 use Throwable;
 use function Noctud\Collection\listOf;
 use function Noctud\Collection\sequenceOf;
+use function is_subclass_of;
+use function sprintf;
+use function dirname;
+use function substr;
+use function strlen;
+use function str_replace;
+use function class_exists;
 
 final class ExceptionHierarchyTest extends TestCase
 {

@@ -11,6 +11,7 @@ namespace Noctud\Collection\Tests\Collection\List;
 
 use Noctud\Collection\Map\ImmutableMap;
 use PHPUnit\Framework\Attributes\Test;
+use function strlen;
 
 trait ListConvert
 {

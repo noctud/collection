@@ -13,6 +13,9 @@ use Noctud\Collection\KeyHasher;
 use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\HashSet\ImmutableHashSet;
 use Noctud\Collection\Set\HashSet\MutableHashSet;
+use function array_intersect_key;
+use function array_diff_key;
+use function array_key_exists;
 
 /**
  * Set algebra on arrays keyed by KeyHasher::hashSetKey(): PHP intersects, subtracts and merges

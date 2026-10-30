@@ -12,6 +12,8 @@ namespace Noctud\Collection\Tests\Map;
 use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\Exception\ConversionException;
 use PHPUnit\Framework\Attributes\Test;
+use function fopen;
+use function fclose;
 
 trait MapKeyPreservation
 {

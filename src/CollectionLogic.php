@@ -39,6 +39,12 @@ use Noctud\Collection\Store\AbstractElementStore;
 use Noctud\Collection\Store\ReadOnlyElementStore;
 use Traversable;
 use NoDiscard;
+use function sort;
+use function rsort;
+use function array_values;
+use function usort;
+use function array_reverse;
+use function shuffle;
 
 /**
  * @phpstan-type PhpStormBugBypass array{0:NK,1:NV}

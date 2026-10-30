@@ -17,6 +17,24 @@ use Noctud\Collection\Map\SimpleMapEntry;
 use Noctud\Collection\Operation\SortOperation;
 use Noctud\Collection\Store\KeyValueStore;
 use Traversable;
+use function count;
+use function array_key_exists;
+use function in_array;
+use function array_key_first;
+use function array_key_last;
+use function array_rand;
+use function usort;
+use function array_replace;
+use function array_slice;
+use function array_reverse;
+use function array_keys;
+use function shuffle;
+use function array_values;
+use function is_scalar;
+use function is_float;
+use function sprintf;
+use function is_bool;
+use function get_debug_type;
 
 /**
  * Internal dual-array entry storage for maps with normalized keys.

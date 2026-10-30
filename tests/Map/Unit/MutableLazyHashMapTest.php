@@ -15,6 +15,7 @@ use Noctud\Collection\Tests\EnumerableLazyInit;
 use Noctud\Collection\Tests\Map\Case\AbstractMapTestCase;
 use function Noctud\Collection\mutableMapOf;
 use function Noctud\Collection\mutableMapOfPairs;
+use function is_callable;
 
 final class MutableLazyHashMapTest extends AbstractMapTestCase
 {

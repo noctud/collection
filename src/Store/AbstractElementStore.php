@@ -11,6 +11,20 @@ namespace Noctud\Collection\Store;
 
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Operation\SortOperation;
+use function array_key_first;
+use function array_key_last;
+use function array_rand;
+use function count;
+use function array_shift;
+use function array_pop;
+use function array_values;
+use function array_filter;
+use function usort;
+use function sort;
+use function array_replace;
+use function array_map;
+use function array_reverse;
+use function shuffle;
 
 /**
  * Base class for collection stores.

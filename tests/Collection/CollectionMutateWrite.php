@@ -12,6 +12,10 @@ namespace Noctud\Collection\Tests\Collection;
 use Noctud\Collection\MutableCollection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use function range;
+use function array_map;
+use function strval;
+use function array_is_list;
 
 trait CollectionMutateWrite
 {

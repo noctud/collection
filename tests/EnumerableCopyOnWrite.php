@@ -40,6 +40,10 @@ use function Noctud\Collection\mutableSetOf;
 use function Noctud\Collection\mutableStringMapOf;
 use function Noctud\Collection\setOf;
 use function Noctud\Collection\stringMapOf;
+use function gc_collect_cycles;
+use function memory_get_usage;
+use function max;
+use function sprintf;
 
 trait EnumerableCopyOnWrite
 {
