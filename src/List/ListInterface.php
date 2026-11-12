@@ -14,6 +14,7 @@ use Closure;
 use Noctud\Collection\Collection;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Exception\InvalidKeyTypeException;
+use Noctud\Collection\ImmutableCollection;
 use Noctud\Collection\Map\ImmutableMap;
 use NoDiscard;
 use ReturnTypeWillChange;
@@ -388,7 +389,7 @@ interface ListInterface extends Collection, ArrayAccess
      * @return ImmutableList<E> The immutable copy of this collection.
      */
     #[NoDiscard]
-    public function toImmutable(): ImmutableList;
+    public function toImmutable(): ImmutableCollection;
 
     // --- Narrowing End (auto-generated) ---
 }

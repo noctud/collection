@@ -14,6 +14,7 @@ use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\WritableCollection;
+use Noctud\Collection\WritableTrackedCollection;
 use NoDiscard;
 
 /**
@@ -36,7 +37,7 @@ interface WritableSet extends Set, WritableCollection
      * @return WritableTrackedSet<E>
      */
     #[NoDiscard]
-    public function tracked(): WritableTrackedSet;
+    public function tracked(): WritableTrackedCollection;
 
     // --- Narrowing Start (auto-generated) ---
 

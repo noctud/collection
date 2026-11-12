@@ -12,6 +12,7 @@ namespace Noctud\Collection\Set;
 use Closure;
 use Noctud\Collection\Collection;
 use Noctud\Collection\Exception\InvalidKeyTypeException;
+use Noctud\Collection\ImmutableCollection;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\Map\ImmutableMap;
 use NoDiscard;
@@ -291,7 +292,7 @@ interface Set extends Collection
      * @return ImmutableSet<E> The immutable copy of this collection.
      */
     #[NoDiscard]
-    public function toImmutable(): ImmutableSet;
+    public function toImmutable(): ImmutableCollection;
 
     // --- Narrowing End (auto-generated) ---
 }

@@ -31,7 +31,7 @@ interface MutableMap extends WritableMap
      * @return MutableTrackedMap<K,V>
      */
     #[NoDiscard]
-    public function tracked(): MutableTrackedMap;
+    public function tracked(): WritableTrackedMap;
 
     // --- Mutation: Add ---
 

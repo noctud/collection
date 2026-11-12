@@ -30,7 +30,7 @@ interface MutableList extends WritableList, MutableCollection
      * @return MutableTrackedList<E>
      */
     #[NoDiscard]
-    public function tracked(): MutableTrackedList;
+    public function tracked(): WritableTrackedList;
 
     // --- Element Access ---
 

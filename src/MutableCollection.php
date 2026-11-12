@@ -33,7 +33,7 @@ interface MutableCollection extends WritableCollection
      * @return MutableTrackedCollection<E>
      */
     #[NoDiscard]
-    public function tracked(): MutableTrackedCollection;
+    public function tracked(): WritableTrackedCollection;
 
     // --- Mutation: Order ---
 
