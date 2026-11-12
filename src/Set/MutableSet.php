@@ -29,7 +29,7 @@ interface MutableSet extends WritableSet, MutableCollection
      * @return MutableTrackedSet<E>
      */
     #[NoDiscard]
-    public function tracked(): MutableTrackedSet;
+    public function tracked(): WritableTrackedSet;
 
     // --- Narrowing Start (auto-generated) ---
 

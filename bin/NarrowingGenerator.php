@@ -216,7 +216,6 @@ final class NarrowingGenerator
                 '@stan-ignore-next-line' => '@phpstan-ignore-next-line',
             ],
             'toImmutable' => [
-                ': ImmutableCollection' => ': ImmutableSet',
                 'ImmutableCollection<E>' => 'ImmutableSet<E>',
             ],
         ]);
@@ -303,7 +302,6 @@ final class NarrowingGenerator
                 '@stan-ignore-next-line' => '@phpstan-ignore-next-line',
             ],
             'toImmutable' => [
-                ': ImmutableCollection' => ': ImmutableList',
                 'ImmutableCollection<E>' => 'ImmutableList<E>',
             ],
         ]);

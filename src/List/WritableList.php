@@ -14,6 +14,7 @@ use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\WritableCollection;
+use Noctud\Collection\WritableTrackedCollection;
 use NoDiscard;
 
 /**
@@ -36,7 +37,7 @@ interface WritableList extends ListInterface, WritableCollection
      * @return WritableTrackedList<E>
      */
     #[NoDiscard]
-    public function tracked(): WritableTrackedList;
+    public function tracked(): WritableTrackedCollection;
 
     // --- Mutation ---
 
