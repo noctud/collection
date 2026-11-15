@@ -11,9 +11,7 @@
         "phpstan/phpstan": "2.2.15",
         "phpunit/phpunit": "^13.0",
         "squizlabs/php_codesniffer": "^4.0",
-        "slevomat/coding-standard": "^8.16",
-        "typephp/typephp": "^0.13",
-        "brianium/paratest": "^7.27"
+        "slevomat/coding-standard": "^8.16"
     },
     "autoload": {
         "psr-4": {
