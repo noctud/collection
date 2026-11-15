@@ -82,9 +82,6 @@ trait CollectionGroupAndZip
         $this->assertSame([6], $grouped->get('b')->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function groupBy_with_null_key_throws(): void
     {
@@ -94,9 +91,6 @@ trait CollectionGroupAndZip
         $_ = $this->collectionOf(['a', 'b'])->groupBy(fn ($v) => null); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function groupBy_with_array_key_throws(): void
     {
@@ -387,9 +381,6 @@ trait CollectionGroupAndZip
         $this->assertSame(3, $result->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function countBy_with_null_key_throws(): void
     {

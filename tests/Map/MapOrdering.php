@@ -16,9 +16,6 @@ use function strlen;
 
 trait MapOrdering
 {
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function sortedByKey(): void
     {
@@ -64,9 +61,6 @@ trait MapOrdering
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function sortedByValue(): void
     {
@@ -112,9 +106,6 @@ trait MapOrdering
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function sortedBy_sorts_by_key_and_value(): void
     {
@@ -219,9 +210,6 @@ trait MapOrdering
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function sortedWith_sorts_with_comparator(): void
     {
@@ -382,9 +370,6 @@ trait MapOrdering
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function reverse(): void
     {

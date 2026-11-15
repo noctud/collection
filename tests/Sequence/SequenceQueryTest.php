@@ -42,9 +42,6 @@ final class SequenceQueryTest extends TestCase
         $this->assertFalse(sequenceOf([null])->isEmpty());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function contains_uses_strict_comparison(): void
     {
@@ -76,9 +73,6 @@ final class SequenceQueryTest extends TestCase
         $this->assertSame(listOf([1, 2])->containsAll([1, 1]), sequenceOf([1, 2])->containsAll([1, 1]));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function containsAll_with_many_wanted_values_compares_strictly(): void
     {

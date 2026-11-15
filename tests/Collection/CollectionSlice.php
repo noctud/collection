@@ -37,9 +37,6 @@ trait CollectionSlice
         $this->assertSame([], $collection->takeFirst(0)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function take_negative(): void
     {
@@ -61,9 +58,6 @@ trait CollectionSlice
         $this->assertSame([], $collection->dropFirst(5)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function drop_zero(): void
     {
@@ -93,9 +87,6 @@ trait CollectionSlice
         $this->assertSame([], $collection->takeLast(0)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function takeLast_negative(): void
     {
@@ -124,9 +115,6 @@ trait CollectionSlice
         $this->assertSame([1, 2, 3], $collection->dropLast(0)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function dropLast_negative(): void
     {
@@ -340,9 +328,6 @@ trait CollectionSlice
         $this->assertSame([1, 2], $chunks->get(0)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function chunked_zero_size(): void
     {
@@ -350,9 +335,6 @@ trait CollectionSlice
         $this->assertSame(0, $collection->chunked(0)->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function chunked_negative_size(): void
     {
@@ -482,9 +464,6 @@ trait CollectionSlice
         $this->assertSame([5], $windows->get(2)->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function windowed_zero_size(): void
     {
@@ -492,9 +471,6 @@ trait CollectionSlice
         $this->assertSame(0, $collection->windowed(0)->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function windowed_zero_step(): void
     {

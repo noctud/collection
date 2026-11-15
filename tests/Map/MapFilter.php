@@ -264,9 +264,6 @@ trait MapFilter
         $this->assertSame([], $filtered->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function filter_preserves_keys(): void
     {

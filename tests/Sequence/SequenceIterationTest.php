@@ -454,9 +454,6 @@ final class SequenceIterationTest extends TestCase
         $_ = $sequence->toArray(); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function closure_returning_a_non_iterable_throws_at_consumption(): void
     {

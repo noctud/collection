@@ -35,9 +35,6 @@ trait IntMapKeyEnforcement
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function put_rejects_string_key(): void
     {
@@ -67,9 +64,6 @@ trait IntMapKeyEnforcement
         $this->assertSame('a', $result->get(1));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function putIfAbsent_rejects_string_key(): void
     {
@@ -89,9 +83,6 @@ trait IntMapKeyEnforcement
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function getOrNull_with_string_key_returns_null(): void
     {
@@ -103,9 +94,6 @@ trait IntMapKeyEnforcement
         $this->assertNull($map->getOrNull('2'));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function get_with_string_key_throws(): void
     {
@@ -116,9 +104,6 @@ trait IntMapKeyEnforcement
         $map->get('1');
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function containsKey_with_string_key_returns_false(): void
     {
@@ -130,9 +115,6 @@ trait IntMapKeyEnforcement
         $this->assertFalse($map->containsKey('2'));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function remove_with_string_key_does_nothing(): void
     {
@@ -230,9 +212,6 @@ trait IntMapKeyEnforcement
         $this->assertContains($randomEntry->value, ['a', 'b', 'c']);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function lazy_init_from_generator_with_invalid_key_throws(): void
     {
@@ -249,9 +228,6 @@ trait IntMapKeyEnforcement
         $map->count();
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function mutable_lazy_init_from_generator_with_invalid_key_throws(): void
     {
@@ -268,9 +244,6 @@ trait IntMapKeyEnforcement
         $map->count();
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function array_with_string_key_throws(): void
     {
@@ -299,9 +272,6 @@ trait IntMapKeyEnforcement
         $map->keys->random();
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function put_null_value(): void
     {
@@ -316,9 +286,6 @@ trait IntMapKeyEnforcement
         $this->assertTrue($map->containsKey(2));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function put_null_value_changed_tracking(): void
     {

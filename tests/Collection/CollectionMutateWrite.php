@@ -328,9 +328,6 @@ trait CollectionMutateWrite
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function removeAll_and_retainAll_with_many_elements_compare_strictly(): void
     {
@@ -365,9 +362,6 @@ trait CollectionMutateWrite
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     #[DataProvider('shouldReturnListProvider')]
     public function toArray_returns_list_after_removal(array $data): void
@@ -383,9 +377,6 @@ trait CollectionMutateWrite
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     #[DataProvider('shouldReturnListProvider')]
     public function toArray_returns_list_after_adding_element(array $data): void

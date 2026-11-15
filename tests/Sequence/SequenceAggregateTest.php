@@ -340,9 +340,6 @@ final class SequenceAggregateTest extends TestCase
         $this->assertSame([1 => 2, 2 => 2], $counts->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function groupBy_with_null_key_throws(): void
     {
@@ -352,9 +349,6 @@ final class SequenceAggregateTest extends TestCase
         $_ = sequenceOf(['a', 'b'])->groupBy(static fn (string $v) => null); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function countBy_with_null_key_throws(): void
     {

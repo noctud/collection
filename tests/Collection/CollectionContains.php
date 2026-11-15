@@ -64,9 +64,6 @@ trait CollectionContains
         $this->assertFalse($collection->containsAll([1]));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function containsAll_with_many_elements_compares_strictly(): void
     {

@@ -39,9 +39,6 @@ trait MapKeyPreservation
         $result = $map->toArray(); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function null_key_throws(): void
     {
@@ -71,9 +68,6 @@ trait MapKeyPreservation
         ], $map->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function resource_key_throws(): void
     {
@@ -90,9 +84,6 @@ trait MapKeyPreservation
         }
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function not_preserved_because_of_invalid_input(): void
     {

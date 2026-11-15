@@ -520,9 +520,6 @@ final class SequenceTransformTest extends TestCase
         $this->assertSame([[1, 2], [3, 4], [5]], $chunks->map(self::toArray(...))->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function chunked_with_a_non_positive_size_yields_nothing(): void
     {

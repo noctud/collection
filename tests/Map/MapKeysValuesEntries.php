@@ -111,9 +111,6 @@ trait MapKeysValuesEntries
         $this->assertSame(2, $map->keys->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function keys_contains(): void
     {
@@ -137,9 +134,6 @@ trait MapKeysValuesEntries
         $this->assertSame(2, $map->values->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function values_contains(): void
     {
@@ -163,9 +157,6 @@ trait MapKeysValuesEntries
         $this->assertSame(2, $map->entries->count());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function entries_contains(): void
     {

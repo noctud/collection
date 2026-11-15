@@ -90,9 +90,6 @@ trait MapFlip
         $this->assertSame('b', $flipped->get($obj2));
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function flip_with_null_value_throws(): void
     {

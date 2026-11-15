@@ -193,9 +193,6 @@ trait CollectionFirstLast
         $this->collectionOf(['a', 'b', 'c'])->elementAt(3);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function elementAt_throws_on_a_negative_index(): void
     {

@@ -142,9 +142,6 @@ final class SequenceAccessTest extends TestCase
         $_ = sequenceOf(['a', 'b', 'c'])->elementAt(3); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function elementAt_throws_on_a_negative_index(): void
     {

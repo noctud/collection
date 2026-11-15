@@ -44,9 +44,6 @@ trait MapChangedWithNull
         $this->assertFalse($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function put_null_to_existing_non_null_key_sets_changed_true(): void
     {
@@ -62,9 +59,6 @@ trait MapChangedWithNull
         $this->assertTrue($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function put_value_to_existing_null_key_sets_changed_true(): void
     {

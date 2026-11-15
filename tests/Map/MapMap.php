@@ -70,9 +70,6 @@ trait MapMap
         $this->assertSame(['a' => 10, 'b' => 20], $result->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function mapValuesNotNull_preserves_keys(): void
     {

@@ -33,9 +33,6 @@ trait StringMapConvert
         $this->assertSame([], $map->toArray());
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function toArray_with_numeric_string_keys(): void
     {

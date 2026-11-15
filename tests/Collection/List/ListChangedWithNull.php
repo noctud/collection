@@ -17,9 +17,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 trait ListChangedWithNull
 {
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function set_null_to_non_null_sets_changed_true(): void
     {
@@ -35,9 +32,6 @@ trait ListChangedWithNull
         $this->assertTrue($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function set_null_to_existing_null_sets_changed_false(): void
     {
@@ -53,9 +47,6 @@ trait ListChangedWithNull
         $this->assertFalse($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function set_value_to_existing_null_sets_changed_true(): void
     {
@@ -71,9 +62,6 @@ trait ListChangedWithNull
         $this->assertTrue($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function remove_null_when_exists_sets_changed_true(): void
     {
@@ -89,9 +77,6 @@ trait ListChangedWithNull
         $this->assertTrue($result->changed);
     }
 
-    /**
-     * @typephp-ignore
-     */
     #[Test]
     public function remove_null_when_not_exists_sets_changed_false(): void
     {
