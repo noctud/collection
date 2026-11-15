@@ -26,7 +26,7 @@ final class FlattenOperation extends AbstractOperation
     {
         foreach ($this->data as $v) {
             foreach (is_iterable($v) ? $v : [$v] as $x) {
-                yield $x; 
+                yield $x;
             }
         }
     }
