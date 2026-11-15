@@ -45,8 +45,9 @@ final class MapValueCollection implements Collection
     }
 
     /**
-     * @param iterable<E> $data
-     * @return ImmutableList<E>
+     * @template NE
+     * @param iterable<NE> $data
+     * @return ImmutableList<NE>
      */
     protected function newCollectionOf(iterable $data): ImmutableCollection
     {

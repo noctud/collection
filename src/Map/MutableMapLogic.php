@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Noctud\Collection\Map;
 
 use Closure;
-use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\HashMap\MutableTrackedHashMap;
 use NoDiscard;
 
@@ -30,9 +29,7 @@ trait MutableMapLogic
     #[NoDiscard]
     public function tracked(): MutableTrackedMap
     {
-        /** @var HashKeyValueStore<K,V> $store */
-        $store = $this->store;
-        return new MutableTrackedHashMap($store);
+        return new MutableTrackedHashMap($this->store);
     }
 
     // --- Element Access ---

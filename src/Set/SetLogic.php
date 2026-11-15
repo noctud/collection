@@ -348,17 +348,13 @@ trait SetLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        $store = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-        foreach ($store as $k => $bucket) {
-            if ($valueTransform !== null) {
-                $store->put($k, $this->newListOf($bucket)); // @phpstan-ignore argument.type
-            } else {
-                $store->put($k, $this->newCollectionOf($bucket)); // @phpstan-ignore argument.type
-            }
-        }
-
-        return $this->newMapOf($store); // @phpstan-ignore return.type
+        return $this->newMapOf(new GroupOperation($this)->byKey(
+            $keySelector,
+            $valueTransform,
+            fn (array $bucket) => $valueTransform !== null
+                ? $this->newListOf($bucket)
+                : $this->newCollectionOf($bucket),
+        ));
     }
 
     // --- Set Operations ---

@@ -20,7 +20,7 @@ use function is_iterable;
 final class FlattenOperation extends AbstractOperation
 {
     /**
-     * @return Generator<int,V>
+     * @return Generator<int, (V is iterable<mixed> ? value-of<V|array{}> : V)>
      */
     public function items(): Generator
     {

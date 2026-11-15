@@ -523,20 +523,19 @@ trait SequenceLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        $groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-        foreach ($groups as $key => $bucket) {
-            $groups->put($key, listOf($bucket)); // @phpstan-ignore argument.type
-        }
-
-        return mapOf($groups); // @phpstan-ignore return.type
+        // @phpstan-ignore return.type
+        return mapOf(new GroupOperation($this)->byKey(
+            $keySelector,
+            $valueTransform,
+            fn (array $bucket) => listOf($bucket),
+        ));
     }
 
     /** {@inheritDoc} */
     #[NoDiscard]
     public function countBy(Closure $keySelector): ImmutableMap
     {
-        return mapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
+        return mapOf(new GroupOperation($this)->countByKey($keySelector));
     }
 
     /** {@inheritDoc} */

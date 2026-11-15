@@ -198,7 +198,7 @@ trait CollectionLogic
     #[NoDiscard]
     public function countBy(Closure $keySelector): ImmutableMap
     {
-        return $this->newMapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
+        return $this->newMapOf(new GroupOperation($this)->countByKey($keySelector));
     }
 
     // --- Transformation ---
@@ -612,13 +612,11 @@ trait CollectionLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        $groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-        foreach ($groups as $k => $bucket) {
-            $groups->put($k, $this->newListOf($bucket)); // @phpstan-ignore argument.type
-        }
-
-        return $this->newMapOf($groups); // @phpstan-ignore return.type
+        return $this->newMapOf(new GroupOperation($this)->byKey(
+            $keySelector,
+            $valueTransform,
+            fn (array $bucket) => $this->newListOf($bucket),
+        ));
     }
 
     /**

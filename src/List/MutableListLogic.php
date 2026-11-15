@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\List;
 
-use Noctud\Collection\List\ArrayList\ArrayIndexStore;
 use Noctud\Collection\List\ArrayList\MutableTrackedArrayList;
 use Noctud\Collection\MutableCollectionLogic;
 use Noctud\Collection\Store\ReadWriteIndexedStore;
@@ -40,9 +39,7 @@ trait MutableListLogic
     #[NoDiscard]
     public function tracked(): MutableTrackedList
     {
-        /** @var ArrayIndexStore<E> $store */
-        $store = $this->store;
-        return new MutableTrackedArrayList($store);
+        return new MutableTrackedArrayList($this->store);
     }
 
     // --- Mutation: List ---
