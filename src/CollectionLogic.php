@@ -15,6 +15,7 @@ use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\List\ImmutableList;
 use Noctud\Collection\List\ListInterface;
 use Noctud\Collection\List\MutableList;
+use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Sequence\Sequence;
 use Noctud\Collection\Set\ImmutableSet;
@@ -198,7 +199,9 @@ trait CollectionLogic
     #[NoDiscard]
     public function countBy(Closure $keySelector): ImmutableMap
     {
-        return $this->newMapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
+        [$keys, $counts] = new GroupOperation($this)->countByKey($keySelector);
+
+        return $this->newMapOf(HashKeyValueStore::fromHashed($keys, $counts)); // @phpstan-ignore return.type
     }
 
     // --- Transformation ---
@@ -612,13 +615,14 @@ trait CollectionLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        $groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
+        [$keys, $buckets] = new GroupOperation($this)->byKey($keySelector, $valueTransform);
 
-        foreach ($groups as $k => $bucket) {
-            $groups->put($k, $this->newListOf($bucket)); // @phpstan-ignore argument.type
+        $groups = [];
+        foreach ($buckets as $hash => $bucket) {
+            $groups[$hash] = $this->newListOf($bucket);
         }
 
-        return $this->newMapOf($groups); // @phpstan-ignore return.type
+        return $this->newMapOf(HashKeyValueStore::fromHashed($keys, $groups)); // @phpstan-ignore return.type
     }
 
     /**

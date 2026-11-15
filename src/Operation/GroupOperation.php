@@ -11,7 +11,6 @@ namespace Noctud\Collection\Operation;
 
 use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\KeyHasher;
-use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 
 /**
  * @internal
@@ -21,9 +20,9 @@ use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 final class GroupOperation extends AbstractOperation
 {
     /**
-     * Accumulates elements into one bucket per key, and hands the buckets back as plain
-     * arrays: wrapping them into collections is the caller's job, the way
-     * PartitionOperation returns plain lists.
+     * Accumulates elements into one bucket per key, and hands the key and bucket arrays back:
+     * wrapping them into collections is the caller's job, the way PartitionOperation
+     * returns plain lists.
      *
      * Buckets are appended in place in local arrays keyed by the key hash: going through
      * the store would copy the whole bucket on every element and hash each key twice.
@@ -32,10 +31,10 @@ final class GroupOperation extends AbstractOperation
      * @template T
      * @param callable(V, int):K $keySelector
      * @param (callable(V, int):T)|null $valueTransform
-     * @return HashKeyValueStore<K, non-empty-list<V|T>>
+     * @return array{array<int|string, K>, array<int|string, list<V|T>>}
      * @throws InvalidKeyTypeException If the key selector returns an unsupported map key
      */
-    public function byKey(callable $keySelector, ?callable $valueTransform = null): HashKeyValueStore
+    public function byKey(callable $keySelector, ?callable $valueTransform = null): array
     {
         $keys = [];
         $buckets = [];
@@ -47,7 +46,7 @@ final class GroupOperation extends AbstractOperation
             $buckets[$hash][] = $valueTransform !== null ? $valueTransform($v, $i) : $v;
         }
 
-        return HashKeyValueStore::fromHashed($keys, $buckets);
+        return [$keys, $buckets];
     }
 
     /**
@@ -56,10 +55,10 @@ final class GroupOperation extends AbstractOperation
      *
      * @template K of string|int|bool|float|object
      * @param callable(V, int):K $keySelector
-     * @return HashKeyValueStore<K, positive-int>
+     * @return array{array<int|string, K>, array<int|string, positive-int>}
      * @throws InvalidKeyTypeException If the key selector returns an unsupported map key
      */
-    public function countByKey(callable $keySelector): HashKeyValueStore
+    public function countByKey(callable $keySelector): array
     {
         $keys = [];
         $counts = [];
@@ -71,6 +70,6 @@ final class GroupOperation extends AbstractOperation
             $counts[$hash] = ($counts[$hash] ?? 0) + 1;
         }
 
-        return HashKeyValueStore::fromHashed($keys, $counts);
+        return [$keys, $counts];
     }
 }

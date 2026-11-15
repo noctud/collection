@@ -18,6 +18,7 @@ use Noctud\Collection\Exception\NonReplayableSourceException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\IterableTerminalsLogic;
 use Noctud\Collection\List\ImmutableList;
+use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Operation\ChunkOperation;
 use Noctud\Collection\Operation\DistinctOperation;
@@ -523,20 +524,23 @@ trait SequenceLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        $groups = new GroupOperation($this)->byKey($keySelector, $valueTransform);
+        [$keys, $buckets] = new GroupOperation($this)->byKey($keySelector, $valueTransform);
 
-        foreach ($groups as $key => $bucket) {
-            $groups->put($key, listOf($bucket)); // @phpstan-ignore argument.type
+        $groups = [];
+        foreach ($buckets as $hash => $bucket) {
+            $groups[$hash] = listOf($bucket);
         }
 
-        return mapOf($groups); // @phpstan-ignore return.type
+        return mapOf(HashKeyValueStore::fromHashed($keys, $groups)); // @phpstan-ignore return.type
     }
 
     /** {@inheritDoc} */
     #[NoDiscard]
     public function countBy(Closure $keySelector): ImmutableMap
     {
-        return mapOf(new GroupOperation($this)->countByKey($keySelector)); // @phpstan-ignore return.type
+        [$keys, $counts] = new GroupOperation($this)->countByKey($keySelector);
+
+        return mapOf(HashKeyValueStore::fromHashed($keys, $counts)); // @phpstan-ignore return.type
     }
 
     /** {@inheritDoc} */
