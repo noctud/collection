@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Noctud\Collection\Set;
 
 use Noctud\Collection\MutableCollectionLogic;
-use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\HashSet\MutableTrackedHashSet;
 use Noctud\Collection\Store\ReadWriteElementStore;
 use NoDiscard;
@@ -39,8 +38,6 @@ trait MutableSetLogic
     #[NoDiscard]
     public function tracked(): MutableTrackedSet
     {
-        /** @var HashElementStore<E> $store */
-        $store = $this->store;
-        return new MutableTrackedHashSet($store);
+        return new MutableTrackedHashSet($this->store);
     }
 }
