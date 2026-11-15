@@ -115,7 +115,7 @@ trait MapLogic
     /** {@inheritDoc} */
     public function containsValue(mixed $value): bool
     {
-        return $this->store->contains($value); // @phpstan-ignore argument.type
+        return $this->store->contains($value);
     }
 
     /** {@inheritDoc} */

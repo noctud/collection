@@ -73,7 +73,7 @@ interface KeyValueStore extends IteratorAggregate
     /**
      * Returns true if the storage contains the given value (strict comparison).
      *
-     * @param V $value
+     * @param mixed $value
      */
     public function contains(mixed $value): bool;
 
