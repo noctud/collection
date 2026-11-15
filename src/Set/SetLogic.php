@@ -12,7 +12,6 @@ namespace Noctud\Collection\Set;
 use Closure;
 use Noctud\Collection\CollectionLogic;
 use Noctud\Collection\List\ImmutableList;
-use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Operation\DistinctOperation;
 use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Operation\DropOperation;
@@ -349,16 +348,13 @@ trait SetLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        [$keys, $buckets] = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-        $groups = [];
-        foreach ($buckets as $hash => $bucket) {
-            $groups[$hash] = $valueTransform !== null
+        return $this->newMapOf(new GroupOperation($this)->byKey(
+            $keySelector,
+            $valueTransform,
+            fn (array $bucket) => $valueTransform !== null
                 ? $this->newListOf($bucket)
-                : $this->newCollectionOf($bucket); // @phpstan-ignore argument.type
-        }
-
-        return $this->newMapOf(HashKeyValueStore::fromHashed($keys, $groups)); // @phpstan-ignore return.type
+                : $this->newCollectionOf($bucket),
+        ));
     }
 
     // --- Set Operations ---

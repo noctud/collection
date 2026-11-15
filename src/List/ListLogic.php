@@ -14,7 +14,6 @@ use Noctud\Collection\CollectionLogic;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
 use Noctud\Collection\Operation\GroupOperation;
 use Noctud\Collection\Exception\UnsupportedOperationException;
-use Noctud\Collection\Map\HashMap\HashKeyValueStore;
 use Noctud\Collection\Operation\DistinctOperation;
 use Noctud\Collection\Operation\DropOperation;
 use Noctud\Collection\Operation\FilterOperation;
@@ -491,16 +490,14 @@ trait ListLogic
     #[NoDiscard]
     public function groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap
     {
-        [$keys, $buckets] = new GroupOperation($this)->byKey($keySelector, $valueTransform);
-
-        $groups = [];
-        foreach ($buckets as $hash => $bucket) {
-            $groups[$hash] = $valueTransform !== null
+        // @phpstan-ignore return.type
+        return $this->newMapOf(new GroupOperation($this)->byKey(
+            $keySelector,
+            $valueTransform,
+            fn (array $bucket) => $valueTransform !== null
                 ? $this->newListOf($bucket)
-                : $this->newCollectionOf($bucket); // @phpstan-ignore argument.type
-        }
-
-        return $this->newMapOf(HashKeyValueStore::fromHashed($keys, $groups)); // @phpstan-ignore return.type
+                : $this->newCollectionOf($bucket),
+        ));
     }
 
     // --- Conversion ---

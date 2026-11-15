@@ -25,8 +25,12 @@ final class FlattenOperation extends AbstractOperation
     public function items(): Generator
     {
         foreach ($this->data as $v) {
-            foreach (is_iterable($v) ? $v : [$v] as $x) {
-                yield $x;
+            if (is_iterable($v)) {
+                foreach ($v as $x) {
+                    yield $x;
+                }
+            } else {
+                yield $v;
             }
         }
     }
