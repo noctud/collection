@@ -4,7 +4,7 @@ pageClass: api-reference
 
 # Map API
 
-`Map<K,V>` is an ordered key-value associative collection with strict key handling. Unlike PHP arrays, keys are never silently cast. Extends `IteratorAggregate<K,V>`, `Countable`, and `ArrayAccess<K,V>`.
+`Map<K,V>` is an ordered key-value associative collection with strict key handling. Unlike PHP arrays, keys are never silently cast. Extends `IteratorAggregate<K,V>`, `Countable`, `ArrayAccess<K,V>`, and `JsonSerializable`.
 
 ## Properties
 
@@ -23,37 +23,37 @@ public Set<MapEntry<K,V>> $entries { get; }
 ```
 Live read-only view of the map's entries. Each `MapEntry` is a snapshot. `MapEntry` implements `Hashable` (identity derived from both key and value), so set operations like `intersect`, `union`, and `subtract` compare entries by content.
 
-## Element Access
+## Element access
 
 ```php
-get(mixed $key): V
+get(K $key): V
 ```
 Get value by key. Throws `NoSuchElementException` if missing. Array access syntax `$map['key']` is an alias for `$map->get('key')`.
 
 ```php
-getOrNull(mixed $key): V|null
+getOrNull(K $key): V|null
 ```
 Get value, or `null` if missing. Use `$map['key'] ?? null` for the same behavior via array access.
 
 ```php
-getOrDefault(mixed $key, mixed $default): V|D
+getOrDefault(K $key, mixed $default): V|D
 ```
 Get value, or the provided default.
 
 ```php
-getOrCompute(mixed $key, Closure $compute): V|D
+getOrCompute(K $key, Closure $compute): V|D
 ```
 Get value, or compute with `(): D`.
 
 ```php
-getOrPut(mixed $key, Closure $compute): V // MutableMap only
+getOrPut(K $key, Closure $compute): V // MutableMap only
 ```
 Get value if key exists. Otherwise, compute the default, store it in the map, and return it.
 
-## Array Access
+## Array access
 
 ```php
-$map['key']; // get - throws if missing
+$map['key']; // get: throws if missing
 $map['key'] ?? 'default'; // safe access via ?? operator
 isset($map['key']); // containsKey
 ```
@@ -69,7 +69,7 @@ On `ImmutableMap`, `offsetSet` and `offsetUnset` throw `UnsupportedOperationExce
 ## Querying
 
 ```php
-containsKey(mixed $key): bool
+containsKey(K $key): bool
 ```
 Whether the map contains the key.
 
@@ -135,12 +135,12 @@ Filter by value predicate `(V): bool`.
 ```php
 filterValuesNotNull(): ImmutableMap<K,V>
 ```
-Exclude entries with `null` values. The value type narrows to exclude `null` — `Map<string, int|null>` becomes `Map<string, int>`. Keys are preserved.
+Exclude entries with `null` values. The value type narrows to exclude `null`, so `Map<string, int|null>` becomes `Map<string, int>`. Keys are preserved.
 
 ```php
 filterValuesInstanceOf(string $type): ImmutableMap<K,T>
 ```
-Filter entries whose values are instances of the given class or interface. `$type` is a `class-string<T>`. Enables PHPStan to narrow the value type — e.g. `Map<string, Animal>` becomes `ImmutableMap<string, Dog>`.
+Filter entries whose values are instances of the given class or interface. `$type` is a `class-string<T>`. Enables PHPStan to narrow the value type, e.g. `Map<string, Animal>` becomes `ImmutableMap<string, Dog>`.
 
 ```php
 mapKeys(Closure $transform): ImmutableMap<NK,V>
@@ -168,10 +168,10 @@ All return new immutable maps, marked `#[NoDiscard]`.
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `sortedByKey` | `(?Closure $selector): ImmutableMap` | By key, optional selector |
-| `sortedByKeyDesc` | `(?Closure $selector): ImmutableMap` | By key desc |
-| `sortedByValue` | `(?Closure $selector): ImmutableMap` | By value, optional selector |
-| `sortedByValueDesc` | `(?Closure $selector): ImmutableMap` | By value desc |
+| `sortedByKey` | `(?Closure $selector = null): ImmutableMap` | By key, optional selector |
+| `sortedByKeyDesc` | `(?Closure $selector = null): ImmutableMap` | By key desc |
+| `sortedByValue` | `(?Closure $selector = null): ImmutableMap` | By value, optional selector |
+| `sortedByValueDesc` | `(?Closure $selector = null): ImmutableMap` | By value desc |
 | `sortedBy` | `(Closure $selector): ImmutableMap` | By `(V,K): R` selector |
 | `sortedByDesc` | `(Closure $selector): ImmutableMap` | By selector, desc |
 | `sortedWithKey` | `(Closure $comparator): ImmutableMap` | Key comparator `(K,K): int` |
@@ -215,24 +215,24 @@ Execute `(V): void` for each value and return the map for chaining.
 ```php
 forEach(Closure $action): void
 ```
-Execute `(V, K): void` for each entry. Returns nothing — use `onEach()` when the map is still needed.
+Execute `(V, K): void` for each entry. Returns nothing, so use `onEach()` when the map is still needed.
 
 ```php
 forEachKey(Closure $action): void
 ```
-Execute `(K): void` for each key. Returns nothing — use `onEachKey()` when the map is still needed.
+Execute `(K): void` for each key. Returns nothing, so use `onEachKey()` when the map is still needed.
 
 ```php
 forEachValue(Closure $action): void
 ```
-Execute `(V): void` for each value. Returns nothing — use `onEachValue()` when the map is still needed.
+Execute `(V): void` for each value. Returns nothing, so use `onEachValue()` when the map is still needed.
 
 ## Conversion
 
 ```php
 jsonSerialize(): array
 ```
-Returns `toArray()` for `json_encode()` compatibility. Produces `{"key": "value", ...}` JSON output. Throws `ConversionException` if the map contains object keys or keys that collide after PHP's native casting (e.g. string `"1"` and int `1`). For maps with non-scalar keys, use `toPairs()` or `mapKeys()` to prepare the data manually before encoding.
+Returns `toArray()` for `json_encode()` compatibility. Produces `{"key": "value", ...}` JSON output, except that an empty map, or one keyed `0, 1, 2, ...` in order, encodes as a JSON array, as a PHP array would. Throws `ConversionException` if the map contains object keys or keys that collide after PHP's native casting (e.g. string `"1"` and int `1`). For maps with non-scalar keys, use `toPairs()` or `mapKeys()` to prepare the data manually before encoding.
 
 ```php
 map(Closure $transform): ImmutableList<R>
@@ -252,7 +252,7 @@ Transform each entry with `(V, K): iterable<R>` and flatten all results into a s
 ```php
 toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array<K,V>
 ```
-Convert to PHP array. Only works with scalar keys. Throws `ConversionException` for object keys or key collisions. The key type is preserved when `K` is a valid array key — a `Map<string, int>` yields `array<string, int>`; a map with keys PHP cannot use natively falls back to `array<array-key, V>`.
+Convert to PHP array. Only works with scalar keys. Throws `ConversionException` for object keys, for float keys that would lose precision, and for key collisions unless `$onCollision` is `KeyCollisionStrategy::KeepFirst` or `KeepLast`. The key type is preserved when `K` is a valid array key: a `Map<string, int>` yields `array<string, int>`; a map with keys PHP cannot use natively falls back to `array<array-key, V>`.
 
 ```php
 toPairs(): list<array{0:K, 1:V}>
@@ -269,11 +269,9 @@ toImmutable(): ImmutableMap<K,V>
 ```
 Returns an immutable map. May return itself if already immutable.
 
-::: tip Sequences over a map
-`Map` has no `asSequence()` — go through a view instead: `$map->entries->asSequence()`, `$map->values->asSequence()` or `$map->keys->asSequence()`. See [Sequence](../sequence).
-:::
+`Map` has no `asSequence()`. Go through a view instead: `$map->entries->asSequence()`, `$map->values->asSequence()` or `$map->keys->asSequence()`. See [Sequence](../sequence).
 
-## MutableMap Methods
+## MutableMap methods
 
 ### Tracking
 
@@ -285,26 +283,26 @@ Returns a tracked wrapper that shares the same underlying store. Each mutation m
 ```php
 $tracked = mutableMapOf(['a' => 1])->tracked();
 $tracked->put('b', 2)->changed; // true
-$tracked->put('b', 2)->changed; // false - same value
+$tracked->put('b', 2)->changed; // false: same value
 ```
 
 Note: `$changed` is only available on the return value of mutation methods, not on the tracked wrapper itself.
 
-### Mutation: Add
+### Mutation: add
 
 | Method | Description |
 |--------|-------------|
-| `put(mixed $key, mixed $value): MutableMap` | Add or replace an entry |
-| `putIfAbsent(mixed $key, mixed $value): MutableMap` | Add entry only if the key is not already present |
-| `putFirst(mixed $key, mixed $value): MutableMap` | Add or replace at the beginning. Moves existing key to front |
+| `put(K $key, mixed $value): MutableMap` | Add or replace an entry |
+| `putIfAbsent(K $key, mixed $value): MutableMap` | Add entry only if the key is not already present |
+| `putFirst(K $key, mixed $value): MutableMap` | Add or replace at the beginning. Moves existing key to front |
 | `putAll(iterable $data): MutableMap` | Add entries from key-value iterable |
 | `putAllPairs(iterable $data): MutableMap` | Add entries from `[key, value]` pairs |
 
-### Mutation: Remove
+### Mutation: remove
 
 | Method | Description |
 |--------|-------------|
-| `remove(mixed $key): MutableMap` | Remove entry by key |
+| `remove(K $key): MutableMap` | Remove entry by key |
 | `removeFirst(): MutableMap` | Remove the first entry (no-op if empty) |
 | `removeLast(): MutableMap` | Remove the last entry (no-op if empty) |
 | `removeIf(Closure $predicate): MutableMap` | Remove entries matching `(V,K): bool` |
@@ -313,7 +311,7 @@ Note: `$changed` is only available on the return value of mutation methods, not 
 | `removeNullValues(): MutableMap` | Remove entries with `null` values |
 | `clear(): MutableMap` | Remove all entries |
 
-### Mutation: Order
+### Mutation: order
 
 | Method | Description |
 |--------|-------------|
@@ -329,25 +327,25 @@ Note: `$changed` is only available on the return value of mutation methods, not 
 | `reverse(): MutableMap` | In-place reverse |
 | `shuffle(): MutableMap` | In-place shuffle |
 
-## ImmutableMap Methods
+## ImmutableMap methods
 
 All mutation methods are marked `#[NoDiscard]` and return new `ImmutableMap` instances:
 
-### Mutation: Add
+### Mutation: add
 
 | Method | Description |
 |--------|-------------|
-| `put(mixed $key, mixed $value): ImmutableMap` | New map with entry added |
-| `putIfAbsent(mixed $key, mixed $value): ImmutableMap` | New map with entry added only if key is not present. Returns same map if key exists |
-| `putFirst(mixed $key, mixed $value): ImmutableMap` | New map with entry at the beginning. Moves existing key to front |
+| `put(K $key, mixed $value): ImmutableMap` | New map with entry added |
+| `putIfAbsent(K $key, mixed $value): ImmutableMap` | New map with entry added only if key is not present. Returns same map if key exists |
+| `putFirst(K $key, mixed $value): ImmutableMap` | New map with entry at the beginning. Moves existing key to front |
 | `putAll(iterable $data): ImmutableMap` | New map with entries added |
 | `putAllPairs(iterable $data): ImmutableMap` | New map with pair entries added |
 
-### Mutation: Remove
+### Mutation: remove
 
 | Method | Description |
 |--------|-------------|
-| `remove(mixed $key): ImmutableMap` | New map without the key |
+| `remove(K $key): ImmutableMap` | New map without the key |
 | `removeFirst(): ImmutableMap` | New map without the first entry (returns same map if empty) |
 | `removeLast(): ImmutableMap` | New map without the last entry (returns same map if empty) |
 | `removeIf(Closure): ImmutableMap` | New map without matching entries |

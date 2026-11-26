@@ -1,6 +1,6 @@
 # Set
 
-`Set<E>` is an ordered collection of **unique** elements. Duplicate values are silently ignored on insertion. Sets do not support indexed access by design — use `contains()` to check membership.
+`Set<E>` is an ordered collection of **unique** elements. Duplicate values are silently ignored on insertion. Sets do not support indexed access by design. Use `contains()` to check membership.
 
 ## Creating
 
@@ -27,7 +27,7 @@ $set->isEmpty(); // false
 $set->isNotEmpty(); // true
 ```
 
-## Element Access
+## Element access
 
 Sets support the same access methods as other collections:
 
@@ -44,7 +44,7 @@ $set->random(); // random element
 
 ## Transforming
 
-All transformation methods return **immutable collections** — the original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
+All transformation methods return **immutable collections**. The original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
 
 ```php
 $set = mutableSetOf([1, 2, 3, 4, 5]);
@@ -101,7 +101,7 @@ $set->removeAll(['a']); // {'c'}
 $set->clear(); // {}
 ```
 
-### addFirst - Move to Front
+### addFirst: move to front
 
 `addFirst()` guarantees the element is first after the call. If the element already exists in the set, it is **moved to the front**. If it is already first, the call is a no-op:
 
@@ -113,7 +113,7 @@ $set->addFirst(3); // {3, 1, 2} - no-op, already first
 $set->addFirst(0); // {0, 3, 1, 2} - new element prepended
 ```
 
-This follows the same semantics as Java 21's `SequencedSet.addFirst()` — the post-condition is that the element is always at the first position, while uniqueness is preserved.
+This follows the same semantics as Java 21's `SequencedSet.addFirst()`. The post-condition is that the element is always at the first position, while uniqueness is preserved.
 
 Track changes with `tracked()`:
 

@@ -2,7 +2,7 @@
 pageClass: api-reference
 ---
 
-# Factory Functions
+# Factory functions
 
 All factory functions are in the `Noctud\Collection` namespace. Import them with `use function`:
 
@@ -52,7 +52,7 @@ listOf(fn() => loadElements()); // lazy-init ImmutableList
 ### mutableListOf
 
 ```php
-function mutableListOf(iterable|Closure $data = []): MutableList
+function mutableListOf(iterable|Closure|null $data = null): MutableList
 ```
 
 Creates a mutable list. Supports lazy initialization via `Closure`.
@@ -83,7 +83,7 @@ setOf(fn() => loadUniqueIds()); // lazy-init ImmutableSet
 ### mutableSetOf
 
 ```php
-function mutableSetOf(iterable|Closure $data = []): MutableSet
+function mutableSetOf(iterable|Closure|null $data = null): MutableSet
 ```
 
 Creates a mutable set. Duplicates discarded. Supports lazy initialization.
@@ -116,7 +116,7 @@ When passing a PHP array, standard PHP key casting rules apply *before* the map 
 ### mutableMapOf
 
 ```php
-function mutableMapOf(iterable|Closure $data = []): MutableMap
+function mutableMapOf(iterable|Closure|null $data = null): MutableMap
 ```
 
 Creates a mutable map. Supports lazy initialization.
@@ -129,7 +129,7 @@ mutableMapOf(); // empty MutableMap
 ### mapOfPairs
 
 ```php
-function mapOfPairs(iterable|Closure $data = []): ImmutableMap
+function mapOfPairs(iterable|Closure $data): ImmutableMap
 ```
 
 Creates an immutable map from `[key, value]` pairs. This avoids PHP's array key casting, preserving exact key types.
@@ -151,7 +151,9 @@ Creates a mutable map from `[key, value]` pairs.
 mutableMapOfPairs([['1', 'a']]); // MutableMap<string, string>
 ```
 
-## Type-Specific Maps
+## Type-specific maps
+
+Use `stringMapOf` / `intMapOf` when you know all keys will be strings or integers. They offer ~50% less memory usage and faster operations compared to `mapOf`. Use `mapOf` when you need mixed key types (objects, float, bool). The IntMap constructors reject non-int keys, while StringMap accepts PHP's natural key casting during construction. After that, the mutable variants throw `InvalidKeyTypeException` for a key of another type, and the immutable ones return an `ImmutableHashMap` from `put()` and the other additions.
 
 ### stringMapOf
 
@@ -170,7 +172,7 @@ stringMapOf(fn() => loadUsers()); // lazy-init ImmutableMap
 ### mutableStringMapOf
 
 ```php
-function mutableStringMapOf(iterable|Closure $data = []): MutableMap
+function mutableStringMapOf(iterable|Closure|null $data = null): MutableMap
 ```
 
 Creates a mutable map optimized for string keys.
@@ -197,7 +199,7 @@ intMapOf(fn() => loadScores()); // lazy-init ImmutableMap
 ### mutableIntMapOf
 
 ```php
-function mutableIntMapOf(iterable|Closure $data = []): MutableMap
+function mutableIntMapOf(iterable|Closure|null $data = null): MutableMap
 ```
 
 Creates a mutable map optimized for integer keys.
@@ -206,10 +208,6 @@ Creates a mutable map optimized for integer keys.
 mutableIntMapOf([1 => 100, 2 => 200]); // MutableMap<int, int>
 mutableIntMapOf(); // empty MutableMap
 ```
-
-::: tip When to use type-specific maps
-Use `stringMapOf` / `intMapOf` when you know all keys will be strings or integers. They offer ~50% less memory usage and faster operations compared to `mapOf`. Use `mapOf` when you need mixed key types (objects, float, bool). IntMap strictly enforces int keys; StringMap enforces string keys on `put()` but accepts PHP's natural key casting during construction.
-:::
 
 ## Sequence
 
@@ -233,7 +231,7 @@ sequenceOf(); // empty Sequence
 ```
 
 ::: warning A closure is a producer here
-Unlike `listOf(fn() => ...)`, which calls the closure once and keeps the result, `sequenceOf(fn() => ...)` keeps nothing — the closure runs at the start of every pass and must return a fresh iterable each time. Set `constrainOnce: true` to limit any source to a single pass:
+Unlike `listOf(fn() => ...)`, which calls the closure once and keeps the result, `sequenceOf(fn() => ...)` keeps nothing. The closure runs at the start of every pass and must return a fresh iterable each time. Set `constrainOnce: true` to limit any source to a single pass:
 
 ```php
 sequenceOf(fn() => $api->fetchEvents(), constrainOnce: true);
@@ -246,7 +244,7 @@ sequenceOf(fn() => $api->fetchEvents(), constrainOnce: true);
 function generateSequence(mixed $seed, Closure $next): Sequence
 ```
 
-Creates a sequence that starts with `$seed` and computes each next element from the previous one with `$next` `(E): E|null`. It ends at the first `null`. When `$next` never returns `null`, the sequence is infinite — end it with `takeFirst()`, `takeWhile()` or a terminal operation that stops early. Every pass starts again from the seed.
+Creates a sequence that starts with `$seed` and computes each next element from the previous one with `$next` `(E): E|null`. It ends at the first `null`. When `$next` never returns `null`, the sequence is infinite, so end it with `takeFirst()`, `takeWhile()` or a terminal operation that stops early. Every pass starts again from the seed.
 
 ```php
 generateSequence(1, fn($n) => $n * 2)
@@ -276,4 +274,4 @@ generateSequence(null, fn($n) => $n); // empty Sequence
 | `sequenceOf` | `Sequence<E>` | N/A |
 | `generateSequence` | `Sequence<E>` | N/A |
 
-All collection functions accept an empty argument for creating empty collections, and a `Closure` for lazy initialization. `sequenceOf()` accepts both too, but calls the `Closure` on every pass.
+All collection functions except `mapOfPairs` and `mutableMapOfPairs` accept an empty argument for creating empty collections, and all of them accept a `Closure` for lazy initialization. `sequenceOf()` accepts both too, but calls the `Closure` on every pass.

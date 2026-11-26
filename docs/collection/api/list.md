@@ -6,7 +6,7 @@ pageClass: api-reference
 
 `ListInterface<E>` extends `Collection<E>` and `ArrayAccess<int, E>` with positional access by integer index. See [Collection API](./collection) for inherited methods.
 
-## Element Access
+## Element access
 
 ```php
 get(int $index): E
@@ -51,9 +51,9 @@ Index of the last matching element, or `-1`.
 ```php
 slice(int $from, int $to): ListInterface<E>
 ```
-View from index `$from` (inclusive) to `$to` (exclusive). Throws `IndexOutOfBoundsException` if out of bounds.
+Copies the elements from index `$from` (inclusive) to `$to` (exclusive) into a new list. It is a copy, not a view. `ImmutableList`, `MutableList` and `WritableList` declare it as `ImmutableList<E>`, and later changes to a mutable source don't reach it. Throws `IndexOutOfBoundsException` if `$to` is greater than the list size.
 
-## Array Access
+## Array access
 
 Lists implement `ArrayAccess<int, E>`:
 
@@ -81,16 +81,16 @@ toIndexedMap(?Closure $valueTransform = null): ImmutableMap<int, V>
 Convert to an immutable map using index as key, with optional value transform `(E, int): V`.
 
 ```php
-toMutable(): MutableList<E>
+toMutable(): MutableCollection<E>
 ```
-Always creates a new mutable copy.
+Always creates a new mutable copy. The built-in lists return a `MutableList`, but no list interface narrows the declared type, so PHPStan only sees `MutableCollection<E>` and rejects calls like `set()` on it. Use `mutableListOf($list)` when you need a `MutableList<E>`.
 
 ```php
 toImmutable(): ImmutableList<E>
 ```
 Returns an immutable list. May return itself if already immutable.
 
-## MutableList Methods
+## MutableList methods
 
 In addition to `MutableCollection` methods:
 
@@ -109,14 +109,14 @@ removeAt(int $index): MutableList<E>
 ```
 Remove element at index. Throws `IndexOutOfBoundsException` if out of bounds. Returns `$this`.
 
-## ImmutableList Methods
+## ImmutableList methods
 
 In addition to `ImmutableCollection` methods (all `#[NoDiscard]`):
 
 ```php
-set(int $index, mixed $element): ImmutableList<E>
+set(int $index, mixed $element): ImmutableList<E|NE>
 ```
-New list with element at index replaced.
+New list with element at index replaced. Throws `IndexOutOfBoundsException` if out of bounds. The element type widens to `E|NE`, like `add()`.
 
 ```php
 removeEvery(mixed $element): ImmutableList<E>
@@ -126,4 +126,4 @@ New list without any occurrences of the element.
 ```php
 removeAt(int $index): ImmutableList<E>
 ```
-New list without the element at the given index.
+New list without the element at the given index. Throws `IndexOutOfBoundsException` if out of bounds.

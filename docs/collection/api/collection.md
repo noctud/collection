@@ -4,9 +4,9 @@ pageClass: api-reference
 
 # Collection API
 
-`Collection<E>` is the base interface for ordered element collections (List and Set). It extends `IteratorAggregate<int, E>` and `Countable`, and provides element access, querying, aggregation, transformation, and ordering methods.
+`Collection<E>` is the base interface for ordered element collections (List and Set). It extends `IteratorAggregate<int, E>`, `Countable` and `JsonSerializable` (`json_encode()` writes the elements as a JSON array), and provides element access, querying, aggregation, transformation, and ordering methods.
 
-## Element Access
+## Element access
 
 ```php
 first(): E
@@ -46,7 +46,7 @@ Returns the element at the given position in iteration order. Throws `IndexOutOf
 ```php
 elementAtOrNull(int $index): E|null
 ```
-Returns the element at the given position, or `null` if there is none — a negative index included.
+Returns the element at the given position, or `null` if there is none (a negative index included).
 
 ```php
 find(Closure $predicate): E|null
@@ -83,7 +83,7 @@ Returns a random element, or `null` if empty.
 ```php
 contains(mixed $element): bool
 ```
-Whether the collection contains the value (strict comparison).
+Whether the collection contains the value. Lists compare strictly (`===`); sets compare by hash, so a `Hashable` object matches another one with the same `identity()`.
 
 ```php
 containsAll(iterable $elements): bool
@@ -145,12 +145,12 @@ Reduce, or `null` if empty.
 ```php
 sum(?Closure $selector = null): int|float
 ```
-Sum of all elements, or values returned by the selector `(E, int): int|float`. The return type narrows to `int` when every summed value is an `int` — a `Collection<int>`, or a selector declared to return `int` — and stays `int|float` otherwise.
+Sum of all elements, or values returned by the selector `(E, int): int|float`. The return type narrows to `int` when every summed value is an `int` (a `Collection<int>`, or a selector declared to return `int`) and stays `int|float` otherwise.
 
 ```php
 avg(?Closure $selector = null): float
 ```
-Average. Optional selector `(E, int): int|float`. Throws if empty.
+Average. Optional selector `(E, int): int|float`. Throws `UnsupportedOperationException` if empty.
 
 ```php
 avgOrNull(?Closure $selector = null): float|null
@@ -160,7 +160,7 @@ Average, or `null` if empty. Optional selector `(E, int): int|float`.
 ```php
 min(?Closure $selector = null): E
 ```
-Element with minimum value. With a selector `(E, int): mixed`, returns the element whose selector value is minimum. Throws if empty.
+Element with minimum value. With a selector `(E, int): mixed`, returns the element whose selector value is minimum. Throws `NoSuchElementException` if empty.
 
 ```php
 minOrNull(?Closure $selector = null): E|null
@@ -170,7 +170,7 @@ Minimum element, or `null` if empty. Optional selector `(E, int): mixed`.
 ```php
 max(?Closure $selector = null): E
 ```
-Element with maximum value. Optional selector `(E, int): mixed`. Throws if empty.
+Element with maximum value. Optional selector `(E, int): mixed`. Throws `NoSuchElementException` if empty.
 
 ```php
 maxOrNull(?Closure $selector = null): E|null
@@ -180,7 +180,7 @@ Maximum element, or `null` if empty. Optional selector `(E, int): mixed`.
 ```php
 minOf(Closure $selector): R
 ```
-Returns the minimum value produced by the selector `(E, int): R`. Unlike `min()`, returns the **selector value** itself, not the element. The return type follows the selector — one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
+Returns the minimum value produced by the selector `(E, int): R`. Unlike `min()`, returns the **selector value** itself, not the element. The return type follows the selector: one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
 
 ```php
 minOfOrNull(Closure $selector): R|null
@@ -190,7 +190,7 @@ Returns the minimum selector value, or `null` if empty.
 ```php
 maxOf(Closure $selector): R
 ```
-Returns the maximum value produced by the selector `(E, int): R`. Unlike `max()`, returns the **selector value** itself, not the element. The return type follows the selector — one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
+Returns the maximum value produced by the selector `(E, int): R`. Unlike `max()`, returns the **selector value** itself, not the element. The return type follows the selector: one declared `: int` yields `int`. Throws `NoSuchElementException` if empty.
 
 ```php
 maxOfOrNull(Closure $selector): R|null
@@ -207,7 +207,7 @@ joinToString(
     ?Closure $transform = null,
 ): string
 ```
-Joins elements into a string. When `$transform` is provided, it is applied to each element `(E, int): string` before joining. Without a transform, elements are converted via `(string)` cast — scalars, `null`, and `Stringable` objects are supported. Throws `ConversionException` for non-stringable objects and arrays.
+Joins elements into a string. When `$transform` is provided, it is applied to each element `(E, int): string` before joining. Without a transform, elements are cast with `(string)`, which works for scalars, `null` and `Stringable` objects. Throws `ConversionException` for non-stringable objects and arrays. A non-negative `$limit` joins at most that many elements and appends `$truncated` when more remain.
 
 ```php
 countBy(Closure $keySelector): ImmutableMap<NK, int>
@@ -218,20 +218,22 @@ Groups elements by the key returned by the selector `(E, int): NK` and counts el
 
 All transformation methods are marked `#[NoDiscard]` and **always return immutable collections**, regardless of whether the source is mutable or immutable.
 
+The signatures show the types declared on `Collection`. Sub-interfaces narrow most of them: `ListInterface` and `Set` return their own type, and the mutable and immutable variants return `ImmutableList` or `ImmutableSet`. `chunked()`, `windowed()`, `zip()` and `zipWithNext()` stay `ListInterface` and the set operations stay `Set` on every interface, although the built-in collections return an `ImmutableList` and an `ImmutableSet`.
+
 ```php
-filter(Closure $predicate): ImmutableList<E> | ImmutableSet<E>
+filter(Closure $predicate): Collection<E>
 ```
 Filter by predicate `(E, int): bool`. Returns `ImmutableList` for lists, `ImmutableSet` for sets.
 
 ```php
 filterNotNull(): Collection<E>
 ```
-Filter out `null` elements. The element type narrows to exclude `null` — `Collection<string|null>` becomes `Collection<string>`.
+Filter out `null` elements. The element type narrows to exclude `null`, so `Collection<string|null>` becomes `Collection<string>`.
 
 ```php
 filterInstanceOf(string $type): Collection<T>
 ```
-Filter elements that are instances of the given class or interface. `$type` is a `class-string<T>`. Enables PHPStan to narrow the generic type — e.g. `Collection<Animal>` becomes `ImmutableList<Dog>`.
+Filter elements that are instances of the given class or interface. `$type` is a `class-string<T>`. Enables PHPStan to narrow the generic type, e.g. `ImmutableList<Animal>` becomes `ImmutableList<Dog>`.
 
 ```php
 map(Closure $transform): Collection<R>
@@ -251,7 +253,7 @@ Transform and flatten. Closure: `(E, int): iterable<R>`.
 ```php
 flatten(): Collection<V>
 ```
-Flatten a collection of iterables, one level deep. Iterable elements contribute their own values (`V` is the element type of `E`); non-iterable elements are kept as-is. So `Collection<ImmutableList<int>>` becomes `Collection<int>`, `Collection<array<int>|string>` becomes `Collection<int|string>`, and `Collection<string>` stays `Collection<string>`. Only one level is removed — flattening `Collection<ImmutableList<ImmutableList<int>>>` yields `Collection<ImmutableList<int>>`.
+Flatten a collection of iterables, one level deep. Iterable elements contribute their own values (`V` is the element type of `E`); non-iterable elements are kept as-is. So `Collection<ImmutableList<int>>` becomes `Collection<int>`, `Collection<array<int>|string>` becomes `Collection<int|string>`, and `Collection<string>` stays `Collection<string>`. Only one level is removed, so flattening `Collection<ImmutableList<ImmutableList<int>>>` yields `Collection<ImmutableList<int>>`.
 
 ```php
 takeFirst(int $n = 1): Collection<E>
@@ -323,7 +325,7 @@ zip(iterable $other): ListInterface<array{E, U}>
 Pair elements from two iterables at the same position. Result length equals the shorter input.
 
 ::: tip Resuming an advanced iterator
-Only a `Generator` can be distinguished from a fresh cursor — every other advanced iterator is indistinguishable from an unstarted one and gets rewound. Wrap it in a `NoRewindIterator` to resume it where it stands instead.
+Only a `Generator` can be distinguished from a fresh cursor; every other advanced iterator is indistinguishable from an unstarted one and gets rewound. Wrap it in a `NoRewindIterator` to resume it where it stands instead.
 :::
 
 ```php
@@ -334,32 +336,32 @@ Returns a list of pairs of each two adjacent elements. If the collection has few
 ```php
 unzip(): array{ImmutableList<mixed>, ImmutableList<mixed>}
 ```
-Splits a collection of pairs into two lists — one from the first component (`[0]`), one from the second (`[1]`). Inverse of `zip()`.
+Splits a collection of pairs into two lists: one from the first component (`[0]`), one from the second (`[1]`). Inverse of `zip()`.
 
 ```php
 partition(Closure $predicate): array{Collection<E>, Collection<E>}
 ```
-Split into two collections — matching and non-matching.
+Split into two collections: matching and non-matching.
 
 ```php
-groupBy(Closure $keySelector, ?Closure $valueTransform = null): Map<K, Collection<E>>
+groupBy(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap<K, Collection<E>>
 ```
-Group elements by key selector `(E, int): K`. When a `$valueTransform` `(E, int): V` is provided, each element is transformed before being added to its group — the result is `Map<K, ImmutableList<V>>`.
+Group elements by key selector `(E, int): K`. When a `$valueTransform` `(E, int): V` is provided, each element is transformed before being added to its group, and the result is `ImmutableMap<K, ImmutableList<V>>`.
 
 ```php
-intersect(iterable<mixed> $other): ImmutableSet<E>
+intersect(iterable<mixed> $other): Set<E>
 ```
 Elements from this collection whose hashes match elements in the iterable. Returns a set (duplicates removed), retaining the elements and element type `E` from this collection. Objects with equal `Hashable` identities may have different classes, so matching does not narrow the result to the iterable's element type.
 
 ```php
-union(iterable<NE> $other): ImmutableSet<E|NE>
+union(iterable<NE> $other): Set<E|NE>
 ```
 All elements from both this collection and the iterable. Returns a set (duplicates removed). The element type widens to `E|NE`, like `add()`.
 
 ```php
-subtract(iterable<mixed> $other): ImmutableSet<E>
+subtract(iterable<mixed> $other): Set<E>
 ```
-Elements present in this collection but not in the iterable. Returns a set (duplicates removed). The element type is always `E` — any iterable may be subtracted.
+Elements present in this collection but not in the iterable. Returns a set (duplicates removed). The element type is always `E`, since any iterable may be subtracted.
 
 ## Ordering
 
@@ -410,7 +412,7 @@ Execute action `(E, int): void` for each element and return the collection for c
 ```php
 forEach(Closure $action): void
 ```
-Execute action `(E, int): void` for each element. Returns nothing — use `onEach()` when the collection is still needed.
+Execute action `(E, int): void` for each element. Returns nothing. Use `onEach()` when the collection is still needed.
 
 ## Conversion
 
@@ -449,9 +451,9 @@ toImmutable(): ImmutableCollection<E>
 ```
 Returns an immutable collection. If this collection is already immutable, it may return itself.
 
-## MutableCollection Methods
+## MutableCollection methods
 
-In addition to all `Collection` methods, `MutableCollection<E>` provides:
+In addition to all `Collection` methods, `MutableCollection<E>` provides the methods below. All of them except `addFirst()` and the in-place ordering are declared on `WritableCollection<E>`, which `MutableCollection` extends; the [design page](../design) explains the split.
 
 ### Tracking
 
@@ -495,7 +497,7 @@ Note: `$changed` is only available on the return value of mutation methods, not 
 | `reverse(): MutableCollection` | Reverse in-place |
 | `shuffle(): MutableCollection` | Shuffle in-place |
 
-## ImmutableCollection Methods
+## ImmutableCollection methods
 
 In addition to all `Collection` methods, `ImmutableCollection<E>` provides (all `#[NoDiscard]`):
 

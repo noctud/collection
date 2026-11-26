@@ -178,7 +178,7 @@ isset($map[clone $user]); // true, same user ID
 
 ## Lazy initialization
 
-Pass a closure instead of data and it runs on first access. The internal store is a PHP 8.4 [lazy object](https://www.php.net/manual/en/language.oop5.lazy-objects.php), a ghost that is materialized only when something reads it. See [Lazy initialization](https://noctud.dev/collection/lazy-init).
+Pass a closure instead of data and it runs on first access. The internal store is a PHP 8.4 [lazy object](https://www.php.net/manual/en/language.oop5.lazy-objects.php), a proxy that creates the real store only when something reads it. See [Lazy initialization](https://noctud.dev/collection/lazy-init).
 
 ```php
 // The query runs only if $users is actually read

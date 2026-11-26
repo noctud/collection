@@ -1,6 +1,6 @@
 # Map
 
-`Map<K,V>` is an ordered key-value collection with strict key handling. Unlike PHP arrays, Map preserves the original type of every key — `"1"` stays a string, `true` stays bool, and objects can be used as keys.
+`Map<K,V>` is an ordered key-value collection with strict key handling. Unlike PHP arrays, Map preserves the original type of every key: `"1"` stays a string, `true` stays bool, and objects can be used as keys.
 
 ## Creating
 
@@ -24,23 +24,21 @@ $immutable = stringMapOf(['1' => 'one']); // ImmutableMap
 $mutable = mutableIntMapOf([1 => 'one']); // MutableMap
 ```
 
-::: tip StringMap / IntMap
-They share the same interface and both come in mutable/immutable variants. Keys are enforced to be specific type. See [Type-Specific Maps](#type-specific-maps-stringmap-and-intmap) for more info.
-:::
+String and int maps implement the same `Map` interface as `mapOf()`, but hold keys of one type only. See [Type-specific maps](#type-specific-maps-stringmap-and-intmap) for more info.
 
-### Preserving Key Types
+### Preserving key types
 
 When constructing a map from a PHP array, PHP's array key casting rules apply **before** the map receives the data:
 
 ```php
-$map = mapOf(['1' => 'a']); // ⚠️ key becomes int(1) due to PHP casting
+$map = mapOf(['1' => 'a']); // key becomes int(1) due to PHP casting
 ```
 
 Use `stringMapOf` or `mapOfPairs` to preserve or enforce the type you want:
 
 ```php
-$map = stringMapOf(['1' => 'a']); // ✓ key is cast back to string("1")
-$map = mapOfPairs([['1', 'a']]); // ✓ key stays string("1")
+$map = stringMapOf(['1' => 'a']); // key is cast back to string("1")
+$map = mapOfPairs([['1', 'a']]); // key stays string("1")
 ```
 
 After construction, Map always preserves keys. Array-access writes on a mutable map keep the original type:
@@ -50,7 +48,7 @@ $map = mutableMapOf();
 $map['2'] = 'b'; // key is string("2"), not int
 ```
 
-## Accessing Elements
+## Accessing elements
 
 ```php
 $map = mapOf(['name' => 'Rodney', 'age' => 38]);
@@ -71,7 +69,7 @@ $mutableMap->getOrPut('role', fn() => 'guest'); // 'guest' - stored in map
 $mutableMap->getOrPut('role', fn() => 'admin'); // 'guest' - already exists
 ```
 
-## Type-Specific Maps: StringMap and IntMap
+## Type-specific maps: StringMap and IntMap
 
 For string-only or int-only keys, memory-optimized variants are available:
 
@@ -85,9 +83,7 @@ $users = stringMapOf(['rodney' => 38, 'sheppard' => 40]);
 $scores = intMapOf([1 => 100, 2 => 85, 3 => 92]);
 ```
 
-::: tip Performance benefits
-StringMap and IntMap use ~50% less memory than HashMap (single-array storage vs dual-array). They also benefit from zero-copy initialization via PHP's copy-on-write and have no key hashing overhead. The API is identical to HashMap — you can swap between them without code changes.
-:::
+StringMap and IntMap use ~50% less memory than HashMap (single-array storage vs dual-array). They also benefit from zero-copy initialization via PHP's copy-on-write and have no key hashing overhead. The API is identical to HashMap, so you can swap between them without code changes.
 
 These maps enforce key types at runtime. The mutable IntMap throws `InvalidKeyTypeException` for non-int keys. The mutable StringMap enforces string keys on `put()` but accepts PHP's existing array during construction (since PHP already casts numeric strings to int). The immutable variants widen instead, returning an `ImmutableHashMap` for a key of another type:
 
@@ -111,11 +107,11 @@ $stringMap->filter(fn($v) => $v > 1); // ImmutableMap<string, int> - keys unchan
 $stringMap->mapKeys(fn($v, $k) => strlen($k)); // ImmutableMap<int, int> - keys are now int
 ```
 
-Use `mapOf()` / `mutableMapOf()` when you need mixed key types (objects, float, bool) or when the key type is unknown. For most cases, HashMap works fine — StringMap/IntMap are there when you want to optimize.
+Use `mapOf()` / `mutableMapOf()` when you need mixed key types (objects, float, bool) or when the key type is unknown. For most cases, HashMap works fine. StringMap/IntMap are there when you want to optimize.
 
-## Views: Keys, Values, Entries
+## Views: keys, values, entries {#views}
 
-Every map exposes three live views — `$keys`, `$values`, and `$entries`. These are full collection objects with all methods from `Set<K>`, `Collection<V>`, and `Set<MapEntry<K,V>>` respectively.
+Every map exposes three live views: `$keys`, `$values`, and `$entries`. These are full collection objects with all methods from `Set<K>`, `Collection<V>`, and `Set<MapEntry<K,V>>` respectively.
 
 ```php
 $map = mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
@@ -127,7 +123,7 @@ $map->entries; // Set<MapEntry<string, int>>
 
 ### Why views matter
 
-`Map` itself does not have methods like `first()`, `random()`, or `min()` — because those operations are ambiguous on a key-value structure. Do you want the first key? The first value? The first entry? Views make this explicit:
+`Map` itself does not have methods like `first()`, `random()`, or `min()`, because those operations are ambiguous on a key-value structure. Do you want the first key? The first value? The first entry? Views make this explicit:
 
 ```php
 $map = mapOf(['x' => 10, 'y' => 20, 'z' => 30]);
@@ -148,7 +144,7 @@ $map->values->filter(fn($v) => $v > 15); // ImmutableList [20, 30]
 ```
 
 ::: tip PhpStorm / IntelliJ users
-Install the [Noctud plugin](https://plugins.jetbrains.com/plugin/30173-noctud) to get autocomplete for view methods directly on `$map->` — the plugin suggests `$map->values->first()`, `$map->keys->random()`, etc. without typing the full path.
+Install the [Noctud plugin](https://plugins.jetbrains.com/plugin/30173-noctud) to get autocomplete for view methods directly on `$map->`. The plugin suggests `$map->values->first()`, `$map->keys->random()`, etc. without typing the full path.
 :::
 
 ### Entries as MapEntry objects
@@ -166,7 +162,7 @@ $entry->value; // 'Rodney'
 $map->entries->find(fn($e) => $e->value === 'scientist'); // MapEntry { key: 'role', value: 'scientist' }
 
 // Transform entries
-$map->entries->map(fn($e) => "$e->key=$e->value"); // Collection ['name=Rodney', 'role=scientist']
+$map->entries->map(fn($e) => "$e->key=$e->value"); // ImmutableSet ['name=Rodney', 'role=scientist']
 ```
 
 `MapEntry` implements `Hashable`, so set operations on entries work by comparing both key and value:
@@ -175,14 +171,14 @@ $map->entries->map(fn($e) => "$e->key=$e->value"); // Collection ['name=Rodney',
 $map1 = mapOf(['a' => 1, 'b' => 2, 'c' => 3]);
 $map2 = mapOf(['b' => 2, 'c' => 99, 'd' => 4]);
 
-$map1->entries->intersect($map2->entries); // Set [MapEntry('b', 2)] — only exact matches
+$map1->entries->intersect($map2->entries); // Set [MapEntry('b', 2)], only exact matches
 $map1->entries->union($map2->entries); // Set [MapEntry('a', 1), MapEntry('b', 2), MapEntry('c', 3), MapEntry('c', 99), MapEntry('d', 4)]
 $map1->entries->subtract($map2->entries); // Set [MapEntry('a', 1), MapEntry('c', 3)]
 ```
 
 ### Live reference on mutable maps
 
-Views are **live** — they reflect the current state of the map, not a snapshot. On a mutable map, mutations are visible through the views immediately:
+Views are **live**, so they reflect the current state of the map, not a snapshot. On a mutable map, mutations are visible through the views immediately:
 
 ```php
 $map = mutableMapOf(['a' => 1, 'b' => 2]);
@@ -204,7 +200,7 @@ $keys->count(); // 2
 $values->toArray(); // [2, 3]
 ```
 
-No need to re-access `$map->keys` after mutation — the existing reference stays in sync.
+No need to re-access `$map->keys` after mutation, because the existing reference stays in sync.
 
 ### Converting views to standalone collections
 
@@ -241,12 +237,12 @@ $map->none(fn($v, $k) => $v < 0); // true
 ```
 
 ::: tip Callback argument order
-Map callbacks always receive `($value, $key)` — value first, key second. This matches the convention used throughout the library and the PHP ecosystem (`array_map`, `array_filter`, `array_walk`).
+Map callbacks always receive `($value, $key)`, value first and key second. This matches the convention used throughout the library and the PHP ecosystem (`array_filter`, `array_walk`).
 :::
 
 ## Transforming
 
-All transformation methods return **immutable collections** — the original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
+All transformation methods return **immutable collections**. The original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
 
 ```php
 $map = mutableMapOf(['a' => 1, 'b' => 2, 'c' => 3]);
@@ -318,7 +314,7 @@ $map->takeFirst(); // ImmutableMap {'a' => 1}
 $map->dropFirst(); // ImmutableMap {'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5}
 ```
 
-## Object Keys
+## Objects as keys
 
 Objects are hashed using `spl_object_id` by default. Only the same instance matches:
 
@@ -352,7 +348,7 @@ isset($map[clone $user]); // true - same identity
 $map = mutableMapOf(['a' => 1]);
 
 $map->put('b', 2); // {'a' => 1, 'b' => 2}
-$map->putIfAbsent('b', 99); // no-op — 'b' already exists
+$map->putIfAbsent('b', 99); // no-op: 'b' already exists
 $map->putIfAbsent('c', 3); // {'a' => 1, 'b' => 2, 'c' => 3}
 $map->putFirst('z', 0); // {'z' => 0, 'a' => 1, 'b' => 2, 'c' => 3}
 $map->putFirst('b', 20); // {'b' => 20, 'z' => 0, 'a' => 1, 'c' => 3} - moved to front, value updated
@@ -391,7 +387,7 @@ Immutable methods return a new map:
 $map = mapOf(['a' => 1, 'b' => 2]);
 
 $new = $map->put('c', 3); // Map {'a' => 1, 'b' => 2, 'c' => 3}
-$new = $map->putIfAbsent('a', 99); // same map — 'a' already exists
+$new = $map->putIfAbsent('a', 99); // same map: 'a' already exists
 $new = $map->putIfAbsent('c', 3); // Map {'a' => 1, 'b' => 2, 'c' => 3}
 $new = $map->putFirst('b', 20); // Map {'b' => 20, 'a' => 1} - moved to front
 $new = $map->remove('a'); // Map {'b' => 2}
@@ -435,7 +431,7 @@ $map->toImmutable(); // ImmutableMap
 ```
 
 ::: tip toArray() and key collisions
-`toArray()` throws `ConversionException` when keys are objects or when PHP's type casting would cause collisions (e.g., string `"1"` and int `1`). This is intentional — silent data loss is a problem this library prevents.
+`toArray()` throws `ConversionException` when keys are objects or when PHP's type casting would cause collisions (e.g., string `"1"` and int `1`). This is intentional, since silent data loss is a problem this library prevents.
 
 ```php
 $map = mapOfPairs([['1', 'a'], [1, 'b']]); // string "1" and int 1 as separate keys
@@ -445,7 +441,7 @@ $map->toArray(KeyCollisionStrategy::KeepFirst); // [1 => 'a']
 $map->toArray(KeyCollisionStrategy::KeepLast); // [1 => 'b']
 ```
 
-Collisions can only occur with **mixed types or floats**. A `Map<string, V>` with only string keys will never throw — PHP only casts strings that look exactly like integers (`"1"`, `"42"`) to int keys, and two distinct strings (e.g., `"1"` and `"01"`) always remain distinct. Same for `Map<int, V>`. However, `Map<float, V>` can collide because floats are truncated to int (e.g., `1.1` and `1.9` both become `1`). PHP 8.1+ emits a deprecation notice when a float key loses precision, and PHP 9 will throw a `TypeError`.
+Collisions can only occur with **mixed types or floats**. A `Map<string, V>` with only string keys will never throw, because PHP only casts strings that look exactly like integers (`"1"`, `"42"`) to int keys, and two distinct strings (e.g., `"1"` and `"01"`) always remain distinct. Same for `Map<int, V>`. Floats are stricter: a whole float like `1.0` becomes int `1` and can collide with an int key, and a float with a fractional part (`1.5`) throws `ConversionException` whatever strategy you pass, because PHP would truncate it. PHP 8.1+ emits a deprecation notice when a float key loses precision, and PHP 9 will throw a `TypeError`.
 :::
 
 Map implements `JsonSerializable`, so `json_encode()` works directly:
@@ -462,5 +458,5 @@ json_encode($map->toPairs()); // always works: [["key", "value"], ...]
 json_encode($map->mapKeys(fn($v, $k) => $k->getId())->toArray()); // transform keys first
 ```
 
-Maps created via `stringMapOf()` / `intMapOf()` are always safe to `json_encode()` — thanks to PHP 8.0's [saner numeric strings](https://wiki.php.net/rfc/saner-numeric-strings), string and int keys are natively JSON-compatible without collisions.
+Maps created via `stringMapOf()` / `intMapOf()` are always safe to `json_encode()`: they keep their entries in a single native array, so every key is already a unique PHP array key and encodes without collisions.
 :::

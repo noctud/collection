@@ -1,17 +1,17 @@
-# Best Practices
+# Best practices
 
 Practical patterns and common pitfalls when working with collections.
 
-## Prefer Type-Specific Maps
+## Prefer type-specific maps
 
 When your keys are exclusively strings or ints, use `stringMapOf` / `intMapOf` (and their mutable variants `mutableStringMapOf` / `mutableIntMapOf`). They use single-array storage (~50% less memory), have no key hashing overhead, and the API is identical to `mapOf()`.
 
-They are also safer with numeric string keys. `stringMapOf` accepts `array<string|int, V>` and normalizes all keys to `string` — so PHP's automatic `'1'` → `1` cast is handled for you:
+They are also safer with numeric string keys. `stringMapOf` accepts `array<string|int, V>` and normalizes all keys to `string`, so PHP's automatic `'1'` → `1` cast is handled for you:
 
 ```php
 // Surprise - mapOf sees int key because PHP already cast '1' to 1
 $map = mapOf(['1' => 'a']);
-$map->containsKey('1'); // false — key is int(1)
+$map->containsKey('1'); // false: key is int(1)
 
 // Safe - StringMap normalizes back to string
 $map = stringMapOf(['1' => 'a']);
@@ -23,19 +23,19 @@ $map->containsKey(1); // false
 `mapOf(['1' => 'a'])` creates a `Map<int, string>` because PHP cast the key before the map received it. PHPStan will infer `Map<int, string>` and flag `$map->get('1')` as a type error. Use `stringMapOf()` or `mapOfPairs([['1', 'a']])` when you need string keys.
 :::
 
-### Use `mapOfPairs` for Object Keys
+### Use `mapOfPairs` for object keys
 
-`mapOfPairs` returns the same `Map` as `mapOf` — it's just an alternative constructor for cases where PHP arrays can't represent your keys. Since PHP arrays cannot store objects, bools, or floats as keys, pairs are the only way to construct such maps. As a bonus, it also preserves string key types that PHP arrays would cast:
+`mapOfPairs` returns the same `Map` as `mapOf`. It's just an alternative constructor for cases where PHP arrays can't represent your keys. Since PHP arrays cannot store objects, bools, or floats as keys, pairs are the only way to construct such maps. As a bonus, it also preserves string key types that PHP arrays would cast:
 
 ```php
 $map = mapOfPairs([
     [$user, 'Rodney'],
     [$admin, 'Weir'],
-    ['1', 'also works — key stays string'],
+    ['1', 'also works, key stays string'],
 ]);
 ```
 
-## Build Mutable, Then Convert
+## Build mutable, then convert
 
 When you need to construct a collection incrementally, build it as mutable and convert at the end:
 
@@ -58,11 +58,9 @@ foreach ($rows as $row) {
 
 Every mutating method on an immutable collection creates a copy of the underlying data. With 1,000 rows, the first approach allocates once; the second allocates 1,000 times; each bigger than the last.
 
-::: tip
-`toImmutable()` and `toMutable()` use copy-on-write internally, so the conversion itself is cheap — no data is duplicated until one side is modified.
-:::
+`toImmutable()` and `toMutable()` use copy-on-write internally, so the conversion itself is cheap. No data is duplicated until one side is modified.
 
-## Use Lazy Init for Expensive Data
+## Use lazy init for expensive data
 
 Wrap expensive computations in a closure to defer them until first access:
 
@@ -76,7 +74,7 @@ $users = mapOf($db->fetchAll('SELECT id, name FROM users'));
 
 This is especially useful for collections passed to templates or optional code paths where the data might not be needed.
 
-### Closures vs Generators
+### Closures vs generators
 
 Always use closures (`fn() => ...`) for lazy initialization, not generators:
 
@@ -90,9 +88,9 @@ $list = listOf(loadElementsGenerator());
 
 Generators are consumed immediately when the collection is created. Closures defer execution until the first access to the collection.
 
-Sequences are the exception — `sequenceOf($generator)` stays lazy, but can be iterated only once. See [Sequence](./sequence#iterating-more-than-once).
+Sequences are the exception: `sequenceOf($generator)` stays lazy, but can be iterated only once. See [Sequence](./sequence#iterating-more-than-once).
 
-## Use Views for Aggregation
+## Use views for aggregation
 
 Map views (`$keys`, `$values`, `$entries`) are full collection objects. Use them instead of manual loops:
 
@@ -110,9 +108,9 @@ foreach ($orders as $key => $value) {
 }
 ```
 
-Views are connected directly to the map's internal store — there is no copying overhead. On mutable maps, views stay in sync automatically after mutations.
+Views are connected directly to the map's internal store, so there is no copying overhead. On mutable maps, views stay in sync automatically after mutations.
 
-## Chain Transformations Freely
+## Chain transformations freely
 
 Transformation methods (`filter`, `map`, `sorted`, etc.) always return immutable collections and are designed for chaining:
 
@@ -146,9 +144,9 @@ $result = $users->asSequence()
     ->joinToString(', ');
 ```
 
-## Materialize Sequences You Read Twice
+## Materialize sequences you read twice
 
-A sequence stores nothing — every terminal operation runs the whole pipeline again, including the query behind it. Keep the lazy part for what shrinks the data, then materialize it once:
+A sequence stores nothing, so every terminal operation runs the whole pipeline again, including the query behind it. Keep the lazy part for what shrinks the data, then materialize it once:
 
 ```php
 // Bad - two terminal operations, the query runs twice
@@ -165,9 +163,9 @@ $total = $paid->sum(fn($order) => $order['amount']);
 $count = $paid->count(); // O(1) on a list
 ```
 
-When a second pass would always be a bug, pass `constrainOnce: true` to `sequenceOf()` — the second terminal operation then throws instead of quietly running the query again.
+When a second pass would always be a bug, pass `constrainOnce: true` to `sequenceOf()`. The second terminal operation then throws instead of quietly running the query again.
 
-## Don't Discard Immutable Results
+## Don't discard immutable results
 
 All mutating methods on immutable collections are marked `#[NoDiscard]`. The most common mistake is calling a method without using the return value:
 
@@ -188,7 +186,7 @@ $list = listOf([1, 2, 3])->add(4)->sorted();
 
 PHP 8.5 natively catches this and produces a warning at runtime.
 
-## Use `tracked()` for Conditional Logic
+## Use `tracked()` for conditional logic
 
 When you need to know whether a mutation actually changed something, use `tracked()` instead of before/after comparisons:
 
@@ -207,9 +205,9 @@ if ($cache->count() < $before) {
 }
 ```
 
-The `$changed` property is on the return value of each mutation method — each call gives you a fresh result reflecting whether that specific operation modified the data.
+The `$changed` property is on the return value of each mutation method, and each call gives you a fresh result reflecting whether that specific operation modified the data.
 
-## Return Immutable from Public APIs
+## Return immutable from public APIs
 
 When exposing collections from methods or properties, prefer immutable types:
 
@@ -232,7 +230,7 @@ class UserRepository
 
 Transformation methods already return immutable collections, so this comes naturally.
 
-## Avoid `toArray()` with Mixed Key Types
+## Avoid `toArray()` with mixed key types
 
 `toArray()` throws when PHP's key casting would cause collisions. If you have mixed-type keys, choose an explicit strategy:
 

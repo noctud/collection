@@ -3,32 +3,32 @@ layout: home
 
 hero:
   name: Noctud Collection
-  tagline: Type-safe, clean, mutable/immutable, sortable and key-preserving collections for PHP 8.4+
+  tagline: Type-safe, mutable/immutable, sortable and key-preserving collections for PHP 8.4+
   image:
     light: /hero-light.svg
     dark: /hero-dark.svg
     alt: List / Set / Map
   actions:
     - theme: brand
-      text: Getting Started
+      text: Getting started
       link: /collection/getting-started
     - theme: alt
-      text: API Reference
+      text: API reference
       link: /collection/api/collection
 
 features:
   - title: Type-safe
-    details: Full generics support. Static analyzers understand every element type through the entire chain.
+    details: Every interface carries generic annotations, so static analyzers know the element type through the entire chain.
   - title: Key-preserving
-    details: "Map keys like float, bool, objects, or \"1\" retain their original types. No silent type casting."
-  - title: Mutable & Immutable
-    details: Choose the right variant for every use case. Immutable methods are marked with NoDiscard to prevent accidental misuse.
-  - title: Lazy Initialization
-    details: Construct collections from closures. Uses PHP 8.4 lazy objects — the internal store is a ghost proxy materialized only on first access.
-  - title: Lazy Sequences
+    details: "Map keys like float, bool, objects, or \"1\" retain their original types instead of being cast the way PHP array keys are."
+  - title: Mutable & immutable
+    details: "Both variants share one API. Mutating methods on the immutable ones return a new instance and are marked #[NoDiscard], so PHP 8.5 warns when the result is thrown away."
+  - title: Lazy initialization
+    details: Construct collections from closures. The internal store is a PHP 8.4 lazy proxy, so the closure runs only on first access.
+  - title: Lazy sequences
     details: Process large or infinite data element by element, without intermediate collections. Chains stop once the result is known.
   - title: Object keys
-    details: Use objects as map keys out of the box. Implement the Hashable interface for custom identity semantics.
+    details: Use objects as map keys. By default only the same instance matches; implement the Hashable interface to define identity yourself.
 ---
 
 <style>
@@ -120,7 +120,7 @@ features:
 
 **Key preservation**
 
-Native PHP arrays silently cast keys — `"1"` becomes `int(1)`, `true` becomes `1`, and objects cannot be used as keys at all. Even `array<string, mixed>` in PHPDoc is not an option — insert `"123"` and it becomes `int(123)`. Map preserves every key exactly as written.
+Native PHP arrays silently cast keys: `"1"` becomes `int(1)`, `true` becomes `1`, and objects cannot be used as keys at all. Even `array<string, mixed>` in PHPDoc is not an option. Insert `"123"` and it becomes `int(123)`. Map preserves every key exactly as written.
 
 <div class="side-by-side">
 <div>
@@ -173,7 +173,7 @@ Noctud Collection
 ```php
 $list = listOf([10, 20, 30, 40]);
 $filtered = $list->filter(fn($n) => $n > 15);
-// [20, 30, 40] - indices 0, 1, 2
+// [20, 30, 40] at indices 0, 1, 2
 ```
 
 </div>
@@ -192,7 +192,7 @@ $filtered = array_filter($array, fn($n) => $n > 15);
 
 **Type safety**
 
-PHPStan doesn't warn when you assign incompatible types to a PHP array — the type silently widens. Mutable collections enforce strict typing, catching bugs at analysis time. Type is only widened in immutable collections because they produce new instances.
+PHPStan doesn't warn when you assign incompatible types to a PHP array. The type silently widens. Mutable collections enforce strict typing, catching bugs at analysis time. Type is only widened in immutable collections because they produce new instances.
 
 <div class="side-by-side">
 <div>
@@ -203,7 +203,7 @@ Noctud Collection
 $mut = mutableMapOf(['a' => 1]);
 $mut['b'] = 'wrong'; // PHPStan error
 
-// Immutable — type widens for a new map
+// Immutable: type widens for a new map
 $new = mapOf(['a' => 1])->put('b', 'ok');
 ```
 
@@ -223,7 +223,7 @@ $array['b'] = 'wrong'; // No warning, type widens
 
 **Accessing elements**
 
-Array access is strict — `$list[99]` throws when the index is out of bounds, just like `get()`. Use `??` for safe fallback, or `getOrNull()` for the nullable variant. Same pattern for `first`, `last`, `random`, and `single`.
+Array access is strict, so `$list[99]` throws when the index is out of bounds, just like `get()`. Use `??` for safe fallback, or `getOrNull()` for the nullable variant. Same pattern for `first`, `last`, `random`, and `single`.
 
 <div class="side-by-side">
 <div>
@@ -299,9 +299,9 @@ usort($users, fn($a, $b) => $b->name <=> $a->name);
 
 [Learn more about Lists, Sets, and Maps →](/collection/getting-started)
 
-## Mutable and Immutable
+## Mutable and immutable
 
-Both variants share the same API. The difference is how mutating methods behave. Immutable mutating methods are marked with `#[NoDiscard]` — PHP 8.5 will warn you if you forget to capture the return value.
+Both variants share the same API. The difference is how mutating methods behave. Immutable mutating methods are marked with `#[NoDiscard]`, and PHP 8.5 will warn you if you forget to capture the return value.
 
 ```php
 $set = setOf([1, 2, 3]); // ImmutableSet<int>
@@ -315,10 +315,10 @@ $list->add(4)->shuffle()->sort(); // Ok
 Track state of Mutable collections, `tracked()` returns mutable collection wrapped in a proxy that tracks changes.
 
 ```php
-if ($set->tracked()->add('a')->changed) // do something only if 'a' was not in set
+if ($mutableSet->tracked()->add('a')->changed) // do something only if 'a' was not in set
 ```
 
-Build with mutable, then freeze with `toImmutable()` — conversion is virtually free thanks to copy-on-write. The data is only duplicated when either side is modified.
+Build with mutable, then freeze with `toImmutable()`. Conversion is virtually free thanks to copy-on-write. The data is only duplicated when either side is modified.
 
 [Read about mutability →](/collection/mutability)
 
@@ -335,13 +335,13 @@ $map->keys->filter(fn($k) => strlen($k) > 5); // Set {'rodney', 'sheppard'}
 $map->entries->first(); // MapEntry { key: 'rodney', value: 28 }
 ```
 
-Thanks to views, the Map interface doesn't need to be polluted with `randomKey()`, `randomValue()`, `randomEntry()` (and first, last, single etc. and all their nullable variants), you can simply access it via the corresponding view.
+Thanks to views, the Map interface doesn't need to be polluted with `randomKey()`, `randomValue()`, `randomEntry()` (and first, last, single etc. and all their nullable variants), you can access it via the corresponding view.
 
 [Read about maps →](/collection/map)
 
-## Lazy Initialization
+## Lazy initialization
 
-Construct from a closure — the callback executes only on first access.
+Construct from a closure, and the callback executes only on first access.
 
 ```php
 // The query runs only if $users is actually read
@@ -353,22 +353,20 @@ private ImmutableMap $config {
 }
 ```
 
-Lazily initialized collections behave identically to regular ones — there is no way to tell from outside.
+Lazily initialized collections behave identically to regular ones; there is no way to tell from outside.
 
-::: info How it works
-Under the hood, lazy initialization uses PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) feature. The internal store is wrapped in a ghost proxy via `ReflectionClass::newLazyProxy()` — the real store object is only created when first accessed. This is a native language feature with zero userland overhead once initialized.
-:::
+Lazy initialization uses PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) feature. The internal store is wrapped in a lazy proxy via `ReflectionClass::newLazyProxy()`, and the real store object is only created when first accessed. This is a native language feature with zero userland overhead once initialized.
 
 [Read about lazy initialization →](/collection/lazy-init)
 
-## Lazy Sequences
+## Lazy sequences
 
-Collection transformations are eager — each step builds a new collection. Call `asSequence()` and the same chain runs element by element instead, stopping as soon as the result is known.
+Collection transformations are eager, so each step builds a new collection. Call `asSequence()` and the same chain runs element by element instead, stopping as soon as the result is known.
 
 <div class="side-by-side">
 <div>
 
-Collection — each step runs on everything
+Collection: each step runs on everything
 
 ```php
 $users
@@ -381,7 +379,7 @@ $users
 </div>
 <div>
 
-Sequence — stops at the first result
+Sequence: stops at the first result
 
 ```php
 $users->asSequence()
@@ -394,11 +392,11 @@ $users->asSequence()
 </div>
 </div>
 
-Sequences stream from any source — a file, a database cursor, a paginated API — or from nowhere at all:
+Sequences stream from any source (a file, a database cursor, a paginated API) or from nowhere at all:
 
 ```php
 // readLines() is your own generator yielding one line at a time
-// Stops after 10 errors - the whole file is never loaded
+// Stops after 10 errors, so the whole file is never loaded
 $errors = sequenceOf(fn() => readLines('app.log'))
     ->filter(fn($line) => str_contains($line, 'ERROR'))
     ->takeFirst(10)
@@ -412,17 +410,17 @@ $powers = generateSequence(1, fn($n) => $n * 2)->takeFirst(10)->toList();
 
 ## Interface-driven design
 
-Every type you interact with is an interface — `ImmutableList`, `MutableMap`, `Set`, even `MapEntry`. Factory functions return interfaces, never concrete classes:
+Every type you interact with is an interface: `ImmutableList`, `MutableMap`, `Set`, even `MapEntry`. Factory functions return interfaces, never concrete classes:
 
 ```php
-$list = listOf([1, 2, 3]); // ImmutableList<int> - not ImmutableArrayList
-$map = mutableMapOf(['a' => 1]); // MutableMap<string, int> - not MutableHashMap
-$entry = $map->entries->first(); // MapEntry<string, int> - not SimpleMapEntry
+$list = listOf([1, 2, 3]); // ImmutableList<int>, not ImmutableArrayList
+$map = mutableMapOf(['a' => 1]); // MutableMap<string, int>, not MutableHashMap
+$entry = $map->entries->first(); // MapEntry<string, int>, not SimpleMapEntry
 ```
 
-This is possible thanks to PHP 8.4 interface properties. Map views like `$keys`, `$values`, and `$entries` are declared directly on the `Map` interface — no abstract class needed.
+This is possible thanks to PHP 8.4 interface properties. Map views like `$keys`, `$values`, and `$entries` are declared directly on the `Map` interface, so no abstract class is needed.
 
-**Why this matters:** your code depends only on contracts, not on the internal storage or implementation details. You can swap `mapOf()` for `stringMapOf()` without changing a single type-hint. And if you need a custom collection backed by a database cursor or a Redis sorted set, you can implement the interface directly — the rest of your codebase doesn't need to know.
+Your code depends only on contracts, not on the internal storage or implementation details. You can swap `mapOf()` for `stringMapOf()` without changing a single type-hint. And if you need a custom collection backed by a database cursor or a Redis sorted set, you can implement the interface directly, and the rest of your codebase doesn't need to know.
 
 [Read about extending collections →](/collection/extending)
 
@@ -430,7 +428,6 @@ This is possible thanks to PHP 8.4 interface properties. Map views like `$keys`,
 
 This library prioritizes type safety and correctness. For hot loops over millions of elements, use plain arrays. For domain logic, business rules, and API boundaries, this gives you guarantees arrays can't. Lists and Sets have minimal overhead compared to native arrays. The generic `mapOf()` uses dual-array storage (keys + values) to preserve any key type (objects, float, bool), which adds memory and performance overhead compared to native arrays.
 
-::: tip Optimized maps for string/int keys
 When keys are exclusively strings or integers, the type-specific variants offer maximum performance:
 
 ```php
@@ -438,36 +435,32 @@ $users = stringMapOf(['rodney' => 28, 'sheppard' => 35]); // or mutableStringMap
 $scores = intMapOf([1 => 100, 2 => 85, 3 => 92]); // or mutableIntMapOf()
 ```
 
-These use single-array storage and skip key hashing entirely, but still preserve key types.
-- **~50% less memory** than `mapOf()` (single array vs dual array)
-- **Zero-copy initialization** — when created from an existing array, data is shared via copy-on-write until modified
-- **Faster** iteration, lookups, and writes
-:::
+These use single-array storage and skip key hashing entirely, but still preserve key types. They use about 50% less memory than `mapOf()` (single array vs dual array), and iteration, lookups and writes are faster. When created from an existing array, they share its data via copy-on-write until modified, so initialization copies nothing.
 
 ### Copy-on-write everywhere
 
-Converting between mutable and immutable variants via `toMutable()` / `toImmutable()` uses copy-on-write — the underlying data is shared until either side is modified, making variant switching virtually free.
+Converting between mutable and immutable variants via `toMutable()` / `toImmutable()` uses copy-on-write. The underlying data is shared until either side is modified, making variant switching virtually free.
 
-The same applies when constructing a new collection from an existing one — even across mutable/immutable boundaries.
+The same applies when constructing a new collection from an existing one, even across mutable/immutable boundaries.
 
-Data is only duplicated when either (mutable) side is actually modified — collections can be freely passed between layers or converted between mutable and immutable without any memory or performance penalty.
+Data is only duplicated when either (mutable) side is actually modified, so collections can be freely passed between layers or converted between mutable and immutable without any memory or performance penalty.
 
 <div class="plugin-section">
 
-## PhpStorm / IntelliJ Plugin
+## PhpStorm / IntelliJ plugin
 
-PhpStorm doesn't fully understand PHP generics — type inference breaks in callbacks and there's no autocomplete through view properties. The [**Noctud**](https://plugins.jetbrains.com/plugin/30173-noctud) plugin fixes these IDE limitations so collections work seamlessly in the editor.
+PhpStorm doesn't fully understand PHP generics, so type inference breaks in callbacks and there's no autocomplete through view properties. The [**Noctud**](https://plugins.jetbrains.com/plugin/30173-noctud) plugin fixes these IDE limitations.
 
 ::: tabs
-== View Autocomplete
+== View autocomplete
 
-Type `$map->random` and the plugin suggests methods from `values`, `keys`, and `entries` views directly — no need to type the full property path.
+Type `$map->random` and the plugin suggests methods from `values`, `keys`, and `entries` views directly, with no need to type the full property path.
 
 ![View autocomplete in PhpStorm](/intellij_autocomplete_help.png)
 
-== Generic Type Inference
+== Generic type inference
 
-Callback parameters like `fn ($v) =>` inside `filter()`, `map()`, or any higher-order method correctly resolve the generic type — the IDE knows exactly what `$v` is.
+Callback parameters like `fn ($v) =>` inside `filter()`, `map()`, or any higher-order method correctly resolve the generic type, so the IDE knows exactly what `$v` is.
 
 ![Generic type inference fixed](/intellij_fixed_generics.png)
 :::
@@ -476,7 +469,7 @@ Callback parameters like `fn ($v) =>` inside `filter()`, `map()`, or any higher-
 
 </div>
 
-## Stable Releases
+## Stable releases
 
 Don't let the `0.x` fool you. Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. Composer's default `^0.2` constraint only installs releases from the same series, and those never break your code.
 
@@ -486,7 +479,7 @@ Don't let the `0.x` fool you. Each `0.MINOR` series is a stable major version, s
 
 ## Inspiration
 
-The API is heavily inspired by [Kotlin Collections](https://kotlinlang.org/docs/collections-overview.html) — factory functions, the mutable/immutable split, `OrNull` conventions, and method naming all follow Kotlin patterns. The type hierarchy draws from the Java Collections Framework with clear separation of mutability/immutability.
+The API is heavily inspired by [Kotlin Collections](https://kotlinlang.org/docs/collections-overview.html): factory functions, the mutable/immutable split, `OrNull` conventions, and method naming all follow Kotlin patterns. The type hierarchy draws from the Java Collections Framework with clear separation of mutability/immutability.
 
 [Getting started →](/collection/getting-started)
 

@@ -2,7 +2,7 @@
 
 Every collection type in the library has both a mutable and an immutable variant. The choice affects how mutating operations (add, removeElement, sort, clear) behave.
 
-## Mutable Collections
+## Mutable collections
 
 Mutable collections modify themselves in-place. Mutating methods return `$this`, enabling method chaining:
 
@@ -13,7 +13,7 @@ $list->add(4)->sort()->removeElement(1);
 // $list is now [2, 3, 4]
 ```
 
-### The `tracked()` Method
+### The `tracked()` method {#change-tracking}
 
 Mutable collections can track whether operations actually change the data. To enable tracking, call `tracked()` to get a tracked wrapper:
 
@@ -26,7 +26,7 @@ $tracked->removeElement(99)->changed; // false - not in set
 $tracked->reverse()->changed; // true - order changed
 ```
 
-The tracked wrapper shares the same underlying store as the original collection — changes through either reference are visible to both:
+The tracked wrapper shares the same underlying store as the original collection, so changes through either reference are visible to both:
 
 ```php
 $set = mutableSetOf([1, 2, 3]);
@@ -46,7 +46,7 @@ if ($tracked->remove($expiredKey)->changed) {
 ```
 
 ::: tip `$changed` is only on mutation results
-The `$changed` property is available on the **return value** of each mutation method, not on the tracked wrapper itself. This is by design — it prevents a common mistake where `tracked()` is called after a mutation and `$changed` is read from the wrong object:
+The `$changed` property is available on the **return value** of each mutation method, not on the tracked wrapper itself. This is by design, because it prevents a common mistake where `tracked()` is called after a mutation and `$changed` is read from the wrong object:
 
 ```php
 // Correct - $changed is on the mutation result
@@ -64,7 +64,7 @@ $tracked->changed; // PHPStan error - $changed is not on MutableTrackedCollectio
 Each mutation method returns a fresh `$changed` value reflecting whether **that specific call** modified the data, not cumulative changes.
 :::
 
-## Immutable Collections
+## Immutable collections
 
 Immutable collections never modify themselves. Every mutating method returns a **new** instance:
 
@@ -76,9 +76,9 @@ $modified = $original->add(4)->removeElement(1);
 // $modified is [2, 3, 4]
 ```
 
-### The `#[NoDiscard]` Attribute
+### The `#[NoDiscard]` attribute
 
-All mutating methods on immutable collections are marked with `#[NoDiscard]`. This prevents a common mistake — calling a method and forgetting to use the return value:
+All mutating methods on immutable collections are marked with `#[NoDiscard]`. This prevents a common mistake (calling a method and forgetting to use the return value):
 
 ```php
 $list = listOf([1, 2, 3]);
@@ -92,7 +92,7 @@ $list = $list->add(4);
 
 Static analyzers and IDEs that support `#[NoDiscard]` will flag the first form as a likely bug.
 
-## Choosing Between Mutable and Immutable
+## Choosing between mutable and immutable
 
 **Use immutable** when:
 - Building a value that should not change after construction
@@ -106,7 +106,7 @@ Static analyzers and IDEs that support `#[NoDiscard]` will flag the first form a
 - Tracking whether an operation had an effect (via `tracked()`)
 - The collection is local to a method and not shared
 
-## Transformation Methods Always Return Immutable
+## Transformation methods always return immutable
 
 All transformation methods (`filter`, `map`, `sorted`, `reversed`, `distinct`, etc.) **always return immutable collections**, regardless of whether the source is mutable or immutable:
 
@@ -119,16 +119,11 @@ $mutableMap = mutableMapOf(['a' => 1, 'b' => 2]);
 $filtered = $mutableMap->filter(fn($v, $k) => $v > 1); // ImmutableMap<string, int>
 ```
 
-Transformation methods are marked `#[NoDiscard]`, you must capture the return value — making it clear that you're working with a new, immutable result rather than a modified original.
+Transformation methods are marked `#[NoDiscard]`, so you must capture the return value, which makes it clear that you're working with a new, immutable result rather than a modified original.
 
-::: tip Why always immutable?
-Transformation methods create derived data. Making the result immutable by default:
-- Prevents accidental mutation of derived collections
-- Makes the API predictable — you always know what you're getting
-- Simplifies reasoning about data flow
-:::
+Transformation methods create derived data. Making the result immutable by default prevents accidental mutation of derived collections and keeps the API predictable, so you always know what you're getting.
 
-## Conversion Methods Return Immutable
+## Conversion methods return immutable
 
 Conversion methods like `toList()`, `toSet()`, and `toMap()` also return immutable types:
 
@@ -148,7 +143,7 @@ If you need a mutable result, chain with `toMutable()`, it has zero memory overh
 $mutableSet->toList()->toMutable(); // MutableList<int>
 ```
 
-## Map Views
+## Map views
 
 Map views (`$keys`, `$values`, `$entries`) are read-only regardless of whether the map is mutable or immutable. They expose query and iteration methods but no mutating operations:
 
@@ -166,7 +161,7 @@ $map->keys->filter(fn($k) => strlen($k) > 1); // ImmutableSet<string>
 $map->values->toList(); // ImmutableList<int>
 ```
 
-## Converting Between Variants
+## Converting between variants
 
 ```php
 $mutable = mutableListOf([1, 2, 3]);
@@ -178,15 +173,13 @@ $mutable = $immutable->toMutable(); // new MutableList (always a copy)
 
 `toMutable()` always creates a new copy, even if the source is already mutable. `toImmutable()` may return the same instance if the source is already immutable.
 
-::: tip Copy-on-write
-Methods `toMutable()`, `toImmutable()`, and factory functions like `listOf($mutableList)` all share data via copy-on-write — memory is only duplicated when either side is modified.
-:::
+Methods `toMutable()`, `toImmutable()`, and factory functions like `listOf($mutableList)` all share data via copy-on-write, so memory is only duplicated when either side is modified.
 
-## Type Safety and Widening
+## Type safety and widening
 
 Mutable and immutable collections handle generic types differently when adding elements.
 
-### Mutable: Strict Typing
+### Mutable: strict typing
 
 Mutable collections enforce strict typing. You can only add elements that match the declared type. PHPStan will warn if you try to add incompatible types:
 
@@ -199,9 +192,9 @@ $list = mutableListOf([1, 2, 3]); // MutableList<int>
 $list[] = 'text'; // PHPStan error: string is not int
 ```
 
-This catches bugs at analysis time — you declared a type, and the mutable collection holds you to it.
+This catches bugs at analysis time. You declared a type, and the mutable collection holds you to it.
 
-### Immutable: Type Widening
+### Immutable: type widening
 
 Immutable collections allow type widening. Since mutating operations return a **new** instance, that instance can have a wider type:
 
@@ -226,14 +219,13 @@ $complete = $withName->put('active', true);
 // $complete is ImmutableMap<string, int|string|bool>
 ```
 
-### Why the Difference?
+### Why the difference?
 
-- **Mutable**: You declared the type upfront. Adding incompatible data corrupts your declared contract — likely a bug.
-- **Immutable**: You're creating a new value. The new value can have whatever type makes sense for its contents.
+With a mutable collection, you declared the type upfront. Adding incompatible data corrupts your declared contract, which is likely a bug. With an immutable one, you're creating a new value, and the new value can have whatever type makes sense for its contents.
 
-### Compared to Native Arrays
+### Compared to native arrays
 
-PHP arrays don't enforce types on assignment — PHPStan silently widens the type:
+PHP arrays don't enforce types on assignment, so PHPStan silently widens the type:
 
 ```php
 /** @var array<string, int> $array */
@@ -244,6 +236,6 @@ $array['b'] = 'text'; // No warning! Type becomes array<string, int|string>
 
 Mutable collections catch this class of bugs that native arrays miss.
 
-::: warning This is not just about static analysis
-Maps created via `stringMapOf()` / `intMapOf()` enforce key types at runtime — inserting a wrong key type throws `InvalidKeyTypeException`. The generic `mapOf()` accepts any key type and has no runtime checks. This only applies when explicitly choosing a type-specific factory function.
+::: warning Type-specific maps also check keys at runtime
+Maps created via `mutableStringMapOf()` / `mutableIntMapOf()` enforce key types at runtime, so inserting a wrong key type throws `InvalidKeyTypeException`. Their immutable counterparts from `stringMapOf()` / `intMapOf()` widen instead, so `put()` with a wrong key type returns a general map that accepts any key. The generic `mapOf()` accepts any key type and has no runtime checks. This only applies when explicitly choosing a type-specific factory function.
 :::

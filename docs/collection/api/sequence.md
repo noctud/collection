@@ -5,17 +5,17 @@ outline: [2, 3]
 
 # Sequence API
 
-`Sequence<E>` is a lazily evaluated pipeline of elements — see the [Sequence guide](../sequence) for how it works. It extends only `IteratorAggregate<int, E>`: it is neither a `Collection`, nor `Countable`, nor `JsonSerializable`.
+`Sequence<E>` is a lazily evaluated pipeline of elements (see the [Sequence guide](../sequence) for how it works). It extends only `IteratorAggregate<int, E>`: it is neither a `Collection`, nor `Countable`, nor `JsonSerializable`.
 
 Create one with [`asSequence()`](./collection#conversion) on any collection, or with the [`sequenceOf()` and `generateSequence()`](./functions#sequence) factory functions.
 
 ::: info Every terminal operation is a pass
-Intermediate operations return a new `Sequence` and pull nothing. Each terminal operation — and each `foreach` — pulls from the source again. A source that can't produce another pass throws `NonReplayableSourceException`, and a closure returning something that is not iterable throws `InvalidSequenceSourceException`. Both implement `SourceException`, which every terminal operation declares. See [Iterating More Than Once](../sequence#iterating-more-than-once).
+Intermediate operations return a new `Sequence` and pull nothing. Each terminal operation (and each `foreach`) pulls from the source again. A source that can't produce another pass throws `NonReplayableSourceException`, and a closure returning something that is not iterable throws `InvalidSequenceSourceException`. Both extend `SourceException`, which every terminal operation declares. See [Iterating more than once](../sequence#iterating-more-than-once).
 :::
 
-## Intermediate Operations
+## Intermediate operations
 
-All intermediate operations are marked `#[NoDiscard]`, return a new `Sequence`, and run nothing until a terminal operation pulls. Callbacks receive the element and its position `(E, int)` — the position in that step's input, the same one an eager chain would pass.
+All intermediate operations are marked `#[NoDiscard]`, return a new `Sequence`, and run nothing until a terminal operation pulls. Callbacks receive the element and its position in that step's input `(E, int)`, the same position an eager chain would pass.
 
 ### Filtering
 
@@ -27,7 +27,7 @@ Keep elements matching the predicate `(E, int): bool`.
 ```php
 filterNotNull(): Sequence<E>
 ```
-Skip `null` elements. The element type narrows to exclude `null` — `Sequence<string|null>` becomes `Sequence<string>`.
+Skip `null` elements. The element type narrows to exclude `null`, so `Sequence<string|null>` becomes `Sequence<string>`.
 
 ```php
 filterInstanceOf(string $type): Sequence<T>
@@ -76,7 +76,7 @@ Skip the first N elements, yield the rest.
 ```php
 dropWhile(Closure $predicate): Sequence<E>
 ```
-Skip elements while the predicate `(E, int): bool` holds, yield the rest — starting with the first element that failed it.
+Skip elements while the predicate `(E, int): bool` holds, yield the rest, starting with the first element that failed it.
 
 ### Distinct
 
@@ -111,10 +111,10 @@ Yield a window of the given size sliding along the sequence with the given step.
 ```php
 zip(iterable $other): Sequence<array{E, U}>
 ```
-Pair elements at the same position with another iterable. The result has the length of the shorter input. The other side is pulled in lockstep, not copied — if it can be iterated only once, so can the result.
+Pair elements at the same position with another iterable. The result has the length of the shorter input. The other side is pulled in lockstep, not copied. If it can be iterated only once, so can the result.
 
 ::: tip Zipping with a stream
-A `Generator` is zipped from where it stands, not rewound — so you can read the head of a stream yourself and zip the rest. After a `foreach` that ended with `break`, call `next()` first: the generator still points at the element you stopped on. Any other iterator is rewound first, unless you wrap it in a `NoRewindIterator`.
+A `Generator` is zipped from where it stands, not rewound, so you can read the head of a stream yourself and zip the rest. After a `foreach` that ended with `break`, call `next()` first, because the generator still points at the element you stopped on. Any other iterator is rewound first, unless you wrap it in a `NoRewindIterator`.
 :::
 
 ```php
@@ -127,13 +127,13 @@ Pair each two adjacent elements. Yields nothing if the sequence has fewer than t
 ```php
 onEach(Closure $action): Sequence<E>
 ```
-Run the action `(E, int): void` on each element as it passes through, then yield the element unchanged. The lazy counterpart of `forEach()` — nothing runs before a terminal operation pulls, and the action runs again on every pass.
+Run the action `(E, int): void` on each element as it passes through, then yield the element unchanged. It is the lazy counterpart of `forEach()`, so nothing runs before a terminal operation pulls, and the action runs again on every pass.
 
-## Terminal Operations
+## Terminal operations
 
 Each terminal operation runs one pass over the source. Some stop pulling as soon as they know the answer; the others drain the sequence, and never return on an infinite one.
 
-### Element Access
+### Element access
 
 ```php
 first(): E
@@ -148,7 +148,7 @@ Returns the first element, or `null` if empty. Pulls at most one element.
 ```php
 last(): E
 ```
-Returns the last element. Throws `NoSuchElementException` if empty. Drains the sequence — the last element is only known at the end.
+Returns the last element. Throws `NoSuchElementException` if empty. Drains the sequence, since the last element is only known at the end.
 
 ```php
 lastOrNull(): E|null
@@ -158,7 +158,7 @@ Returns the last element, or `null` if empty. Drains the sequence.
 ```php
 single(): E
 ```
-Returns the single element. Throws `NoSuchElementException` if empty or more than one element. Pulls at most two elements — a second one is already an error.
+Returns the single element. Throws `NoSuchElementException` if empty or more than one element. Pulls at most two elements, because a second one is already an error.
 
 ```php
 singleOrNull(): E|null
@@ -173,7 +173,7 @@ Returns the element at the given position. Throws `IndexOutOfBoundsException` if
 ```php
 elementAtOrNull(int $index): E|null
 ```
-Returns the element at the given position, or `null` when there is none — a negative index included. Pulls up to that position and no further.
+Returns the element at the given position, or `null` when there is none (a negative index included). Pulls up to that position and no further.
 
 ```php
 find(Closure $predicate): E|null
@@ -235,7 +235,7 @@ Returns `true` if no element matches the predicate `(E, int): bool`. Stops at th
 ```php
 count(): int<0, max>
 ```
-Returns the number of elements. O(n) — drains the sequence. A sequence is not `Countable`, so the native `count($sequence)` throws a `TypeError`; the cost has to be asked for explicitly.
+Returns the number of elements. This is O(n) and drains the sequence. A sequence is not `Countable`, so the native `count($sequence)` throws a `TypeError`; the cost has to be asked for explicitly.
 
 ```php
 countWhere(Closure $predicate): int<0, max>
@@ -297,7 +297,7 @@ Maximum element, or `null` if empty. Optional selector `(E, int): mixed`. Drains
 ```php
 minOf(Closure $selector): R
 ```
-Returns the minimum value produced by the selector `(E, int): R` — the **selector value** itself, not the element. Throws `NoSuchElementException` if empty. Drains the sequence.
+Returns the minimum value produced by the selector `(E, int): R` (the **selector value** itself, not the element). Throws `NoSuchElementException` if empty. Drains the sequence.
 
 ```php
 minOfOrNull(Closure $selector): R|null
@@ -307,7 +307,7 @@ Returns the minimum selector value, or `null` if empty. Drains the sequence.
 ```php
 maxOf(Closure $selector): R
 ```
-Returns the maximum value produced by the selector `(E, int): R` — the **selector value** itself, not the element. Throws `NoSuchElementException` if empty. Drains the sequence.
+Returns the maximum value produced by the selector `(E, int): R` (the **selector value** itself, not the element). Throws `NoSuchElementException` if empty. Drains the sequence.
 
 ```php
 maxOfOrNull(Closure $selector): R|null
@@ -324,7 +324,7 @@ joinToString(
     ?Closure $transform = null,
 ): string
 ```
-Joins elements into a string. When `$transform` is provided, it is applied to each element `(E, int): string` before joining. Without a transform, elements are converted via `(string)` cast — scalars, `null`, and `Stringable` objects are supported. Throws `ConversionException` for non-stringable objects and arrays. With a non-negative `$limit`, it pulls only `$limit + 1` elements (the extra one decides whether `$truncated` is appended), so it is safe on infinite sequences. Without a limit, it drains the sequence.
+Joins elements into a string. When `$transform` is provided, it is applied to each element `(E, int): string` before joining. Without a transform, elements are cast with `(string)`, which works for scalars, `null` and `Stringable` objects. Throws `ConversionException` for non-stringable objects and arrays. With a non-negative `$limit`, it pulls only `$limit + 1` elements (the extra one decides whether `$truncated` is appended), so it is safe on infinite sequences. Without a limit, it drains the sequence.
 
 ### Grouping
 
@@ -336,7 +336,7 @@ groupBy(
     ?Closure $valueTransform = null,
 ): ImmutableMap<K, ImmutableList<E>>
 ```
-Group elements by the key returned by the selector `(E, int): K`. When a `$valueTransform` `(E, int): V` is provided, each element is transformed before being added to its group — the result is `ImmutableMap<K, ImmutableList<V>>`. Holds every element, since the last one may still belong to the first group. Throws `InvalidKeyTypeException` if the selector returns a value that can't be a map key.
+Group elements by the key returned by the selector `(E, int): K`. When a `$valueTransform` `(E, int): V` is provided, each element is transformed before being added to its group, so the result is `ImmutableMap<K, ImmutableList<V>>`. Holds every element, since the last one may still belong to the first group. Throws `InvalidKeyTypeException` if the selector returns a value that can't be a map key.
 
 ```php
 countBy(Closure $keySelector): ImmutableMap<NK, int>
@@ -348,19 +348,19 @@ partition(
     Closure $predicate,
 ): array{ImmutableList<E>, ImmutableList<E>}
 ```
-Split into two lists — the elements matching the predicate `(E, int): bool`, then the rest.
+Split into two lists: the elements matching the predicate `(E, int): bool`, then the rest.
 
 ```php
 unzip(): array{ImmutableList<mixed>, ImmutableList<mixed>}
 ```
-Split a sequence of pairs into two lists — one from the first component (`[0]`), one from the second (`[1]`). Inverse of `zip()`. Throws `UnsupportedOperationException` if an element is not a pair.
+Split a sequence of pairs into two lists: one from the first component (`[0]`), one from the second (`[1]`). Inverse of `zip()`. Throws `UnsupportedOperationException` if an element is not a pair.
 
 ### Iteration
 
 ```php
 forEach(Closure $action): void
 ```
-Run the action `(E, int): void` for each element. Returns nothing — use `onEach()` to act on elements without ending the chain. A plain `foreach` over the sequence is a pass too, with positional keys `0, 1, 2, …` whatever keys the source had.
+Run the action `(E, int): void` for each element. Returns nothing, so use `onEach()` to act on elements without ending the chain. A plain `foreach` over the sequence is a pass too, with positional keys `0, 1, 2, ...` whatever keys the source had.
 
 ### Conversion
 
@@ -387,9 +387,9 @@ toMap(
 ```
 Convert to an immutable map using key selector `(E, int): K` and optional value transform `(E, int): V`.
 
-## Not Available on Sequence
+## Not available on Sequence
 
-A sequence leaves these `Collection` methods out — most of them need the whole source before they can produce anything, the rest are clearer on a materialized collection. Materialize first, and the cost is visible in your code:
+A sequence leaves these `Collection` methods out. Most of them need the whole source before they can produce anything, and the rest are clearer on a materialized collection. Materialize first, and the cost is visible in your code:
 
 | Collection method | With a sequence |
 |---|---|
@@ -402,4 +402,4 @@ A sequence leaves these `Collection` methods out — most of them need the whole
 | `count($collection)` | `$sequence->count()` |
 | `json_encode($collection)` | `json_encode($sequence->toList())` |
 
-See [No Hidden Materialization](../design#no-hidden-materialization) for the reasoning.
+See [No hidden materialization](../design#no-hidden-materialization) for the reasoning.

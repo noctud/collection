@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 ## Installation
 
@@ -8,9 +8,7 @@ composer require noctud/collection
 
 Requires **PHP 8.4** or later.
 
-::: tip Stable despite the 0.x
-Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules. See [Versioning](./versioning).
-:::
+The 0.x doesn't mean unstable. Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules. See [Versioning](./versioning).
 
 ## Architecture
 
@@ -57,15 +55,13 @@ Sequence<E>                  → Lazy pipeline, not a collection
 ```
 :::
 
-::: tip Extensible by design
 Every node in this hierarchy is an **interface**, not a class. The library ships with default implementations backed by logic traits, but any library or application can provide its own implementation. See the [Extending](./extending) guide for details.
-:::
 
-The API is heavily inspired by [Kotlin Collections](https://kotlinlang.org/docs/collections-overview.html) — factory functions, the mutable/immutable split, `OrNull` conventions, and method naming all follow Kotlin patterns. 
+The API is heavily inspired by [Kotlin Collections](https://kotlinlang.org/docs/collections-overview.html): factory functions, the mutable/immutable split, `OrNull` conventions, and method naming all follow Kotlin patterns.
 
 The type hierarchy draws from the Java Collections Framework with clear separation of mutability/immutability.
 
-## Creating Collections
+## Creating collections
 
 Use the factory functions from the `Noctud\Collection` namespace:
 
@@ -84,7 +80,7 @@ $set = mutableSetOf(['a', 'b', 'c']); // MutableSet<string>
 $map = mutableMapOf(['a' => 'b']); // MutableMap<string, string>
 ```
 
-Optimized **string-keyed only** Maps (int keys are only allowed when constructing from array)
+Optimized **string-keyed only** Maps (int keys are only accepted at construction, and become strings)
 
 ```php
 $immutable = stringMapOf(['1' => 'a']); // ImmutableMap<string, string>
@@ -98,18 +94,17 @@ $immutable = intMapOf([1 => 'a']); // ImmutableMap<int, string>
 $mutable = mutableIntMapOf([1 => 'a']); // MutableMap<int, string>
 ```
 
-::: tip Object keys? Use `mapOfPairs`
 PHP arrays only support `string|int` keys, so `mapOf()` can't accept objects as keys. Use `mapOfPairs()` (or `mutableMapOfPairs()`) with `[key, value]` tuples instead:
+
 ```php
 $user = new User(1);
 $map = mapOfPairs([[$user, 'admin']]); // ImmutableMap<User, string>
 $map = mutableMapOfPairs([[$user, 'admin']]); // MutableMap<User, string>
 ```
-:::
 
-## Accessing Elements
+## Accessing elements
 
-Array access is strict — it throws on missing keys/indices, just like `get()`. Use the `??` operator for safe fallback, or `getOrNull()` for the nullable variant:
+Array access is strict and throws on missing keys/indices, just like `get()`. Use the `??` operator for safe fallback, or `getOrNull()` for the nullable variant:
 
 ```php
 $list[0]; // throws if index is out of bounds
@@ -139,8 +134,7 @@ $result = mutableListOf([1, 2, 3, 4, 5])
     ->reversed(); // ImmutableList
 ```
 
-::: tip Large data or early exit?
-Each step above builds a new list. `asSequence()` makes the chain lazy — elements flow through one at a time, and the work stops as soon as the result is known:
+Each step above builds a new list. `asSequence()` makes the chain lazy, so elements flow through one at a time and the work stops as soon as the result is known:
 
 ```php
 $first = $hugeList->asSequence()
@@ -150,7 +144,6 @@ $first = $hugeList->asSequence()
 ```
 
 See [Sequence](./sequence) for when it pays off.
-:::
 
 ## Iterating
 
@@ -161,17 +154,17 @@ foreach ($map as $key => $value) {
     echo "$key = $value\n";
 }
 
-// returns nothing - use onEach() to keep chaining
+// returns nothing, use onEach() to keep chaining
 $set->forEach(fn($el) => process($el));
 ```
 
-## What's Next
+## What's next
 
-- [List guide](./list) — indexed collections
-- [Set guide](./set) — unique element collections
-- [Map guide](./map) — key-value pairs with type-safe keys
-- [Mutability](./mutability) — mutable vs immutable patterns
-- [Lazy Initialization](./lazy-init) — deferred initialization
-- [Sequence](./sequence) — lazy, element-by-element pipelines
-- [Sorting](./sorting) — comprehensive sorting reference
-- [API Reference](./api/collection) — complete method listing
+- [List guide](./list): indexed collections
+- [Set guide](./set): unique element collections
+- [Map guide](./map): key-value pairs with type-safe keys
+- [Mutability](./mutability): mutable vs immutable patterns
+- [Lazy initialization](./lazy-init): deferred initialization
+- [Sequence](./sequence): lazy, element-by-element pipelines
+- [Sorting](./sorting): comprehensive sorting reference
+- [API reference](./api/collection): complete method listing

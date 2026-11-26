@@ -14,9 +14,9 @@ $empty = listOf();
 $lazy = listOf(fn() => loadElementsFromDatabase());
 ```
 
-## Accessing Elements
+## Accessing elements
 
-Lists implement `ArrayAccess`, so you can use familiar array syntax. Array access is strict — it throws on invalid indices:
+Lists implement `ArrayAccess`, so you can use familiar array syntax. Array access is strict and throws on invalid indices:
 
 ```php
 $list = listOf(['a', 'b', 'c']);
@@ -63,7 +63,7 @@ $list->dropLastWhile(fn($n) => $n > 20); // [10, 20]
 
 ## Transforming
 
-All transformation methods return **immutable collections** — the original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
+All transformation methods return **immutable collections**. The original is never modified, and the result is always immutable regardless of whether the source is mutable or immutable.
 
 ```php
 $list = mutableListOf([1, 2, 3, 4]);
@@ -174,9 +174,9 @@ $new = $list->set(0, 99); // $new = [99, 2, 3]
 $new = $list->removeAt(1); // $new = [1, 3]
 ```
 
-All mutating methods on `ImmutableList` are marked `#[NoDiscard]` — calling them without using the return value triggers a warning.
+All mutating methods on `ImmutableList` are marked `#[NoDiscard]`, so calling them without using the return value triggers a warning.
 
-::: warning Array Access Mutation
+::: warning Array access mutation
 Array access mutation (`$list[0] = 'x'`, `$list[] = 'y'`, `unset($list[0])`) throws `UnsupportedOperationException` on immutable lists. Use the method equivalents which return new instances.
 :::
 

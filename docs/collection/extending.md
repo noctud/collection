@@ -1,13 +1,13 @@
 # Extending
 
-The collection library is designed for extensibility. All collection behavior is provided through **traits**, not abstract classes. This means your custom classes are free to extend any class they need — a Doctrine entity, a framework base class, or nothing at all. You implement the interface, use the trait, and get the full collection API without being locked into an inheritance hierarchy.
+All collection behavior is provided through **traits**, not abstract classes. This means your custom classes are free to extend any class they need: a Doctrine entity, a framework base class, or nothing at all. You implement the interface, use the trait, and get the full collection API without being locked into an inheritance hierarchy.
 
-## Adding Collection Behavior to Existing Classes
+## Adding collection behavior to existing classes
 
 Turn any class into a collection by implementing the interface and using a logic trait. This is useful when you want domain objects to expose collection-like access without wrapping them:
 
 ```php
-use Noctud\Collection\Map\Map;
+use Noctud\Collection\Map\ImmutableMap;
 use Noctud\Collection\Map\ImmutableMapLogic;
 use Noctud\Collection\Map\StringMap\StringKeyValueStore;
 
@@ -28,15 +28,13 @@ $body->count(); // 3
 $body->values->last(); // null
 ```
 
-The class is now a full `Map` — it can be passed to any function expecting a map, used in `foreach`, and has all the filtering/transformation methods.
+The class is now a full `Map`. It can be passed to any function expecting a map, used in `foreach`, and has all the filtering/transformation methods.
 
-::: tip Why Map instead of ImmutableMap?
-`Map` is the read-only base interface — the widest type hint. Accepting `Map` in function signatures means the function works with mutable, immutable, and custom maps alike. Use `ImmutableMap` or `MutableMap` when you need their specific guarantees.
-:::
+`Map` is the read-only base interface, the widest type hint. Accepting `Map` in function signatures means the function works with mutable, immutable, and custom maps alike. Use `ImmutableMap` or `MutableMap` when you need their specific guarantees.
 
-That's it — one interface, one trait, and a store. The trait provides the entire collection API (`filter()`, `sorted()`, `forEach()`, `toArray()`, etc.), and the store handles raw data access.
+All it takes is one interface, one trait, and a store. The trait provides the entire collection API (`filter()`, `sorted()`, `forEach()`, `toArray()`, etc.), and the store handles raw data access.
 
-## Self-Preserving Collections
+## Self-preserving collections
 
 By default, transformation methods return the **base** interface type. A custom `OrderItemCollection` that uses `ImmutableSetLogic` will have `filter()` typed as `ImmutableSet<OrderItem>`, not `OrderItemCollection`:
 
@@ -53,11 +51,11 @@ class OrderItemCollection implements ImmutableSet
 }
 ```
 
-This is intentional — the base type is the safe default for classes with structural invariants (the `JsonBody` example above can't be rebuilt from an arbitrary filtered subset). When your class **is** a thin typed wrapper that should return itself, opt in to self-preservation. There are two ways.
+This is intentional, because the base type is the safe default for classes with structural invariants (the `JsonBody` example above can't be rebuilt from an arbitrary filtered subset). When your class **is** a thin typed wrapper that should return itself, opt in to self-preservation. There are two ways.
 
 ### Option 1: the SelfPreserving\*Logic trait (recommended)
 
-Swap the logic trait for its self-preserving variant. Every shape-preserving operation now returns your own type — no annotations, no factory override. The only requirement is a constructor that accepts an `iterable`:
+Swap the logic trait for its self-preserving variant. Every shape-preserving operation now returns your own type, with no annotations and no factory override. The only requirement is a constructor that accepts an `iterable`:
 
 ```php
 use Noctud\Collection\Set\ImmutableSet;
@@ -79,7 +77,7 @@ class OrderItemCollection implements ImmutableSet
         $this->store = new HashElementStore($data);
     }
 
-    public function onlySwapped(): self // ✅ filter() now returns OrderItemCollection
+    public function onlySwapped(): self // filter() now returns OrderItemCollection
     {
         return $this->filter(static fn (OrderItem $i) => $i->isSwapped());
     }
@@ -88,9 +86,7 @@ class OrderItemCollection implements ImmutableSet
 
 The variants are `SelfPreservingImmutableSetLogic`, `SelfPreservingImmutableListLogic`, and `SelfPreservingImmutableMapLogic`. The map variant builds derived maps with `new static(...)`, so its constructor should populate the store from the iterable (e.g. `HashKeyValueStore::fromAssoc($data)`).
 
-::: tip Use `self` or `static` in your own methods
 The trait narrows to `static` (late static binding) so subclasses stay precise. In your own domain methods you can return `self` (your concrete class, as above) or `static` (if you expect subclasses to keep their type). Returning the trait's `static` into a `: self` declaration is always safe.
-:::
 
 ### Option 2: class-level `@method` overrides
 
@@ -122,7 +118,7 @@ class OrderItemCollection implements ImmutableSet
 Add `@method` lines only for methods that genuinely keep the same shape. This is more verbose but useful when you only need a few methods narrowed, or when you can't add a constructor accepting an `iterable`.
 
 ::: warning Declare the mutations you use
-The base trait's immutable mutations widen like the interface does — `add(NE): ImmutableSet<E|NE>` — and rebuild through `newCollectionOf()`, so a foreign element would reach your constructor. Declare each mutation you call with your element type, as `add()` above: PHPStan then rejects a foreign element, and the result is typed as your class. A map built on `ImmutableMapLogic` does the same for `put()` and its siblings, e.g. `@method self put(string $key, int $value)`, since they rebuild through `newMapOf()`.
+The base trait's immutable mutations widen like the interface does (`add(NE): ImmutableSet<E|NE>`) and rebuild through `newCollectionOf()`, so a foreign element would reach your constructor. Declare each mutation you call with your element type, as `add()` above, and PHPStan then rejects a foreign element, and the result is typed as your class. A map built on `ImmutableMapLogic` does the same for `put()` and its siblings, e.g. `@method self put(string $key, int $value)`, since they rebuild through `newMapOf()`.
 :::
 
 ### What is and isn't narrowed
@@ -134,23 +130,19 @@ Self-preservation applies only where the result is still a collection of the sam
 | `filter`, `filterNotNull`, `filterKeys`/`filterValues` (Map) | `map`, `mapNotNull`, `flatMap`, `flatten`, `mapKeys`/`mapValues` (Map) |
 | `sorted*`, `reversed`, `shuffled` | `filterInstanceOf`, `filterValuesInstanceOf` (Map), `flip` (Map) |
 | `take*`/`drop*`, `distinct`/`distinctBy`, `slice` (List) | `groupBy` (`ImmutableMap`'s value type is invariant) |
-| `partition` → `array{static, static}` | `keys`/`values`/`entries` views, `toList`/`toSet`/`toMutable`/… conversions |
+| `partition` → `array{static, static}` | `keys`/`values`/`entries` views, `toList`/`toSet`/`toMutable`/... conversions |
 | set operations `intersect`/`union`/`subtract` (Set only) | `intersect`/`union`/`subtract` on a **List** (they produce a Set) |
-| immutable mutations (`add`, `put`, `remove*`, …) | |
+| immutable mutations (`add`, `put`, `remove*`, ...) | |
 
 ::: warning Mutations become strict
-The base immutable mutations widen their type — `add(NE): ImmutableSet<E|NE>`. The self-preserving variant is strict instead — `add(E): static` — because a fixed-type collection cannot widen its element type while still being itself.
+The base immutable mutations widen their type (`add(NE): ImmutableSet<E|NE>`). The self-preserving variant is strict instead (`add(E): static`), because a fixed-type collection cannot widen its element type while still being itself.
 :::
 
-::: tip Constructor invariants are safe
-For the type-changing transforms in the right column (`map`, `mapNotNull`, `flatMap`, `flatten`, `filterInstanceOf`, `groupBy` with a value transform, and the Map key/value transforms) this is not just a static-type matter: they build a plain base collection at runtime as well, so the object never lies about its declared type. Your constructor is only ever re-entered with elements of your own type, so it can safely validate an invariant (e.g. "every element is an `OrderItem`").
-:::
+For the type-changing transforms in the right column (`map`, `mapNotNull`, `flatMap`, `flatten`, `filterInstanceOf`, `groupBy` with a value transform, and the Map key/value transforms), the base type holds at runtime too, since they build a plain base collection, so the object never lies about its declared type. Your constructor is only ever re-entered with elements of your own type, so it can safely validate an invariant (e.g. "every element is an `OrderItem`").
 
-::: tip Why immutable only?
-There is no `SelfPreserving` variant for mutable collections. Their mutation methods (`add`, `remove`, …) already return `static`, and their transformation methods (`filter`, `map`, …) always return **immutable** results — so "return my own mutable type" never applies. Self-preservation is meaningful only for immutable collections.
-:::
+There is no `SelfPreserving` variant for mutable collections. Their mutation methods (`add`, `remove`, ...) already return `static`, and their transformation methods (`filter`, `map`, ...) always return **immutable** results, so "return my own mutable type" never applies. Self-preservation is meaningful only for immutable collections.
 
-## Logic Traits
+## Logic traits
 
 The library provides these logic traits:
 
@@ -166,16 +158,16 @@ The library provides these logic traits:
 | `ImmutableListLogic` | Full immutable list behavior |
 | `ImmutableSetLogic` | Full immutable set behavior |
 | `ImmutableMapLogic` | Full immutable map behavior |
-| `SelfPreservingImmutableListLogic` | Immutable list behavior narrowed to your own subtype (see [Self-Preserving Collections](#self-preserving-collections)) |
+| `SelfPreservingImmutableListLogic` | Immutable list behavior narrowed to your own subtype (see [Self-preserving collections](#self-preserving-collections)) |
 | `SelfPreservingImmutableSetLogic` | Immutable set behavior narrowed to your own subtype |
 | `SelfPreservingImmutableMapLogic` | Immutable map behavior narrowed to your own subtype |
-| `SequenceLogic` | Lazy sequence behavior (see [Custom Sequences](#custom-sequences)) |
+| `SequenceLogic` | Lazy sequence behavior (see [Custom sequences](#custom-sequences)) |
 
-These traits contain all the methods defined on the interfaces — `filter()`, `sorted()`, `forEach()`, and so on. The store provides the raw data access, and the trait provides the high-level operations.
+These traits contain all the methods defined on the interfaces (`filter()`, `sorted()`, `forEach()`, and so on). The store provides the raw data access, and the trait provides the high-level operations.
 
-## Custom Store (When Using Traits)
+## Custom store (when using traits)
 
-If you're using the library's logic traits, you need to provide a store that handles low-level data access. The store is where actual data lives — the trait delegates all reads and writes to it.
+If you're using the library's logic traits, you need to provide a store that handles low-level data access. The store is where actual data lives, and the trait delegates all reads and writes to it.
 
 | Interface | Used by |
 |-----------|---------|
@@ -184,10 +176,10 @@ If you're using the library's logic traits, you need to provide a store that han
 | `ReadWriteElementStore` | Sets |
 
 ::: warning Stores are internal to traits
-Store interfaces exist **only** to support the built-in logic traits. They are not part of the public collection API. If you implement `Map`, `List`, or `Set` directly without using traits, you don't need stores at all — use whatever internal data structure suits your needs.
+Store interfaces exist **only** to support the built-in logic traits. They are not part of the public collection API. If you implement `Map`, `List`, or `Set` directly without using traits, you don't need stores at all. Use whatever internal data structure suits your needs.
 :::
 
-### Built-in Stores
+### Built-in stores
 
 The library provides these store implementations that you can reuse directly or wrap in your own store:
 
@@ -199,7 +191,7 @@ The library provides these store implementations that you can reuse directly or 
 | `ArrayIndexStore` | List storage backed by a PHP array |
 | `HashElementStore` | Set storage with hash-based uniqueness |
 
-### Example: Custom Store with Caching
+### Example: custom store with caching
 
 ```php
 use Noctud\Collection\Map\HashMap\HashKeyValueStore;
@@ -214,9 +206,9 @@ final class CachedDatabaseStore implements KeyValueStore
         $this->cache = HashKeyValueStore::fromAssoc([]);
     }
 
-    public function get(mixed $key): mixed
+    public function get(string|int|bool|float|object $key, bool $throw = false): mixed
     {
-        if ($this->cache->has($key)) {
+        if ($this->cache->containsKey($key)) {
             return $this->cache->get($key);
         }
 
@@ -230,7 +222,7 @@ final class CachedDatabaseStore implements KeyValueStore
 }
 ```
 
-### Example: Custom Map with Custom Store
+### Example: custom map with custom store
 
 ```php
 use Noctud\Collection\Map\MutableMap;
@@ -240,16 +232,16 @@ final class MyDatabaseMap implements MutableMap
 {
     use MutableMapLogic;
 
-    public function __construct(array $source, private Connection $connection)
+    public function __construct(Connection $connection)
     {
-        $this->store = new CachedDatabaseStore($source, $connection);
+        $this->store = new CachedDatabaseStore($connection);
     }
 }
 ```
 
-Optionally override `newMapOf` (and `newCollectionOf` for collections) so that derived maps (from `filter()`, `mapKeys()`, etc.) are also of the custom type. The method must return an `ImmutableMap` (default implementation returns `ImmutableHashMap`).
+Optionally override `newMapOf` (and `newCollectionOf` for collections) so that derived maps (from `filter()`, `sortedByKey()`, etc.) are also of the custom type. The method must return an `ImmutableMap` (default implementation returns `ImmutableHashMap`).
 
-## Creating Live Views
+## Creating live views
 
 You can create read-only views that stay synchronized with an underlying collection. The library uses this pattern for `$map->keys`, `$map->values`, and `$map->entries`.
 
@@ -277,11 +269,11 @@ This view:
 - Delegates to the map's store, so changes to the map are immediately visible through the view
 - All transformation methods (`filter()`, `toList()`, etc.) return immutable collections
 
-The same view class works for both mutable and immutable sources — if the underlying map is mutable, changes are reflected in the view; if immutable, the view never changes.
+The same view class works for both mutable and immutable sources. If the underlying map is mutable, changes are reflected in the view; if it is immutable, the view never changes.
 
-## Custom Sequences
+## Custom sequences
 
-`GeneratorSequence`, the class behind `sequenceOf()`, is final — but all of its behavior lives in the `SequenceLogic` trait. Implement `Sequence`, use the trait, and set the source in your constructor:
+`GeneratorSequence`, the class behind `sequenceOf()`, is final, but all of its behavior lives in the `SequenceLogic` trait. Implement `Sequence`, use the trait, and set the source in your constructor:
 
 ```php
 use Noctud\Collection\Sequence\Sequence;
@@ -303,15 +295,16 @@ $feed = new OrderFeed($db);
 $feed->find(fn($order) => $order->isOverdue());
 ```
 
-The source follows the same rules as in [`sequenceOf()`](./api/functions#sequenceof) — here, a closure that runs the query again on every pass. Set `$this->constrainOnce = true` to limit it to a single pass.
+The source follows the same rules as in [`sequenceOf()`](./api/functions#sequenceof). Here it's a closure that runs the query again on every pass. Set `$this->constrainOnce = true` to limit it to a single pass.
 
 Intermediate operations return a plain `GeneratorSequence` built by the protected `newSequenceOf()` method, so `$feed->filter(...)` is a `Sequence<Order>`, not an `OrderFeed`.
 
-## Implementing Without Traits
+## Implementing without traits
 
 You can implement `Map`, `List`, or `Set` directly without using the library's traits or stores. This gives you complete control over the implementation:
 
 ```php
+use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Map\ImmutableMap;
 
 final class MyCustomMap implements ImmutableMap
@@ -320,7 +313,7 @@ final class MyCustomMap implements ImmutableMap
 
     public function get(mixed $key): mixed
     {
-        return $this->data[$key] ?? throw new KeyNotFoundException($key);
+        return $this->data[$key] ?? throw new NoSuchElementException('Key not found in map');
     }
 
     public function getOrNull(mixed $key): mixed
@@ -329,7 +322,7 @@ final class MyCustomMap implements ImmutableMap
     }
 
     // Implement all other Map methods...
-    // No stores, no traits — just your own logic
+    // No stores, no traits, only your own logic
 }
 ```
 
@@ -340,18 +333,17 @@ This approach is useful when:
 
 The trade-off is that you must implement all interface methods yourself, including `filter()`, `map()`, `sorted()`, and the rest of the collection API.
 
-## Store Interfaces (Reference)
+## Store interfaces (reference)
 
 For completeness, here's the store interface hierarchy used internally by the logic traits:
 
 ```
-ReadOnlyElementStore         → count, contains, iterate
-├── ReadWriteElementStore    → + add, remove, clear
+ReadOnlyElementStore          → count, contains, iterate
+├── ReadWriteElementStore     → + add, remove, clear
+└── ReadOnlyIndexedStore      → + get
+    └── ReadWriteIndexedStore → + set, and everything in ReadWriteElementStore
 
-ReadOnlyIndexedStore      → count, get, iterate
-├── ReadWriteIndexedStore → + set, add, remove, clear
-
-KeyValueStore             → count, get, has, put, remove, clear, iterate
+KeyValueStore                 → count, get, containsKey, put, remove, clear, iterate
 ```
 
-These are **internal implementation details**. Most users will never need to interact with them directly — they exist to support the logic traits and allow swapping storage backends while keeping the same collection behavior.
+These are **internal implementation details**. Most users will never need to interact with them directly. They exist to support the logic traits and allow swapping storage backends while keeping the same collection behavior.

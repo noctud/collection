@@ -2,7 +2,7 @@
 
 Every collection and map in the library is sequentially ordered, so sorting is supported across all types.
 
-## Naming Convention
+## Naming convention
 
 The sorting API follows two consistent patterns:
 
@@ -17,9 +17,9 @@ Within each pattern:
 |--------|-------|
 | *(none)* | Natural order of elements |
 | `*Desc` | Descending natural order |
-| `*By` | Selector function — extracts a comparable value |
+| `*By` | Selector function: extracts a comparable value |
 | `*ByDesc` | Selector, descending |
-| `*With` | Comparator function — full control over comparison |
+| `*With` | Comparator function: full control over comparison |
 
 Maps have additional variants for key-specific and value-specific sorting:
 
@@ -31,7 +31,7 @@ Maps have additional variants for key-specific and value-specific sorting:
 | `sortedWithValue` / `sortWithValue` | Comparator on values |
 | `sortedWith` / `sortWith` | Comparator on `MapEntry` objects |
 
-## Collection / List / Set Sorting
+## Collection / List / Set sorting
 
 ### Natural order
 
@@ -83,7 +83,7 @@ $list->reverse();
 $list->shuffle();
 ```
 
-## Map Sorting
+## Map sorting
 
 Maps don't have `sorted()` or `sortedDesc()` (natural order is ambiguous for key-value pairs), but support selector and comparator patterns plus key/value-specific variants.
 
@@ -125,8 +125,8 @@ $map->sortedWithValue(fn($a, $b) => $a <=> $b);
 $map->sortedWith(fn(MapEntry $a, MapEntry $b) => $a->value <=> $b->value);
 ```
 
-::: tip sortWith() / sortedWith() on Maps
-Map comparators receive two `MapEntry` objects, not four separate `$v, $k, $v, $k` arguments. This keeps the callback clean — you access `$a->key`, `$a->value`, `$b->key`, `$b->value` as needed. Use `sortedWithKey()` or `sortedWithValue()` when you only need to compare one of the two.
+::: tip sortWith() / sortedWith() on maps
+Map comparators receive two `MapEntry` objects, not four separate `$v, $k, $v, $k` arguments. This keeps the callback clean, since you access `$a->key`, `$a->value`, `$b->key`, `$b->value` as needed. Use `sortedWithKey()` or `sortedWithValue()` when you only need to compare one of the two.
 :::
 
 ### In-place map sorting (mutable only)
@@ -154,7 +154,7 @@ $map->reverse();
 $map->shuffle();
 ```
 
-## Quick Reference
+## Quick reference
 
 ### Collection / List / Set
 

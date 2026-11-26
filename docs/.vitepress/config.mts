@@ -4,7 +4,7 @@ import { tabsMarkdownPlugin } from "vitepress-plugin-tabs";
 export default defineConfig({
   title: "Collection",
   description:
-    "Enterprise-grade, type-safe, mutable/immutable collections for PHP 8.4+",
+    "Type-safe, key-preserving, mutable/immutable List/Set/Map collections for PHP 8.4+",
   cleanUrls: true,
 
   head: [["link", { rel: "icon", type: "image/svg+xml", href: "/logo.svg" }]],
@@ -19,9 +19,9 @@ export default defineConfig({
     logo: { light: "/logo.svg", dark: "/logo.svg" },
 
     nav: [
-      { text: "Getting Started", link: "/collection/getting-started" },
+      { text: "Getting started", link: "/collection/getting-started" },
       { text: "Guide", link: "/collection/list" },
-      { text: "API Reference", link: "/collection/api/collection" },
+      { text: "API reference", link: "/collection/api/collection" },
       { text: "FAQ", link: "/collection/faq" },
     ],
 
@@ -30,7 +30,7 @@ export default defineConfig({
         text: "Introduction",
         items: [
           {
-            text: "Getting Started",
+            text: "Getting started",
             link: "/collection/getting-started",
           },
           { text: "Cheatsheet", link: "/collection/cheatsheet" },
@@ -46,22 +46,22 @@ export default defineConfig({
           { text: "Set", link: "/collection/set" },
           { text: "Map", link: "/collection/map" },
           { text: "Mutability", link: "/collection/mutability" },
-          { text: "Lazy Init", link: "/collection/lazy-init" },
+          { text: "Lazy init", link: "/collection/lazy-init" },
           { text: "Sequence", link: "/collection/sequence" },
           { text: "Sorting", link: "/collection/sorting" },
-          { text: "Best Practices", link: "/collection/best-practices" },
+          { text: "Best practices", link: "/collection/best-practices" },
           { text: "Extending", link: "/collection/extending" },
         ],
       },
       {
-        text: "API Reference",
+        text: "API reference",
         items: [
           { text: "Collection", link: "/collection/api/collection" },
           { text: "List", link: "/collection/api/list" },
           { text: "Set", link: "/collection/api/set" },
           { text: "Map", link: "/collection/api/map" },
           { text: "Sequence", link: "/collection/api/sequence" },
-          { text: "Factory Functions", link: "/collection/api/functions" },
+          { text: "Factory functions", link: "/collection/api/functions" },
         ],
       },
     ],

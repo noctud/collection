@@ -1,31 +1,31 @@
 ---
-searchTitle: Sequence — Lazy Collections
+searchTitle: "Sequence: lazy collections"
 ---
 
 # Sequence
 
-A `Sequence` is a lazy pipeline — what other PHP libraries call a lazy collection. You chain `filter()`, `map()` and the rest just like on a list, but nothing runs until you ask for a result. Then elements flow through the chain one at a time, and the work stops as soon as the result is known:
+A `Sequence` is a lazy pipeline (what other PHP libraries call a lazy collection). You chain `filter()`, `map()` and the rest just like on a list, but nothing runs until you ask for a result. Then elements flow through the chain one at a time, and the work stops as soon as the result is known:
 
 ```php
 $profile = $users->asSequence()
     ->filter(fn($user) => $user->isActive())
     ->map(fn($user) => $api->fetchProfile($user)) // an HTTP request
-    ->first(); // fetchProfile() runs once - for the first active user
+    ->first(); // fetchProfile() runs once, for the first active user
 ```
 
-Under the hood, a sequence is a chain of generators with the collection API on top. If you know Laravel's `LazyCollection` or Kotlin's `Sequence`, it's the same idea.
+Internally, a sequence is a chain of generators with the collection API on top. If you know Laravel's `LazyCollection` or Kotlin's `Sequence`, it's the same idea.
 
-A sequence stores nothing, so every result you ask for runs the chain from the source again. One such run is a **pass** — see [Iterating More Than Once](#iterating-more-than-once).
+A sequence stores nothing, so every result you ask for runs the chain from the source again. One such run is a **pass**. See [Iterating more than once](#iterating-more-than-once).
 
 ::: tip Not the same as lazy initialization
-[Lazy initialization](./lazy-init) defers **when** a collection is loaded — once loaded, it's a regular in-memory collection. A sequence changes **how** a chain runs — element by element, without storing intermediate results.
+[Lazy initialization](./lazy-init) defers **when** a collection is loaded. Once loaded, it's a regular in-memory collection. A sequence changes **how** a chain runs: element by element, without storing intermediate results.
 :::
 
 ## Creating
 
 ### From a collection
 
-Every list and set has `asSequence()`. Nothing is copied — each pass reads the collection as it is at that moment, so a sequence over a mutable collection sees its later changes:
+Every list and set has `asSequence()`. Nothing is copied. Each pass reads the collection as it is at that moment, so a sequence over a mutable collection sees its later changes:
 
 ```php
 $list = mutableListOf([1, 2]);
@@ -35,7 +35,7 @@ $list->add(3);
 $sequence->toArray(); // [1, 2, 3]
 ```
 
-Maps have no `asSequence()` — go through one of their views:
+Maps have no `asSequence()`, so go through one of their views:
 
 ```php
 $map->entries->asSequence(); // Sequence<MapEntry<K, V>>
@@ -54,10 +54,10 @@ sequenceOf($generator); // single pass only
 sequenceOf(); // empty Sequence
 ```
 
-A closure is a **producer**: it is called at the start of every pass and must return a fresh iterable each time — usually a generator. Unlike `listOf(fn() => ...)`, the result is never kept. A `Generator` object passed directly can't be rewound, so the sequence can be iterated only once. See [Iterating More Than Once](#iterating-more-than-once).
+A closure is a **producer**. It is called at the start of every pass and must return a fresh iterable each time, usually a generator. Unlike `listOf(fn() => ...)`, the result is never kept. A `Generator` object passed directly can't be rewound, so the sequence can be iterated only once. See [Iterating more than once](#iterating-more-than-once).
 
 ::: info Keys are positional
-A sequence is a stream of values. Keys from the source are dropped, and every pass yields `0, 1, 2, …` — `sequenceOf(['a' => 1])` yields `0 => 1`. The index passed to callbacks is that position in the step's input, the same one the eager chain would pass. To keep map keys, go through `$map->entries` and build a map at the end with `toMap()`.
+A sequence is a stream of values. Keys from the source are dropped, and every pass yields `0, 1, 2, ...`, so `sequenceOf(['a' => 1])` yields `0 => 1`. The index passed to callbacks is that position in the step's input, the same one the eager chain would pass. To keep map keys, go through `$map->entries` and build a map at the end with `toMap()`.
 :::
 
 ### Generating
@@ -67,12 +67,12 @@ A sequence is a stream of values. Keys from the source are dropped, and every pa
 ```php
 use function Noctud\Collection\generateSequence;
 
-// $category, its parent, its grandparent, … up to the root
+// $category, its parent, its grandparent, ... up to the root
 generateSequence($category, fn($c) => $c->parent)
     ->any(fn($c) => $c->isHidden());
 ```
 
-When the function never returns `null`, the sequence is infinite. That's fine — pull only what you need:
+When the function never returns `null`, the sequence is infinite. That's fine as long as you pull only what you need:
 
 ```php
 generateSequence(1, fn($n) => $n * 2)
@@ -82,7 +82,7 @@ generateSequence(1, fn($n) => $n * 2)
 
 Every pass starts again from the seed. A `null` seed creates an empty sequence.
 
-## Eager vs Lazy
+## Eager vs lazy
 
 Collection methods are eager: each step processes every element and builds a new collection before the next step starts. A sequence runs all steps for one element before it moves on to the next one. Callbacks that report when they run make the difference visible:
 
@@ -123,22 +123,22 @@ sequenceOf($words)
 // filter(The) filter(quick) map(quick) filter(brown) map(brown)
 ```
 
-The list filtered all six words and mapped four, only to keep two. The sequence pulled three words and stopped — `fox`, `jumps` and `over` were never touched.
+The list filtered all six words and mapped four, only to keep two. The sequence pulled three words and stopped, so `fox`, `jumps` and `over` were never touched.
 
-## When to Use a Sequence
+## When to use a sequence
 
 Collections are the right default. Reach for a sequence when:
 
-- **The source is large or unbounded** — files, database cursors, paginated APIs. Elements are pulled one at a time, so memory stays flat.
-- **You only need part of the result** — `first()`, `find()`, `any()` or `takeFirst()` stop pulling as soon as they have the answer, so an expensive `map()` runs only for the elements that matter.
-- **A long chain runs over a big collection** — every eager step allocates a new collection; a sequence allocates no intermediate collections at all.
-- **The data is infinite** — [`generateSequence()`](#generating) keeps producing elements until you stop asking.
+- The source is large or unbounded, like files, database cursors or paginated APIs. Elements are pulled one at a time, so memory stays flat.
+- You only need part of the result. `first()`, `find()`, `any()` or `takeFirst()` stop pulling as soon as they have the answer, so an expensive `map()` runs only for the elements that matter.
+- A long chain runs over a big collection. Every eager step allocates a new collection; a sequence allocates no intermediate collections at all.
+- The data is infinite. [`generateSequence()`](#generating) keeps producing elements until you stop asking.
 
 Stay with collections when:
 
-- **The data is small and you use all of it** — a sequence is no faster there, while a collection can be counted, sorted and read again for free.
-- **You need sorting, reversing or random access** — these need every element up front, see [Missing sorted()?](#missing-sorted).
-- **You read the result more than once** — every terminal operation runs the whole pipeline again, see [Iterating More Than Once](#iterating-more-than-once).
+- The data is small and you use all of it. A sequence is no faster there, while a collection can be counted, sorted and read again for free.
+- You need sorting, reversing or random access. These need every element up front, see [Missing sorted()?](#missing-sorted).
+- You read the result more than once. Every terminal operation runs the whole pipeline again, see [Iterating more than once](#iterating-more-than-once).
 
 | | Collection | Sequence |
 |---|---|---|
@@ -149,12 +149,12 @@ Stay with collections when:
 | Sorting, reversing | `sorted()`, `reversed()` | `toList()` first |
 | `json_encode()` | Supported | `toList()` first |
 
-## Intermediate vs Terminal
+## Intermediate vs terminal
 
 Every method on `Sequence` is one of two kinds:
 
-- **Intermediate** operations — `filter()`, `map()`, `takeFirst()`, `distinct()`, `chunked()`, `zip()`, `onEach()` and others — return a new `Sequence` and run nothing.
-- **Terminal** operations — `first()`, `find()`, `count()`, `sum()`, `toList()`, `forEach()` and others — run the pipeline and return a result.
+- Intermediate operations (`filter()`, `map()`, `takeFirst()`, `distinct()`, `chunked()`, `zip()`, `onEach()` and others) return a new `Sequence` and run nothing.
+- Terminal operations (`first()`, `find()`, `count()`, `sum()`, `toList()`, `forEach()` and others) run the pipeline and return a result.
 
 The [API reference](./api/sequence) lists every operation and how much of the source it pulls.
 
@@ -169,10 +169,10 @@ Some terminal operations stop pulling as soon as they know the answer; the other
 | `any`, `all`, `none` | `fold`, `reduce`, `sum`, `avg` |
 | `contains`, `containsAll` | `min`, `max`, `minOf`, `maxOf` |
 | `isEmpty`, `isNotEmpty` | `toList`, `toSet`, `toArray`, `toMap` |
-| `single` — at the 2nd element | `groupBy`, `countBy`, `partition` |
+| `single` (at the 2nd element) | `groupBy`, `countBy`, `partition` |
 | `joinToString` with `$limit` | `unzip`, `forEach` |
 
-The `OrNull` variants stop at the same point as their throwing counterparts. On an infinite sequence, only the left column can return — put a `takeFirst()` or `takeWhile()` in front of the others.
+The `OrNull` variants stop at the same point as their throwing counterparts. On an infinite sequence, only the left column can return, so put a `takeFirst()` or `takeWhile()` in front of the others.
 
 ### `onEach()` vs `forEach()`
 
@@ -200,14 +200,14 @@ $orders->asSequence()->forEach(fn($order) => $mailer->send($order));
 Most intermediate operations hold a single element at a time. A few need more, but never the whole source:
 
 - `chunked()` and `windowed()` hold one chunk or window, and yield it as an `ImmutableList`.
-- `distinct()` and `distinctBy()` remember every distinct element (or selector value) seen during the pass — memory grows with the number of distinct values.
+- `distinct()` and `distinctBy()` remember every distinct element (or selector value) seen during the pass, so memory grows with the number of distinct values.
 - `zip()` pulls the other iterable in lockstep, without copying it.
 
-Terminal operations that return collections — `toList()`, `groupBy()`, `partition()` — hold everything they return. `countBy()` holds only one counter per key.
+Terminal operations that return collections (`toList()`, `groupBy()`, `partition()`) hold everything they return. `countBy()` holds only one counter per key.
 
-## Iterating More Than Once
+## Iterating more than once
 
-Each terminal operation — and each `foreach` — is a new pass that pulls from the source from the start. Whether a sequence supports another pass depends on its source:
+Each terminal operation, and each `foreach`, is a new pass that pulls from the source from the start. Whether a sequence supports another pass depends on its source:
 
 | Source | Another pass |
 |---|---|
@@ -221,7 +221,7 @@ Each terminal operation — and each `foreach` — is a new pass that pulls from
 A pass that stopped early, like `first()`, still counts as a pass.
 
 ::: warning Every terminal operation runs the pipeline again
-A sequence stores nothing, so two terminal operations mean two passes — and a producer runs twice:
+A sequence stores nothing, so two terminal operations mean two passes, and a producer runs twice:
 
 ```php
 $rows = sequenceOf(fn() => $db->cursor('SELECT * FROM orders'));
@@ -230,7 +230,7 @@ $rows->count(); // runs the query
 $rows->first(); // runs the query again
 ```
 
-When you need several answers from the same data, materialize it once with `toList()` and continue on the list — see [Best Practices](./best-practices#materialize-sequences-you-read-twice).
+When you need several answers from the same data, materialize it once with `toList()` and continue on the list. See [Best Practices](./best-practices#materialize-sequences-you-read-twice).
 :::
 
 ### Single-pass sources
@@ -244,13 +244,13 @@ $sequence->first(); // fine
 $sequence->first(); // throws NonReplayableSourceException
 ```
 
-Wrap the call in a closure — `sequenceOf(fn() => $repository->streamAll())` — when the sequence needs to replay.
+Wrap the call in a closure (`sequenceOf(fn() => $repository->streamAll())`) when the sequence needs to replay.
 
-A producer — a closure or an `IteratorAggregate` — must return a **fresh** iterable on every call. One that keeps returning the same generator, like `fn() => $generator`, is detected and throws on the second pass too.
+A producer (a closure or an `IteratorAggregate`) must return a **fresh** iterable on every call. One that keeps returning the same generator, like `fn() => $generator`, is detected and throws on the second pass too.
 
 ### Forcing a single pass
 
-When running the source again would repeat a side effect — a request, a query, a write — set `constrainOnce: true`. The second pass then throws instead of calling the closure again:
+When running the source again would repeat a side effect (a request, a query, a write), set `constrainOnce: true`. The second pass then throws instead of calling the closure again:
 
 ```php
 $events = sequenceOf(
@@ -260,12 +260,12 @@ $events = sequenceOf(
 ```
 
 ::: tip Catching source errors
-`NonReplayableSourceException` and `InvalidSequenceSourceException` (thrown when a closure returns something that is not iterable) both implement `SourceException` — the one type every terminal operation declares. All exceptions of the library implement `NoctudCollectionException`.
+`NonReplayableSourceException` and `InvalidSequenceSourceException` (thrown when a closure returns something that is not iterable) both extend `SourceException`, the one type every terminal operation declares. All exceptions of the library implement `NoctudCollectionException`.
 :::
 
 ## Missing `sorted()`?
 
-A sequence has no `sorted()`, `reversed()`, `shuffled()` or `takeLast()`. Each of them has to read the whole source before it can yield its first element — exactly what a sequence is meant to avoid. `dropLast()`, `random()` and the set operations are left to collections too. When you need one, materialize with `toList()` and continue on the list, so the cost shows in your code:
+A sequence has no `sorted()`, `reversed()`, `shuffled()` or `takeLast()`. Each of them has to read the whole source before it can yield its first element, which is exactly what a sequence is meant to avoid. `dropLast()`, `random()` and the set operations are left to collections too. When you need one, materialize with `toList()` and continue on the list, so the cost shows in your code:
 
 ```php
 $top = $scores->asSequence()
@@ -277,12 +277,12 @@ $top = $scores->asSequence()
 
 The same goes for `count()` and `json_encode()`. A sequence is neither `Countable` nor `JsonSerializable`:
 
-- `count($sequence)` throws a `TypeError` — call `$sequence->count()` to drain it explicitly.
-- `json_encode($sequence)` produces `{}` — encode `$sequence->toList()` instead.
+- `count($sequence)` throws a `TypeError`. Call `$sequence->count()` to drain it explicitly.
+- `json_encode($sequence)` produces `{}`. Encode `$sequence->toList()` instead.
 
-See [No Hidden Materialization](./design#no-hidden-materialization) for the reasoning.
+See [No hidden materialization](./design#no-hidden-materialization) for the reasoning.
 
-## Use Cases
+## Use cases
 
 ### Reading a large file
 
@@ -306,7 +306,7 @@ $errors = sequenceOf(fn() => readLines('/var/log/app.log'))
     ->toList();
 ```
 
-Only one line is in memory at a time. Once 20 errors are found, the file is not read any further — and `finally` closes it when the generator is released.
+Only one line is in memory at a time. Once 20 errors are found, the file is not read any further, and `finally` closes it when the generator is released.
 
 ### Paginated APIs
 
@@ -318,7 +318,7 @@ $customer = generateSequence(1, fn($page) => $page + 1)
     ->find(fn($customer) => $customer->email === $email);
 ```
 
-Page numbers are infinite, but pages are fetched one by one — only until the customer is found, or an empty page ends the sequence.
+Page numbers are infinite, but pages are fetched one by one, and only until the customer is found or an empty page ends the sequence.
 
 ### Database cursors
 
@@ -336,7 +336,7 @@ $users = sequenceOf($query->toIterable());
 
 ### Processing in batches
 
-`chunked()` groups a stream into batches without loading it — handy for bulk writes and indexing:
+`chunked()` groups a stream into batches without loading it, which is handy for bulk writes and indexing:
 
 ```php
 sequenceOf(fn() => $query->toIterable())
@@ -350,6 +350,6 @@ sequenceOf(fn() => $query->toIterable())
 
 Each batch is an `ImmutableList` of up to 500 documents, and only the batch being filled is held in memory.
 
-## Custom Sequences
+## Custom sequences
 
-`GeneratorSequence`, the class `sequenceOf()` returns, is final — but its behavior lives in the `SequenceLogic` trait. To build your own sequence on top of any class, see [Extending](./extending#custom-sequences).
+`GeneratorSequence`, the class `sequenceOf()` returns, is final, but its behavior lives in the `SequenceLogic` trait. To build your own sequence on top of any class, see [Extending](./extending#custom-sequences).
