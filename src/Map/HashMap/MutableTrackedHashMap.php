@@ -17,7 +17,8 @@ use NoDiscard;
 
 /**
  * Mutable tracked hash map that tracks whether the last mutation changed the map.
- * Shares the underlying store with a MutableHashMap.
+ * Shares the underlying store with the MutableMap whose tracked() created it (a hash, int or
+ * string map).
  *
  * @template K of string|int|bool|float|object
  * @template V

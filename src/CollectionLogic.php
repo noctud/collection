@@ -684,7 +684,8 @@ trait CollectionLogic
     }
 
     /**
-     * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
+     * Creates the result of an element-type-changing operation (map, mapNotNull, flatMap, flatten,
+     * filterInstanceOf).
      *
      * Kept separate from newCollectionOf so that concrete Logic traits can bypass a
      * self-preserving newCollectionOf override: a transform result no longer holds

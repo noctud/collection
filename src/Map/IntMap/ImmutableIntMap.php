@@ -31,9 +31,8 @@ use function iterator_to_array;
  * while put() and the other additions return an ImmutableHashMap for one.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability, if you want your own ImmutableIntMap,
- * use ImmutableIntMapLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * To write your own ImmutableMap outside this class hierarchy, use the ImmutableMapLogic trait
+ * in your own class; this class adds the int-key overrides on top of it.
  *
  * @template V
  * @implements ImmutableMap<int,V>
@@ -136,7 +135,7 @@ final class ImmutableIntMap implements ImmutableMap
     #[NoDiscard]
     public function putAll(iterable $data): ImmutableMap
     {
-        // Buffer generators into pairs — iterator_to_array() crashes on non-scalar keys (e.g. objects)
+        // Buffer generators into pairs: iterator_to_array() crashes on non-scalar keys (e.g. objects)
         if ($data instanceof Generator) {
             $pairs = [];
             foreach ($data as $k => $v) {

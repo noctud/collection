@@ -15,13 +15,14 @@ use Noctud\Collection\Map\MutableMapLogic;
 use ReflectionClass;
 
 /**
- * Mutable hash-map with strict key semantics.
- * As a key, you can store any scalar type, null, or object.
+ * Mutable hash map whose keys keep their type: strings, ints, floats, bools and objects.
+ * Null, array and resource keys throw InvalidKeyTypeException. Float keys are compared to
+ * 12 decimal places, Hashable objects by identity(), other objects by instance.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability, if you want your own MutableMap,
- * use MutableHashMapLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * To write your own MutableMap outside this class hierarchy, use the MutableMapLogic trait
+ * in your own class and fill $store (e.g. with HashKeyValueStore::fromAssoc()); this way you
+ * can extend your own base class.
  *
  * @template K of string|int|bool|float|object
  * @template V

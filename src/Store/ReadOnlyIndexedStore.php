@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Store;
 
+use Noctud\Collection\Exception\IndexOutOfBoundsException;
+
 /**
  * Readable element store interface.
  * Used only by traits of this library, not associated with main interfaces.
@@ -24,6 +26,7 @@ interface ReadOnlyIndexedStore extends ReadOnlyElementStore
      * Returns the value at the given index, or null if not found.
      *
      * @return ($throw is true ? V : V|null)
+     * @throws IndexOutOfBoundsException If no element is at the index and $throw is true
      */
     public function get(int $index, bool $throw = false): mixed;
 

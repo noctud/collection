@@ -15,12 +15,13 @@ use Noctud\Collection\Set\MutableSetLogic;
 use ReflectionClass;
 
 /**
- * Mutable hash set preserving insertion order.
+ * Mutable hash set preserving insertion order. Elements are compared by hash: Hashable
+ * objects by identity(), other objects by instance, floats to 12 decimal places.
  * If the given data is Closure, the set will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability if you want your own MutableSet,
- * use the MutableHashSetLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * The class only adds a constructor. To write your own MutableSet outside this class
+ * hierarchy, use the MutableSetLogic trait in your own class and fill $store with a
+ * HashElementStore; this way you can extend your own base class.
  *
  * @template E
  * @implements MutableSet<E>

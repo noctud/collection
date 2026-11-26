@@ -24,12 +24,14 @@ use function Noctud\Collection\stringMapOf;
 
 /**
  * Mutable string-key map with optimized single-array storage.
- * Only accepts string keys; non-string keys throw InvalidKeyTypeException.
+ * Takes string keys only: put() and the other additions throw InvalidKeyTypeException for a
+ * key of another type. The constructor accepts a PHP array as is and casts its int keys to
+ * strings, because PHP has already turned numeric-string keys like '1' into ints. To add such
+ * a key later, use put('1', ...) or putAllPairs([['1', ...]]).
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability, if you want your own MutableStringMap,
- * use MutableMapLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * To write your own MutableMap outside this class hierarchy, use the MutableMapLogic trait
+ * in your own class; this class adds the string-key overrides on top of it.
  *
  * @template V
  * @implements MutableMap<string,V>

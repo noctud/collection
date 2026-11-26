@@ -11,6 +11,7 @@ namespace Noctud\Collection\Store;
 
 use IteratorAggregate;
 use Noctud\Collection\Exception\ConversionException;
+use Noctud\Collection\Exception\InvalidKeyTypeException;
 use Noctud\Collection\Exception\NoSuchElementException;
 use Noctud\Collection\Map\KeyCollisionStrategy;
 use Noctud\Collection\Map\MapEntry;
@@ -93,6 +94,7 @@ interface KeyValueStore extends IteratorAggregate
      *
      * @param K $key
      * @param V $value
+     * @throws InvalidKeyTypeException If the store cannot hold the key (e.g. a string key in an int-key store)
      */
     public function put(string|int|bool|float|object $key, mixed $value): void;
 
@@ -102,6 +104,7 @@ interface KeyValueStore extends IteratorAggregate
      *
      * @param K $key
      * @param V $value
+     * @throws InvalidKeyTypeException If the store cannot hold the key
      */
     public function putFirst(string|int|bool|float|object $key, mixed $value): void;
 
@@ -112,6 +115,7 @@ interface KeyValueStore extends IteratorAggregate
      * @template NV
      *
      * @param iterable<NK,NV> $source
+     * @throws InvalidKeyTypeException If the store cannot hold one of the keys (e.g. null)
      */
     public function putAllFromAssoc(iterable $source): void;
 
@@ -122,6 +126,7 @@ interface KeyValueStore extends IteratorAggregate
      * @template NV
      *
      * @param iterable<array{0:NK,1:NV}> $source
+     * @throws InvalidKeyTypeException If the store cannot hold one of the keys (e.g. null)
      */
     public function putAllFromPairs(iterable $source): void;
 

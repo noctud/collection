@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Store;
 
+use Noctud\Collection\Exception\IndexOutOfBoundsException;
+
 /**
  * Writable and readable element store interface.
  * Used only by traits of this library, not associated with main interfaces.
@@ -22,10 +24,11 @@ interface ReadWriteIndexedStore extends ReadOnlyIndexedStore, ReadWriteElementSt
     // --- Mutation ---
 
     /**
-     * Sets the element at the given index.
+     * Replaces the element at an existing index; it never appends.
      *
      * @param int $index
      * @param V $element
+     * @throws IndexOutOfBoundsException If no element is at the index
      */
     public function set(int $index, mixed $element): void;
 
@@ -33,6 +36,7 @@ interface ReadWriteIndexedStore extends ReadOnlyIndexedStore, ReadWriteElementSt
      * Removes the element at the given index.
      *
      * @param int $index
+     * @throws IndexOutOfBoundsException If no element is at the index
      */
     public function removeAt(int $index): void;
 

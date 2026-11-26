@@ -16,8 +16,9 @@ use function sprintf;
 use function lcfirst;
 
 /**
- * Thrown when a mutating method is called on an immutable collection/map or when a
- * requested operation is not valid in the current state (e.g., reducing an empty collection).
+ * Thrown when an immutable list or map is written through array access, or when an operation
+ * cannot run on the elements it is given (reducing or averaging an empty collection or sequence,
+ * unzipping an element that is not a pair). Immutable mutators never throw it: they return a copy.
  */
 class UnsupportedOperationException extends LogicException implements NoctudCollectionException
 {

@@ -27,9 +27,8 @@ use function Noctud\Collection\mutableIntMapOf;
  * Only accepts int keys; non-int keys throw InvalidKeyTypeException.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability, if you want your own MutableIntMap,
- * use MutableIntMapLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * To write your own MutableMap outside this class hierarchy, use the MutableMapLogic trait
+ * in your own class; this class adds the int-key overrides on top of it.
  *
  * @template V
  * @implements MutableMap<int,V>

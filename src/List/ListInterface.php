@@ -100,12 +100,14 @@ interface ListInterface extends Collection, ArrayAccess
     public function indexOfLast(Closure $predicate): int;
 
     /**
-     * Creates a view of the list from index 'from' (inclusive) to 'to' (exclusive).
+     * Returns a new list with the elements from index 'from' (inclusive) to 'to' (exclusive).
+     * It is a copy, so later changes to a mutable list don't reach it. A negative 'from' counts
+     * as 0, and a 'to' below 'from' counts as 'from', which gives an empty list.
      *
      * @param non-negative-int $from Starting index (inclusive)
      * @param non-negative-int $to Ending index (exclusive)
      * @return ListInterface<E> New list containing the sliced elements
-     * @throws IndexOutOfBoundsException If indices are out of bounds
+     * @throws IndexOutOfBoundsException If 'from' or 'to' is greater than the list size
      */
     #[NoDiscard]
     public function slice(int $from, int $to): ListInterface;
@@ -266,7 +268,7 @@ interface ListInterface extends Collection, ArrayAccess
     public function dropLastWhile(Closure $predicate): ListInterface;
 
     /**
-     * Distinct elements by identity.
+     * Distinct elements, compared by hash the way a set compares them. Keeps the first occurrence.
      *
      * @return ListInterface<E>
      */
@@ -285,7 +287,7 @@ interface ListInterface extends Collection, ArrayAccess
 
     /**
      * Returns a new collection with elements sorted in their natural order.
-     * Example: listOf(3, 1, 2)->sorted() // [1, 2, 3]
+     * Example: listOf([3, 1, 2])->sorted() // [1, 2, 3]
      *
      * @return ListInterface<E>
      */
@@ -294,7 +296,7 @@ interface ListInterface extends Collection, ArrayAccess
 
     /**
      * Returns a new collection with elements sorted in descending natural order.
-     * Example: listOf(1, 3, 2)->sortedDesc() // [3, 2, 1]
+     * Example: listOf([1, 3, 2])->sortedDesc() // [3, 2, 1]
      *
      * @return ListInterface<E>
      */

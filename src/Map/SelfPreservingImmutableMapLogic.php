@@ -17,13 +17,18 @@ use NoDiscard;
  *
  * Same behaviour as {@see ImmutableMapLogic}, but every shape-preserving operation
  * (filter, sorting, slicing, immutable mutations, ...) is narrowed to return
- * `static` — your own subtype — instead of the base `ImmutableMap`. This lets a
+ * `static` (your own subtype) instead of the base `ImmutableMap`. This lets a
  * domain map expose its own type through the fluent API without a baseline:
  *
  * ```php
  * class Headers implements ImmutableMap
  * {
  *     use SelfPreservingImmutableMapLogic;
+ *
+ *     public function __construct(iterable $data = [])
+ *     {
+ *         $this->store = HashKeyValueStore::fromAssoc($data);
+ *     }
  *
  *     public function withoutHopByHop(): self
  *     {
@@ -32,17 +37,18 @@ use NoDiscard;
  * }
  * ```
  *
- * The using class needs a constructor that accepts an `iterable<K,V>` (the bundled
- * `newMapOf()` builds derived maps with `new static(...)`), e.g. by populating its
- * store with `HashKeyValueStore::fromAssoc($data)`.
+ * The constructor accepting an `iterable<K,V>` is required: the bundled `newMapOf()`
+ * builds derived maps with `new static(...)`.
  *
  * Two consequences of the `static` promise, both intentional:
  * - Mutations are **strict**: unlike the widening base `put(NK,NV): ImmutableMap<K|NK,V|NV>`,
  *   here `put(K,V): static`. A fixed-type map cannot widen its key/value type.
  * - Key/value-changing methods (mapKeys, mapValues, mapValuesNotNull,
- *   filterValuesInstanceOf, flip, the keys/values/entries views, sortedWith over
- *   MapEntry, and the to* conversions) are **not** narrowed; they still return the
- *   base type, because their result is no longer a map of `K => V`. Transforms that
+ *   filterValuesInstanceOf, flip, the keys/values/entries views, and the to*
+ *   conversions) are **not** narrowed; they still return the base type, because
+ *   their result is no longer a map of `K => V`. sortedWith is not narrowed either,
+ *   because its MapEntry<K,V> comparator parameter blocks it, but it still returns
+ *   the subtype at runtime. Transforms that
  *   change the key or value type (mapKeys, mapValues, mapValuesNotNull,
  *   filterValuesInstanceOf, flip) also build a plain base map at runtime, so the
  *   object matches its declared type and a constructor invariant on the subtype

@@ -60,8 +60,9 @@ trait SequenceLogic
 
     /**
      * containsAll() scans the wanted elements with in_array() up to this many, and looks them up
-     * in a StrictElementLookup past it: every walked value then costs a method call and a hash
-     * instead of a scan in C, which is measured to pay off from about this count.
+     * in a StrictElementLookup past it: once the lookup has indexed them after its first scans,
+     * every walked value costs a method call and a hash instead of a scan in C, which is
+     * measured to pay off from about this count.
      */
     private const int ContainsAllLookupThreshold = 320;
 
@@ -578,7 +579,7 @@ trait SequenceLogic
     /**
      * Chains a lazy stage. The factory is invoked once per pass (never at chain-build
      * time), so every pass runs a fresh Operation generator and replayability follows
-     * the root source.
+     * the root source (and, for zip(), the iterable zipped in).
      *
      * @template R
      * @param Closure():iterable<R> $factory

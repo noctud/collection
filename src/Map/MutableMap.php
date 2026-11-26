@@ -40,8 +40,9 @@ interface MutableMap extends WritableMap
      * If the key already exists, it is moved to the first position and its value is updated.
      * If the key is already first with the same value, this is a no-op.
      *
-     * Note: Mutable maps enforce strict typing - you can only add entries
-     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     * Note: a mutable map keeps its types K and V, so static analysis rejects an entry of other
+     * types. At runtime only StringMap and IntMap check a key against K, and every map rejects
+     * null, array and resource keys. Use ImmutableMap for type widening.
      *
      * @param K $key
      * @param V $value
@@ -156,8 +157,9 @@ interface MutableMap extends WritableMap
     /**
      * Returns the current map with the given key/value added.
      *
-     * Note: Mutable maps enforce strict typing - you can only add entries
-     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     * Note: a writable map keeps its types K and V, so static analysis rejects an entry of other
+     * types. At runtime only StringMap and IntMap check a key against K, and every map rejects
+     * null, array and resource keys. Use ImmutableMap for type widening.
      *
      * @param K $key
      * @param V $value
@@ -179,8 +181,9 @@ interface MutableMap extends WritableMap
      * Adds all entries from the given iterable to the current map.
      * Example of $data: ['key' => 'value', 'key2' => 'value2']
      *
-     * Note: Mutable maps enforce strict typing - you can only add entries
-     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     * Note: a writable map keeps its types K and V, so static analysis rejects an entry of other
+     * types. At runtime only StringMap and IntMap check a key against K, and every map rejects
+     * null, array and resource keys. Use ImmutableMap for type widening.
      *
      * @param iterable<K,V> $data
      * @return MutableMap<K,V> The current map.
@@ -191,8 +194,9 @@ interface MutableMap extends WritableMap
      * Adds all entries from the given iterable to the current map.
      * Example of $data: [['key','value'], ['key2','value2']]
      *
-     * Note: Mutable maps enforce strict typing - you can only add entries
-     * matching the declared types K and V. Use ImmutableMap if you need type widening.
+     * Note: a writable map keeps its types K and V, so static analysis rejects an entry of other
+     * types. At runtime only StringMap and IntMap check a key against K, and every map rejects
+     * null, array and resource keys. Use ImmutableMap for type widening.
      *
      * @param iterable<array{0:K,1:V}> $data
      * @return MutableMap<K,V> The current map.

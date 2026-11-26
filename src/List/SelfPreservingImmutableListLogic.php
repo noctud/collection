@@ -16,14 +16,19 @@ use NoDiscard;
  * Self-preserving variant of {@see ImmutableListLogic}.
  *
  * Same behaviour as {@see ImmutableListLogic}, but every shape-preserving operation
- * (filter, sorted, slice, immutable mutations, ...) is narrowed to return `static` —
- * your own subtype — instead of the base `ImmutableList`. This lets a domain list
+ * (filter, sorted, slice, immutable mutations, ...) is narrowed to return `static`
+ * (your own subtype) instead of the base `ImmutableList`. This lets a domain list
  * expose its own type through the fluent API without a baseline:
  *
  * ```php
  * class LineItems implements ImmutableList
  * {
  *     use SelfPreservingImmutableListLogic;
+ *
+ *     public function __construct(iterable $data = [])
+ *     {
+ *         $this->store = new ArrayIndexStore($data);
+ *     }
  *
  *     public function billable(): self
  *     {
@@ -32,7 +37,7 @@ use NoDiscard;
  * }
  * ```
  *
- * The using class only needs a constructor that accepts an `iterable` — the bundled
+ * The constructor accepting an `iterable` is all the using class needs: the bundled
  * `newCollectionOf()` builds derived lists with `new static(...)`, so there is no
  * factory method to override.
  *
@@ -40,7 +45,7 @@ use NoDiscard;
  * - Mutations are **strict**: unlike the widening base `add(NE): ImmutableList<E|NE>`,
  *   here `add(E): static`. A fixed-type list cannot widen its element type.
  * - Type-changing methods (map, flatMap, flatten, filterInstanceOf, groupBy, the
- *   set operations intersect/union/subtract — which produce a Set — and the to*
+ *   set operations intersect/union/subtract, which produce a Set, and the to*
  *   conversions) are **not** narrowed; they still return the base type, because
  *   their result is no longer a list of `E`. Transforms that change the element
  *   type (map, mapNotNull, flatMap, flatten, filterInstanceOf) also build a plain

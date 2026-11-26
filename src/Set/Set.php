@@ -169,7 +169,7 @@ interface Set extends Collection
     public function dropLastWhile(Closure $predicate): Set;
 
     /**
-     * Distinct elements by identity.
+     * Distinct elements, compared by hash the way a set compares them. Keeps the first occurrence.
      *
      * @return Set<E>
      */
@@ -188,7 +188,7 @@ interface Set extends Collection
 
     /**
      * Returns a new collection with elements sorted in their natural order.
-     * Example: listOf(3, 1, 2)->sorted() // [1, 2, 3]
+     * Example: listOf([3, 1, 2])->sorted() // [1, 2, 3]
      *
      * @return Set<E>
      */
@@ -197,7 +197,7 @@ interface Set extends Collection
 
     /**
      * Returns a new collection with elements sorted in descending natural order.
-     * Example: listOf(1, 3, 2)->sortedDesc() // [3, 2, 1]
+     * Example: listOf([1, 3, 2])->sortedDesc() // [3, 2, 1]
      *
      * @return Set<E>
      */

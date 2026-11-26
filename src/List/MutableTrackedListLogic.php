@@ -16,7 +16,7 @@ use Noctud\Collection\TrackedResult;
 
 /**
  * Tracking trait for mutable lists.
- * Overrides mutation methods to compute $changed before delegating to the store.
+ * Overrides mutation methods to record in $changed whether the store call changed the list.
  *
  * @template E
  * @mixin MutableTrackedList<E>

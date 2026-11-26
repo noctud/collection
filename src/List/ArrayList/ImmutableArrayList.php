@@ -16,12 +16,12 @@ use Noctud\Collection\List\ImmutableListLogic;
 use ReflectionClass;
 
 /**
- * Immutable array list set preserving insertion order.
+ * Immutable array list preserving insertion order.
  * If the given data is Closure, the list will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability if you want your own ImmutableList,
- * use the ImmutableArrayListLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * The class only adds a constructor. To write your own ImmutableList outside this class
+ * hierarchy, use the ImmutableListLogic trait in your own class and fill $store with an
+ * ArrayIndexStore; this way you can extend your own base class.
  *
  * @template E
  * @implements ImmutableList<E>

@@ -17,13 +17,18 @@ use NoDiscard;
  *
  * Same behaviour as {@see ImmutableSetLogic}, but every shape-preserving operation
  * (filter, sorted, set operations, immutable mutations, ...) is narrowed to return
- * `static` — i.e. your own subtype — instead of the base `ImmutableSet`. This lets a
+ * `static` (your own subtype) instead of the base `ImmutableSet`. This lets a
  * domain collection expose its own type through the fluent API without a baseline:
  *
  * ```php
  * class OrderItemCollection implements ImmutableSet
  * {
  *     use SelfPreservingImmutableSetLogic;
+ *
+ *     public function __construct(iterable $data = [])
+ *     {
+ *         $this->store = new HashElementStore($data);
+ *     }
  *
  *     public function onlySwapped(): self
  *     {
@@ -32,7 +37,7 @@ use NoDiscard;
  * }
  * ```
  *
- * The using class only needs a constructor that accepts an `iterable` — the bundled
+ * The constructor accepting an `iterable` is all the using class needs: the bundled
  * `newCollectionOf()` builds derived collections with `new static(...)`, so there is
  * no factory method to override.
  *
@@ -42,7 +47,7 @@ use NoDiscard;
  * - `union()` is **strict** for the same reason: unlike the widening base
  *   `union(iterable<NE>): Set<E|NE>`, here `union(iterable<E>): static`.
  * - Type-changing methods (map, flatMap, flatten, filterInstanceOf, groupBy, the
- *   to* conversions) are **not** narrowed — they still return the base type, because
+ *   to* conversions) are **not** narrowed; they still return the base type, because
  *   their result is no longer a collection of `E`. (`groupBy` additionally cannot be
  *   narrowed because `ImmutableMap`'s value parameter is invariant.) Transforms that
  *   change the element type (map, mapNotNull, flatMap, flatten, filterInstanceOf)

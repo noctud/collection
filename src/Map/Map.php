@@ -510,17 +510,18 @@ interface Map extends IteratorAggregate, Countable, ArrayAccess, JsonSerializabl
     // --- Conversion ---
 
     /**
-     * Converts the map to a native PHP array, only if all keys are of a scalar or null type.
+     * Converts the map to a native PHP array.
      *
-     * Object keys will throw ConversionException
-     * Duplicate keys (string "1" and int 1) will throw ConversionException
-     * Float keys with precision loss (e.g. 1.5) will throw ConversionException
+     * Object keys throw ConversionException.
+     * Float keys with a fractional part (e.g. 1.5) throw ConversionException whatever the strategy.
+     * Keys that become the same array key (string "1", int 1, true, float 1.0) throw
+     * ConversionException with the default KeyCollisionStrategy::Throw; KeepFirst and KeepLast
+     * keep one of the values instead.
      *
      * Collisions can only occur with mixed types or floats. A Map<string, V> with only
-     * string keys will never throw — PHP only casts strings that look exactly like integers.
+     * string keys never collides, because PHP only casts strings that look exactly like integers.
      *
      * Conversion works exactly as the keys were written to an array.
-     * - null → '' (empty string)
      * - true → 1, false → 0
      * - float → int (only if no precision loss, e.g. 1.0 → 1; but 1.5 throws)
      * - string digits will become int ('1' → 1)

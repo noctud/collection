@@ -104,7 +104,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
      * Returns a new collection with the specified element at the beginning.
      *
      * For Sets: if the element is already present, it is moved to the first position.
-     * If the element is already first, the same collection is returned.
+     * If the element is already first, the result holds the same elements in the same order.
      * For Lists: the element is always prepended (duplicates are allowed).
      *
      * @template NE
@@ -158,7 +158,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
 
     /**
      * Returns a new collection without the first element.
-     * Returns the same collection if empty.
+     * Returns an empty collection if this one is empty.
      *
      * @return ImmutableList<E> The new immutable collection
      */
@@ -167,7 +167,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
 
     /**
      * Returns a new collection without the last element.
-     * Returns the same collection if empty.
+     * Returns an empty collection if this one is empty.
      *
      * @return ImmutableList<E> The new immutable collection
      */
@@ -333,7 +333,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
     public function dropLastWhile(Closure $predicate): ImmutableList;
 
     /**
-     * Distinct elements by identity.
+     * Distinct elements, compared by hash the way a set compares them. Keeps the first occurrence.
      *
      * @return ImmutableList<E>
      */
@@ -352,7 +352,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
 
     /**
      * Returns a new collection with elements sorted in their natural order.
-     * Example: listOf(3, 1, 2)->sorted() // [1, 2, 3]
+     * Example: listOf([3, 1, 2])->sorted() // [1, 2, 3]
      *
      * @return ImmutableList<E>
      */
@@ -361,7 +361,7 @@ interface ImmutableList extends ListInterface, ImmutableCollection
 
     /**
      * Returns a new collection with elements sorted in descending natural order.
-     * Example: listOf(1, 3, 2)->sortedDesc() // [3, 2, 1]
+     * Example: listOf([1, 3, 2])->sortedDesc() // [3, 2, 1]
      *
      * @return ImmutableList<E>
      */

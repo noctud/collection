@@ -396,7 +396,7 @@ final class StringKeyValueStore implements KeyValueStore
      */
     public function toArray(KeyCollisionStrategy $onCollision = KeyCollisionStrategy::Throw): array
     {
-        // String keys map 1:1 to PHP array keys - no collision possible since PHP 8.0
+        // PHP casts only canonical integer strings, so two distinct string keys never collide
         return $this->data;
     }
 }

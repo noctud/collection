@@ -48,7 +48,7 @@ trait MapLogic
      * Backing store shared by every Map variant.
      *
      * Declared on the read-only base trait (not on the Immutable/Mutable/Tracked
-     * logic traits) because a Map has a single store interface — unlike Set/List,
+     * logic traits) because a Map has a single store interface, unlike Set/List,
      * whose variants narrow a read-only base store to a read-write one.
      *
      * @var KeyValueStore<K,V>
@@ -732,7 +732,7 @@ trait MapLogic
      * Creates the result of a key-type-changing operation (mapKeys, flip).
      *
      * Not routed through newMapOf: a self-preserving subtype rebuilds itself there,
-     * and a transformed result no longer holds K/V entries — it must not go through
+     * and a transformed result no longer holds K/V entries, so it must not go through
      * the subtype's constructor.
      *
      * @template NK of string|int|bool|float|object

@@ -27,8 +27,8 @@ interface WritableTrackedSet extends WritableSet, WritableTrackedCollection
     /**
      * Adds a single element to the collection.
      *
-     * Note: Mutable collections enforce strict typing - you can only add elements
-     * of the declared type E. Use ImmutableCollection if you need type widening.
+     * Note: a writable collection keeps its element type E, so static analysis rejects an element
+     * of another type (nothing is checked at runtime). Use ImmutableCollection for type widening.
      *
      * @param E $element The element to add
      * @return WritableTrackedSet<E>&TrackedResult The collection itself for chaining
@@ -38,8 +38,8 @@ interface WritableTrackedSet extends WritableSet, WritableTrackedCollection
     /**
      * Adds all elements from an iterable source to the collection.
      *
-     * Note: Mutable collections enforce strict typing - you can only add elements
-     * of the declared type E. Use ImmutableCollection if you need type widening.
+     * Note: a writable collection keeps its element type E, so static analysis rejects an element
+     * of another type (nothing is checked at runtime). Use ImmutableCollection for type widening.
      *
      * @param iterable<E> $elements The elements to add
      * @return WritableTrackedSet<E>&TrackedResult The collection itself for chaining

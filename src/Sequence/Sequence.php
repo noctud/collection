@@ -26,8 +26,10 @@ use NoDiscard;
  * Lazily evaluated stream of values.
  *
  * Nothing is pulled from the source before the sequence is iterated (a foreach or a
- * terminal operation). A sequence guarantees at least one pass; whether it can be
- * iterated again depends on its source:
+ * terminal operation). A sequence built from a source guarantees at least one pass; a stage
+ * chained onto another sequence shares that sequence's passes, so chaining onto an already
+ * iterated single-pass sequence throws on the first pass. Whether a sequence can be iterated
+ * again depends on its source:
  *
  * - an array: the sequence replays, pulling fresh elements every pass;
  * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
@@ -47,8 +49,8 @@ use NoDiscard;
  * the second pass then throws NonReplayableSourceException instead of replaying an array
  * or re-invoking a producer, which is what you want when replaying would repeat a side effect.
  *
- * NonReplayableSourceException and InvalidSequenceSourceException both implement
- * SourceException, the single type every method below declares - which concrete
+ * NonReplayableSourceException and InvalidSequenceSourceException both extend
+ * SourceException, the single type every terminal below declares; which concrete
  * one surfaces depends on the source, not on the method called.
  *
  * Keys are positional: every pass yields fresh 0..n keys, whatever the source yields.
@@ -174,7 +176,7 @@ interface Sequence extends IteratorAggregate
     public function dropWhile(Closure $predicate): Sequence;
 
     /**
-     * Distinct elements by identity.
+     * Distinct elements, compared by hash the way a set compares them.
      * Elements already seen during the current pass are skipped, so the memory held grows
      * with the number of distinct elements.
      *
@@ -226,7 +228,9 @@ interface Sequence extends IteratorAggregate
      * The other side is pulled in lockstep rather than copied. A Generator resumes from its
      * current position, so the head of a stream can be consumed before zipping the rest; any
      * other iterator is rewound first, and an already advanced one therefore restarts from its
-     * first element - wrap it in a NoRewindIterator to resume it instead.
+     * first element; wrap it in a NoRewindIterator to resume it instead. One whose rewind fails
+     * makes the pass throw NonReplayableSourceException. Zipping a Generator or a
+     * NoRewindIterator makes the result single-pass, whatever this sequence's source is.
      *
      * @template U
      * @param iterable<U> $other
@@ -676,6 +680,7 @@ interface Sequence extends IteratorAggregate
      * @param ?Closure(E, int):V $valueTransform
      * @return ImmutableMap<K,V>
      * @throws SourceException If the source cannot produce a pass (already consumed, or not an iterable)
+     * @throws InvalidKeyTypeException If the key selector returns a value that cannot be a map key (e.g. null or an array)
      */
     #[NoDiscard]
     public function toMap(Closure $keySelector, ?Closure $valueTransform = null): ImmutableMap;

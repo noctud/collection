@@ -51,7 +51,7 @@ interface MutableCollection extends WritableCollection
 
     /**
      * Sorts the collection in-place in its natural order.
-     * Example: listOf(3, 1, 2)->sort() // [1, 2, 3]
+     * Example: mutableListOf([3, 1, 2])->sort() // [1, 2, 3]
      *
      * @return MutableCollection<E> The collection itself for chaining
      */
@@ -59,7 +59,7 @@ interface MutableCollection extends WritableCollection
 
     /**
      * Sorts the collection in-place in descending natural order.
-     * Example: listOf(1, 3, 2)->sortDesc() // [3, 2, 1]
+     * Example: mutableListOf([1, 3, 2])->sortDesc() // [3, 2, 1]
      *
      * @return MutableCollection<E> The collection itself for chaining
      */
@@ -67,7 +67,7 @@ interface MutableCollection extends WritableCollection
 
     /**
      * Sorts the collection in-place by a selector.
-     * Example: listOf($users)->sortBy(fn($u) => $u->age)
+     * Example: mutableListOf($users)->sortBy(fn($u) => $u->age)
      *
      * @template R of mixed
      * @param Closure(E):R $selector Selector to extract comparable from the element.
@@ -77,7 +77,7 @@ interface MutableCollection extends WritableCollection
 
     /**
      * Sorts the collection in-place by a selector in descending order.
-     * Example: listOf($users)->sortByDesc(fn($u) => $u->age)
+     * Example: mutableListOf($users)->sortByDesc(fn($u) => $u->age)
      *
      * @template R of mixed
      * @param Closure(E):R $selector Selector to extract comparable from the element.
@@ -87,7 +87,7 @@ interface MutableCollection extends WritableCollection
 
     /**
      * Sorts the collection in-place using a comparator.
-     * Example: listOf($users)->sortWith(fn($u1, $u2) => $u1->age <=> $u2->age)
+     * Example: mutableListOf($users)->sortWith(fn($u1, $u2) => $u1->age <=> $u2->age)
      *
      * @param Closure(E, E):int $comparator
      * @return MutableCollection<E> The collection itself for chaining
@@ -113,8 +113,8 @@ interface MutableCollection extends WritableCollection
     /**
      * Adds a single element to the collection.
      *
-     * Note: Mutable collections enforce strict typing - you can only add elements
-     * of the declared type E. Use ImmutableCollection if you need type widening.
+     * Note: a writable collection keeps its element type E, so static analysis rejects an element
+     * of another type (nothing is checked at runtime). Use ImmutableCollection for type widening.
      *
      * @param E $element The element to add
      * @return MutableCollection<E> The collection itself for chaining
@@ -124,8 +124,8 @@ interface MutableCollection extends WritableCollection
     /**
      * Adds all elements from an iterable source to the collection.
      *
-     * Note: Mutable collections enforce strict typing - you can only add elements
-     * of the declared type E. Use ImmutableCollection if you need type widening.
+     * Note: a writable collection keeps its element type E, so static analysis rejects an element
+     * of another type (nothing is checked at runtime). Use ImmutableCollection for type widening.
      *
      * @param iterable<E> $elements The elements to add
      * @return MutableCollection<E> The collection itself for chaining

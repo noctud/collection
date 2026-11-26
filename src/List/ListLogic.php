@@ -545,10 +545,11 @@ trait ListLogic
     }
 
     /**
-     * Creates the result of an element-type-changing operation (map, flatMap, flatten, filterInstanceOf).
+     * Creates the result of an element-type-changing operation (map, mapNotNull, flatMap, flatten,
+     * filterInstanceOf).
      *
      * Not routed through newCollectionOf: a self-preserving subtype rebuilds itself
-     * there, and a transform result no longer holds elements of E — it must not go
+     * there, and a transform result no longer holds elements of E, so it must not go
      * through the subtype's constructor.
      *
      * @template NE

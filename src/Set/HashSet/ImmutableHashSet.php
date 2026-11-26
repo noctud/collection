@@ -15,12 +15,13 @@ use Noctud\Collection\Set\ImmutableSetLogic;
 use ReflectionClass;
 
 /**
- * Immutable hash set preserving insertion order.
+ * Immutable hash set preserving insertion order. Elements are compared by hash: Hashable
+ * objects by identity(), other objects by instance, floats to 12 decimal places.
  * If the given data is Closure, the set will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability if you want your own ImmutableSet,
- * use the ImmutableHashSetLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * The class only adds a constructor. To write your own ImmutableSet outside this class
+ * hierarchy, use the ImmutableSetLogic trait in your own class and fill $store with a
+ * HashElementStore; this way you can extend your own base class.
  *
  * @template E
  * @implements ImmutableSet<E>

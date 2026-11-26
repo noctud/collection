@@ -31,9 +31,8 @@ use function iterator_to_array;
  * key of another type. The constructor takes a PHP array as is, numeric-string keys included.
  * If the given data is Closure, the map will be lazily initialized when first accessed.
  *
- * The class is empty for easy extendability, if you want your own ImmutableStringMap,
- * use ImmutableMapLogic trait in your own class; this way you are not tied
- * to our class hierarchy (you can extend your own base class).
+ * To write your own ImmutableMap outside this class hierarchy, use the ImmutableMapLogic trait
+ * in your own class; this class adds the string-key overrides on top of it.
  *
  * @template V
  * @implements ImmutableMap<string,V>

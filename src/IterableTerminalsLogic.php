@@ -24,7 +24,8 @@ use function get_debug_type;
  * elements as an array when the consumer holds one, which PHP walks about twice as fast.
  *
  * A body belongs here only if it is identical for both, which excludes two families: the one the
- * eager side answers from its store in O(1) (first/last/isEmpty/contains/count), and containsAll,
+ * eager side answers from its store without walking $this (first/last/isEmpty/count in O(1),
+ * contains by a hash lookup on sets and a C-level in_array() scan on lists), and containsAll,
  * whose one-lookup-per-value shape would cost a sequence one pass per value. A message naming the
  * subject is no longer a reason to split: the exception derives that noun from $this.
  *

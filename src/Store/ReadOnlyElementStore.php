@@ -51,7 +51,8 @@ interface ReadOnlyElementStore extends IteratorAggregate
     // --- Querying ---
 
     /**
-     * Returns true if the storage contains the given value (strict comparison).
+     * Returns true if the storage contains the given value: compared with === in an indexed store,
+     * by KeyHasher hash in a hash-based one (a Hashable matches any instance with the same identity()).
      *
      * @param mixed $element
      */

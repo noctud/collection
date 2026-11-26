@@ -172,7 +172,8 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
     public function isNotEmpty(): bool;
 
     /**
-     * Whether the collection contains a value (strict comparison).
+     * Whether the collection contains the element. A list compares with ===, a set by hash
+     * (Hashable::identity(), the object instance, or the value, floats to 12 decimal places).
      *
      * @param E $element
      */
@@ -521,7 +522,7 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
     public function dropLastWhile(Closure $predicate): Collection;
 
     /**
-     * Distinct elements by identity.
+     * Distinct elements, compared by hash the way a set compares them. Keeps the first occurrence.
      *
      * @return Collection<E>
      */
@@ -586,7 +587,7 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
     public function zipWithNext(): ListInterface;
 
     /**
-     * Splits a collection of pairs into two lists — one from the first component, one from the second.
+     * Splits a collection of pairs into two lists: one from the first component, one from the second.
      * This is the inverse of zip().
      *
      * @return array{ImmutableList<mixed>, ImmutableList<mixed>}
@@ -652,7 +653,7 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 
     /**
      * Returns a new collection with elements sorted in their natural order.
-     * Example: listOf(3, 1, 2)->sorted() // [1, 2, 3]
+     * Example: listOf([3, 1, 2])->sorted() // [1, 2, 3]
      *
      * @return Collection<E>
      */
@@ -661,7 +662,7 @@ interface Collection extends IteratorAggregate, Countable, JsonSerializable
 
     /**
      * Returns a new collection with elements sorted in descending natural order.
-     * Example: listOf(1, 3, 2)->sortedDesc() // [3, 2, 1]
+     * Example: listOf([1, 3, 2])->sortedDesc() // [3, 2, 1]
      *
      * @return Collection<E>
      */
