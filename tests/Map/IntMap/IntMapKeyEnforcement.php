@@ -116,6 +116,16 @@ trait IntMapKeyEnforcement
     }
 
     #[Test]
+    public function keys_contains_a_value_that_cant_be_a_key(): void
+    {
+        $map = $this->mapOf([1 => 'a']);
+
+        $this->assertFalse($map->keys->contains(null)); // @phpstan-ignore argument.type
+        $this->assertFalse($map->keys->contains([])); // @phpstan-ignore argument.type
+        $this->assertFalse($map->keys->contains('1')); // @phpstan-ignore argument.type
+    }
+
+    #[Test]
     public function remove_with_string_key_does_nothing(): void
     {
         $map = $this->mapOf([1 => 'a', 2 => 'b']);

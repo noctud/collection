@@ -69,7 +69,7 @@ final class MapEntryStore implements ReadOnlyElementStore
             return false;
         }
 
-        return $this->store->containsKey($element->key) && $this->store->get($element->key) === $element->value; // @phpstan-ignore argument.type, argument.type
+        return $this->store->containsKey($element->key) && $this->store->get($element->key) === $element->value; // @phpstan-ignore argument.type
     }
 
     public function toArray(): array

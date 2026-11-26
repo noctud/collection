@@ -19,6 +19,8 @@ use Noctud\Collection\MutableCollection;
 use Noctud\Collection\Set\ImmutableSet;
 use Noctud\Collection\Set\MutableSet;
 use PHPUnit\Framework\Attributes\Test;
+use function fclose;
+use function fopen;
 
 trait MapKeysValuesEntries
 {
@@ -120,6 +122,20 @@ trait MapKeysValuesEntries
         $this->assertTrue($map->keys->contains('c'));
         $this->assertFalse($map->keys->contains('x'));
         $this->assertFalse($map->keys->contains(1)); /** @phpstan-ignore-line */
+    }
+
+    #[Test]
+    public function keys_contains_a_value_that_cant_be_a_key(): void
+    {
+        $map = $this->mapOf(['a' => 1]);
+        $resource = fopen('php://memory', 'r');
+        $this->assertIsResource($resource);
+
+        $this->assertFalse($map->keys->contains(null)); // @phpstan-ignore argument.type
+        $this->assertFalse($map->keys->contains([])); // @phpstan-ignore argument.type
+        $this->assertFalse($map->keys->contains($resource)); // @phpstan-ignore argument.type
+
+        fclose($resource);
     }
 
     #[Test]

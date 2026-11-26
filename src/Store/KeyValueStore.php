@@ -64,9 +64,8 @@ interface KeyValueStore extends IteratorAggregate
     // --- Querying ---
 
     /**
-     * Returns true if the storage contains the given key.
-     *
-     * @param K $key
+     * Returns true if the storage contains the given key. A key of a type the store
+     * can't hold, like an int asked of a string store, returns false.
      */
     public function containsKey(string|int|bool|float|object $key): bool;
 
