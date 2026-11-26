@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Sequence;
 
 use ArrayIterator;
+use DomainException;
 use Exception;
 use Generator;
 use Noctud\Collection\Exception\InvalidSequenceSourceException;
@@ -391,6 +392,81 @@ final class SequenceIterationTest extends TestCase
     }
 
     #[Test]
+    public function advanced_generator_source_throws_non_replayable_source_exception(): void
+    {
+        $generator = (static function (): Generator {
+            yield 1;
+            yield 2;
+        })();
+        $generator->next();
+
+        try {
+            $_ = sequenceOf($generator)->toArray(); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
+            $this->fail('Expected the advanced generator to be reported.');
+        } catch (NonReplayableSourceException $e) {
+            $this->assertStringContainsString('NoRewindIterator', $e->getMessage());
+            $this->assertInstanceOf(Exception::class, $e->getPrevious());
+        }
+    }
+
+    #[Test]
+    public function advanced_generator_source_continues_through_no_rewind_iterator(): void
+    {
+        $generator = (static function (): Generator {
+            yield 1;
+            yield 2;
+            yield 3;
+        })();
+        $generator->next();
+
+        $this->assertSame([2, 3], sequenceOf(new NoRewindIterator($generator))->toArray());
+    }
+
+    #[Test]
+    public function generator_source_at_its_first_yield_is_walked_from_there(): void
+    {
+        $generator = (static function (): Generator {
+            yield 1;
+            yield 2;
+        })();
+        $generator->current();
+
+        $this->assertSame([1, 2], sequenceOf($generator)->toArray());
+    }
+
+    #[Test]
+    public function empty_generator_source_yields_nothing(): void
+    {
+        $generator = (static function (): Generator {
+            yield from [];
+        })();
+
+        $this->assertSame([], sequenceOf($generator)->toArray());
+    }
+
+    #[Test]
+    public function generator_source_body_exception_is_not_relabelled(): void
+    {
+        $generator = (static function (): Generator {
+            yield throw new DomainException('boom');
+        })();
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('boom');
+
+        $_ = sequenceOf($generator)->toArray(); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
+    }
+
+    #[Test]
+    public function advanced_iterator_source_restarts_from_its_first_element(): void
+    {
+        $iterator = new ArrayIterator([1, 2, 3]);
+        $iterator->next();
+
+        $this->assertSame([1, 2, 3], sequenceOf($iterator)->toArray());
+    }
+
+    #[Test]
     public function closure_returning_the_same_generator_throws_on_second_pass(): void
     {
         $generator = (static function (): Generator {
@@ -432,7 +508,7 @@ final class SequenceIterationTest extends TestCase
     }
 
     #[Test]
-    public function producer_cycling_between_iterators_slips_past_the_guard_and_leaks_the_raw_php_error(): void
+    public function producer_cycling_between_iterators_slips_past_the_same_iterator_guard(): void
     {
         $first = (static function (): Generator {
             yield 1;
@@ -448,8 +524,10 @@ final class SequenceIterationTest extends TestCase
         $this->assertSame([1], $sequence->toArray());
         $this->assertSame([2], $sequence->toArray());
 
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessageIsOrContains('Cannot traverse an already closed generator');
+        // Only the previous iterator is remembered, so the third pass gets past that guard and
+        // is stopped by the rewind of a generator that already ran.
+        $this->expectException(NonReplayableSourceException::class);
+        $this->expectExceptionMessageIsOrContains('already advanced');
 
         $_ = $sequence->toArray(); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable
     }

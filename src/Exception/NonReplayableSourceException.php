@@ -23,6 +23,14 @@ final class NonReplayableSourceException extends SourceException
         );
     }
 
+    public static function sequenceSourceCannotRewind(Throwable $cause): self
+    {
+        return new self(
+            'The generator behind this sequence was already advanced, so it cannot be walked from its start. Wrap it in a NoRewindIterator to continue from where it stands.',
+            previous: $cause,
+        );
+    }
+
     public static function constrainedOnceSequenceAlreadyIterated(): self
     {
         return new self(

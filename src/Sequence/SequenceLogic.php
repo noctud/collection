@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Sequence;
 
 use Closure;
+use Exception;
 use Generator;
 use IteratorAggregate;
 use Noctud\Collection\Exception\IndexOutOfBoundsException;
@@ -101,6 +102,24 @@ trait SequenceLogic
         $iterable = $this->resolveSourceForThisPass();
 
         return (static function () use ($iterable): Generator {
+            if ($iterable instanceof Generator) {
+                // valid() runs the body up to its first yield, so an exception from the body
+                // surfaces as it is. After that, rewind() runs no user code and fails only for a
+                // generator that was already advanced.
+                $iterable->valid();
+
+                try {
+                    $iterable->rewind();
+                } catch (Exception $e) {
+                    throw NonReplayableSourceException::sequenceSourceCannotRewind($e);
+                }
+
+                // foreach refuses a finished generator, and valid() just finished an empty one
+                if (!$iterable->valid()) {
+                    return;
+                }
+            }
+
             $i = 0;
             foreach ($iterable as $value) {
                 yield $i++ => $value;
