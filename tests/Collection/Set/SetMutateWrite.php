@@ -70,6 +70,74 @@ trait SetMutateWrite
     }
 
     #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function construction_keeps_first_of_same_hash(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf([$element, 'other', $sameHash]);
+
+        $this->assertSame([$element, 'other'], $set->toArray());
+    }
+
+    #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function add_keeps_stored_element_of_same_hash(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf([$element, 'other']);
+
+        if ($set instanceof MutableSet) {
+            $result = $set->tracked()->add($sameHash);
+            $this->assertFalse($result->changed);
+            $this->assertSame([$element, 'other'], $set->toArray());
+
+            $this->assertSame($set, $set->add($sameHash));
+            $this->assertSame([$element, 'other'], $set->toArray());
+        } else {
+            $this->assertSame([$element, 'other'], $set->add($sameHash)->toArray());
+        }
+    }
+
+    #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function addAll_keeps_stored_element_of_same_hash(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf([$element]);
+
+        if ($set instanceof MutableSet) {
+            $result = $set->tracked()->addAll([$sameHash]);
+            $this->assertFalse($result->changed);
+            $this->assertSame([$element], $set->toArray());
+
+            $result = $set->tracked()->addAll([$sameHash, 'other']);
+            $this->assertTrue($result->changed);
+            $this->assertSame([$element, 'other'], $set->toArray());
+        } else {
+            $this->assertSame([$element, 'other'], $set->addAll([$sameHash, 'other'])->toArray());
+        }
+    }
+
+    #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function addFirst_moves_stored_element_of_same_hash(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf(['other', $element]);
+
+        if ($set instanceof MutableSet) {
+            $tracked = $set->tracked();
+
+            $result = $tracked->addFirst($sameHash);
+            $this->assertTrue($result->changed);
+            $this->assertSame([$element, 'other'], $set->toArray());
+
+            $result = $tracked->addFirst($sameHash);
+            $this->assertFalse($result->changed);
+            $this->assertSame([$element, 'other'], $set->toArray());
+        } else {
+            $this->assertSame([$element, 'other'], $set->addFirst($sameHash)->toArray());
+            $this->assertSame([$element, 'other'], $set->addFirst($element)->addFirst($sameHash)->toArray());
+        }
+    }
+
+    #[Test]
     public function uniqueness_enforced_on_add(): void
     {
         $set = $this->collectionOf([1, 2, 3]);

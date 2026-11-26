@@ -101,6 +101,17 @@ $set->removeAll(['a']); // {'c'}
 $set->clear(); // {}
 ```
 
+Duplicates are found by hash, the same way `contains()` finds elements. Two `Hashable` objects with the same `identity()` count as one element, so the set keeps the instance it already holds, even when the new one carries different data:
+
+```php
+// User implements Hashable, identity() returns its id
+$set = mutableSetOf([new User(1, 'old@example.com')]);
+$set->add(new User(1, 'new@example.com'));
+$set->first()->email; // 'old@example.com'
+```
+
+To store the newer object, remove the old one and add it again. `addFirst()` follows the same rule and moves the stored instance to the front.
+
 ### addFirst: move to front
 
 `addFirst()` guarantees the element is first after the call. If the element already exists in the set, it is **moved to the front**. If it is already first, the call is a no-op:
