@@ -6,31 +6,19 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/jS3fKe6vW9)
 
-Type-safe, mutable/immutable, sortable and key-preserving List/Map/Set collections for **PHP 8.4+**.
+Type-safe List, Set and Map collections for PHP 8.4+. Each comes in a mutable and an immutable variant, maps keep their keys exactly as given (`'1'` stays a string, objects work as keys), and static analyzers follow the element types through a whole chain of calls.
+
+The API follows Kotlin's collections: factory functions, the mutable/immutable split, the `OrNull` methods and most of the method names.
 
 ```shell
 composer require noctud/collection
 ```
 
-**Stable despite the 0.x:** each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`.
-With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules.
-See [Versioning](https://noctud.dev/collection/versioning).
+The 0.x doesn't mean unstable. Each `0.MINOR` series is a stable major version, so `0.2.x` is what other projects would call `2.x`. With the default `^0.2` constraint, updates never break your code: `0.1.x` had nine releases with no breaking changes, and `0.2.x` follows the same rules. See [Versioning](https://noctud.dev/collection/versioning).
 
-## ✨ Features
-- **Type-safe**: Full generics support. Static analyzers understand every element type through the chain.
-- **Key-preserving**: Map keys like `float`, `bool` or `"1"` retain their original types. No silent type casting.
-- **Object keys**: Use objects as map keys out of the box. Implement `Hashable` for custom identity semantics.
-- **Mutable & Immutable**: Choose the right variant. Immutable methods are marked with `#[NoDiscard]`.
-- **Lazy Init**: Construct collections from closures. Uses PHP 8.4 lazy objects — materialized only on first access.
-- **Lazy Sequences**: Process large or infinite data element by element. Chains stop as soon as the result is known.
-- **Interface-driven**: Every type is an interface. Factory functions return contracts, not concrete classes.
-- **Expressive**: Rich set of higher-order functions — map, filter, sorted, flatMap, groupBy, partition, and more.
-- **Chainable**: Mutating methods return a collection — read result like `$set->tracked()->add('a')->changed`.
-- **Strict**: Choose between throwing and nullable methods (`get`/`getOrNull`, `first`/`firstOrNull`, etc.)
-- **Inspired by Kotlin**: Factory functions, mutable/immutable split, `OrNull` conventions, and namings.
+## Types
 
-## 🗺️ Architecture
-```bash
+```text
 Collection<E>               → Ordered elements, read-only
 ├── List<E>                 → Indexed, array access
 │   ├── MutableList<E>      → Mutating methods (write & sort)
@@ -45,10 +33,9 @@ Map<K,V>                    → Ordered key-value pairs, array access
 
 Sequence<E>                 → Lazy pipeline, not a collection
 ```
-Full architecture is [shown in docs](https://noctud.dev/collection/getting-started#architecture), there are also Writable interfaces for easy third party implementations.
 
-### 🏗️ Constructing
-Use [factory functions](https://noctud.dev/collection/api/functions) from namespace `Noctud\Collection`.
+Every type is an interface, and the [factory functions](https://noctud.dev/collection/api/functions) in the `Noctud\Collection` namespace return these interfaces, not concrete classes. The [full hierarchy](https://noctud.dev/collection/getting-started#architecture) also has Writable interfaces for third-party implementations.
+
 ```php
 setOf(['a', 'b']); // ImmutableSet<string>
 mutableSetOf(['a', 'b']); // MutableSet<string>
@@ -59,56 +46,27 @@ mutableListOf(['a', 'b']); // MutableList<string>
 mapOf(['a' => 1, 'b' => 2]); // ImmutableMap<string, int>
 mutableMapOf(['a' => 1, 'b' => 2]); // MutableMap<string, int>
 ```
-Use `stringMapOf`/`mutableStringMapOf` and `intMapOf`/`mutableIntMapOf` for better
-performance and ~50% less memory — they use single-array storage and enforce key types at runtime.
 
-### 📖 Accessing
-Array access is strict by default — throws on missing keys/indices. Use `??` for safe fallback.
+## Accessing elements
+
+Array access is strict, so a missing key or index throws, the same as `get()`. Use `??` or an `OrNull` method when absence is expected.
+
 ```php
 $list[0]; // throws if missing, get()
 $list[0] ?? null; // null if missing
 $list->getOrNull(0); // null if missing
 $list->firstOrNull(); // null if empty
-```
-```php
+
 $map['key']; // throws if missing, get()
 $map['key'] ?? null; // null if missing
 $map->getOrNull('key'); // null if missing
 $map->values->first(); // throws if empty
 ```
-Sets support only the `contains` method, they have no array access by design.
 
-### 🌪️ Filtering & transformations
-All transformation methods (`filter`, `map`, `flatMap`, `zip`, `partition`, ...) always return a new **immutable** collection, regardless of whether the source is mutable or immutable. Unlike `array_filter`, Lists are always reindexed — no gaps, no need for `array_values()`.
-```php
-$set->filter(fn($el) => strlen($el->property) > 3); // new Set<E>
-$map->filter(fn($v, $k) => strlen($k->property) > 3); // new Map<K,V>
-$map->filterValuesNotNull(); // new Map<K,V> where V is not null
-$map->values->filter(fn($v) => $v > 10); // new Collection<V>
-```
+Sets have no array access by design, only `contains()`.
 
-### 📊 Sorting
-Every Collection and Map is sequentially ordered, so [sorting](https://noctud.dev/collection/sorting) is supported everywhere.
-- `sorted*` returns a new collection, `sort*` sorts in place (Mutable only).
-- `*By` takes a selector, `*With` takes a comparator. Add `Desc` for descending.
+Every map exposes live, read-only [`$keys`, `$values` and `$entries`](https://noctud.dev/collection/map#views) views. They are real `Set` and `Collection` objects backed by the map's own store, so a change to the map shows up in them right away.
 
-```php
-// Basic
-$list->sort(); // also sortDesc()
-$map->sortByKey(); // also sortByValue()
-
-// Selector examples
-$list->sortBy(fn ($v) => $v->score);
-$map->sortByKeyDesc(fn ($k) => strlen($k));
-
-// Comparator examples (advanced use cases)
-$list->sortWith(fn ($a, $b) => $b->score <=> $a->score);
-$map->sortWithKey(fn ($a, $b) => $a <=> $b); // also sortWithValue()
-$map->sortWith(fn (MapEntry $a, MapEntry $b) => $a->value <=> $b->value);
-```
-
-### 👁️ Map views
-Every Map exposes live read-only [`$keys`, `$values`, and `$entries`](https://noctud.dev/collection/map#views) views. These are real `Set` and `Collection` objects backed by the same underlying store — mutations to the map are immediately visible through views and vice versa.
 ```php
 $map = mapOf(['alice' => 28, 'bob' => 35, 'carol' => 22]);
 
@@ -117,28 +75,39 @@ $map->keys->filter(fn($k) => strlen($k) > 3); // Set {'alice', 'carol'}
 $map->entries->first(); // MapEntry { key: 'alice', value: 28 }
 ```
 
-### ✔️ Quantifiers
-Check if all/any or none of the elements match the predicate.
+## Transforming
+
+`filter()`, `map()`, `flatMap()`, `zip()`, `partition()` and the other transformations always return a new immutable collection, whether the source is mutable or not. Unlike `array_filter()`, a filtered List is reindexed, so there are no gaps to close with `array_values()`.
+
 ```php
-$set->all(fn($v) => strlen($v->property) > 3); // true|false
-$map->any(fn($v, $k) => strlen($k->property) > 3); // true|false
-$map->values->none(fn($v) => $v->isActive); // true|false
+$set->filter(fn($el) => strlen($el->property) > 3); // new Set<E>
+$map->filter(fn($v, $k) => strlen($k->property) > 3); // new Map<K,V>
+$map->filterValuesNotNull(); // new Map<K,V> where V is not null
+$map->values->filter(fn($v) => $v > 10); // new Collection<V>
 ```
 
-### ➰ Iterating
-All collections are traversable.
-```php
-$set->forEach(fn($v) => print("$v->property\n"));
-$map->forEach(fn($v, $k) => print("$k = $v\n"));
+## Sorting
 
-// Keys for Sets are generated on the fly (0, 1, 2, ...)
-foreach ($collection as $k => $v) {
-    print("$k = $v\n");
-}
+Every Collection and Map keeps its order, so [sorting](https://noctud.dev/collection/sorting) works everywhere. `sorted*` returns a new collection and `sort*` sorts in place (mutable only). `*By` takes a selector, `*With` takes a comparator, and `Desc` reverses the order.
+
+```php
+// Basic
+$list->sort(); // also sortDesc()
+$map->sortByKey(); // also sortByValue()
+
+// Selector
+$list->sortBy(fn ($v) => $v->score);
+$map->sortByKeyDesc(fn ($k) => strlen($k));
+
+// Comparator, for the cases a selector can't express
+$list->sortWith(fn ($a, $b) => $b->score <=> $a->score);
+$map->sortWithKey(fn ($a, $b) => $a <=> $b); // also sortWithValue()
+$map->sortWith(fn (MapEntry $a, MapEntry $b) => $a->value <=> $b->value);
 ```
 
-### ⛓️ Chainable
-Mutating methods return `$this` (Mutable) or a new instance (Immutable). Both share the same API, but immutable methods are marked with `#[NoDiscard]` to prevent accidental misuse.
+## Mutable and immutable
+
+Mutating methods return `$this` on a mutable collection and a new instance on an immutable one. Both variants share the same API, and the immutable methods are marked `#[NoDiscard]`, so PHP 8.5 warns when a result is thrown away.
 
 ```php
 $new = $map->put('b', 2)
@@ -152,90 +121,50 @@ $mutableSet->clear()
     ->removeIf(fn($v) => $v === null);
 ```
 
-Method [`tracked()`](https://noctud.dev/collection/mutability#change-tracking) wraps a mutable collection in a proxy that tracks changes. The `$changed` flag is available on the return value of each mutation method, not on the wrapper itself.
+A mutable collection keeps its element type, so PHPStan reports an element of the wrong type. An immutable one may widen it, since it returns a new instance anyway. See [Mutability](https://noctud.dev/collection/mutability).
+
+```php
+$map = mutableMapOf(['a' => 1]); // MutableMap<string, int>
+$map->put('b', 'wrong'); // PHPStan error: string is not int
+
+$map = mapOf(['a' => 1]); // ImmutableMap<string, int>
+$new = $map->put('b', 'text'); // ImmutableMap<string, int|string>
+```
+
+[`tracked()`](https://noctud.dev/collection/mutability#change-tracking) wraps a mutable collection to report whether a mutation changed anything. The `$changed` flag is on the value each mutation returns, not on the wrapper itself.
+
 ```php
 $map = mutableMapOf(['a' => 'b']);
 if ($map->tracked()->remove('a')->changed) {
-    // do something only if 'a' was actually removed
+    // runs only if 'a' was actually removed
 }
 ```
 
-### 🛡️ [Type safety](https://noctud.dev/collection/mutability)
-Mutable collections enforce strict typing — PHPStan warns if you try to add elements of incompatible types.
-Immutable collections allow type widening since they return a new instance with potentially different types.
+## Keys keep their type
+
+A map stores every key as given, so the only place to be careful is construction, because PHP casts an array key like `'1'` to `int(1)` before the map ever sees it. Pairs, `stringMapOf()` and generators avoid that. See [Preserving key types](https://noctud.dev/collection/map#preserving-key-types).
+
 ```php
-// Mutable — strict, PHPStan warns on type mismatch
-$map = mutableMapOf(['a' => 1]); // MutableMap<string, int>
-$map->put('b', 'wrong'); // ❌ PHPStan error: string is not int
+$map = mutableMapOf(['1' => 'a']); // key '1' is cast to int(1) before the map is created
+$map = mutableMapOfPairs([['1', 'a']]); // key '1' stays a string
+$map['2'] = 'b'; // key '2' stays a string
 
-// Immutable — widening allowed, returns new instance
-$map = mapOf(['a' => 1]); // ImmutableMap<string, int>
-$new = $map->put('b', 'text'); // ✅ ImmutableMap<string, int|string>
-```
+// Only string keys (int keys are accepted at construction and become strings)
+$map = stringMapOf(['1' => 'a', 2 => 'b']); // keys '1' and '2' are strings
 
-### 🔑 [Preserving key types](https://noctud.dev/collection/map#preserving-key-types)
-```php
-$map = mutableMapOf(['1' => 'a']); // ❌ Key '1' will be cast to int(1) before the map is created
-$map = mutableMapOfPairs([['1', 'a']]); // ✅ Key '1' will stay as a string
-$map['2'] = 'b'; // ✅ Key '2' will stay as string
-
-// Enforce string keys (int are only allowed at construction time)
-$map = stringMapOf(['1' => 'a', 2 => 'b']); // ✅ Keys '1' and '2' will be strings
-
-// Constructing from a generator
+// From a generator
 $map = mapOf((function() {
-    yield '1' => 'a'; // ✅ Key '1' will stay as a string
+    yield '1' => 'a'; // key '1' stays a string
 })());
 ```
-Map will always preserve original keys, you have to only worry about constructing the map.
 
-### 💤 [Lazy Initialization](https://noctud.dev/collection/lazy-init)
-Construct from a closure — the callback executes only on first access. Under the hood, lazy initialization uses PHP 8.4's [Lazy Objects](https://www.php.net/manual/en/language.oop5.lazy-objects.php) — the internal store is a ghost proxy materialized only when first accessed.
-```php
-// The query runs only if $users is actually read
-$template->users = listOf(fn() => $repository->getAllUsers());
-
-$lazyMap = mapOf(fn () => ['a' => 1]); // ✅ Good, callback returning an array
-$lazyMap = mapOf(fn () => $generator); // ✅ Good, callback returning Generator
-
-$lazyMap->values; // still lazy, no code executed yet
-$lazyMap->count(); // first read - executes the callback, materializes the map
-```
-Lazily initialized collections behave identically to regular ones — there is no way to tell from outside. Always pass closures, not Generator objects directly.
-
-### 🌊 [Sequences](https://noctud.dev/collection/sequence)
-Collection transformations are eager — every step builds a new collection. A `Sequence` runs the chain element by element instead, and stops as soon as the result is known. Use it for large, streamed or infinite data.
-```php
-// profile() runs only once - for the first active user
-$users->asSequence()
-    ->filter(fn($u) => $u->isActive())
-    ->map(fn($u) => $api->profile($u))
-    ->first();
-
-// readLines() is your own generator - stops after 10 errors
-sequenceOf(fn() => readLines('app.log'))
-    ->filter(fn($line) => str_contains($line, 'ERROR'))
-    ->takeFirst(10)
-    ->toList();
-
-// Infinite, but only the first 10 elements are ever computed
-generateSequence(1, fn($n) => $n * 2)->takeFirst(10)->toList();
-```
-A sequence stores nothing, so each terminal operation (`first()`, `toList()`, …) runs the chain from the source again: a closure source is called again, a `Generator` can be iterated only once.
-
-### ㊙️ [Objects as keys](https://noctud.dev/collection/map#objects-as-keys)
-
-Use objects as map keys out of the box. By default, objects are hashed using `spl_object_id`.
+Objects work as keys too. By default they are hashed with `spl_object_id()`, so only the same instance matches. Implement `Hashable` to define identity yourself. See [Objects as keys](https://noctud.dev/collection/map#objects-as-keys).
 
 ```php
 $map = mapOfPairs([[$user, 'data']]);
-isset($map[$user]); // ✅ True, same object instance
-isset($map[clone $user]); // ❌ False, different instance
-```
+isset($map[$user]); // true, same instance
+isset($map[clone $user]); // false, different instance
 
-Implement `Hashable` for custom identity semantics:
-
-```php
 class User implements \Noctud\Collection\Hashable {
     public function identity(): string|int {
         return "user_$this->id";
@@ -244,39 +173,76 @@ class User implements \Noctud\Collection\Hashable {
 
 $map = mutableMapOf();
 $map[$user] = 'cacheData';
-isset($map[clone $user]); // ✅ True, same user ID
+isset($map[clone $user]); // true, same user ID
 ```
 
-### 🧩 Extending
-Every type you interact with is an interface — `ImmutableList`, `MutableMap`, `Set`, even `MapEntry`. Logic is encapsulated in traits, so you can turn any class into a collection.
+## Lazy initialization
 
-For custom stores, database-backed collections, and more, see the [Extending guide](https://noctud.dev/collection/extending).
+Pass a closure instead of data and it runs on first access. The internal store is a PHP 8.4 [lazy object](https://www.php.net/manual/en/language.oop5.lazy-objects.php), a ghost that is materialized only when something reads it. See [Lazy initialization](https://noctud.dev/collection/lazy-init).
 
-### 🚀 Performance
+```php
+// The query runs only if $users is actually read
+$template->users = listOf(fn() => $repository->getAllUsers());
 
-This library prioritizes type safety and correctness. Lists and Sets have minimal overhead compared to native arrays. The generic `mapOf()` uses dual-array storage to preserve any key type, which adds memory and performance overhead.
+$lazyMap = mapOf(fn () => ['a' => 1]); // callback returning an array
+$lazyMap = mapOf(fn () => $generator); // callback returning a Generator
 
-When keys are exclusively strings or integers, use the optimized variants for maximum performance:
+$lazyMap->values; // still lazy, no code executed yet
+$lazyMap->count(); // first read, executes the callback and materializes the map
+```
+
+Lazily initialized collections behave identically to regular ones; there is no way to tell from outside. Always pass closures, not Generator objects directly.
+
+## Sequences
+
+Collection transformations are eager, so every step builds a new collection. A `Sequence` runs the chain element by element instead and stops as soon as the result is known, which suits large, streamed or infinite data. See [Sequence](https://noctud.dev/collection/sequence).
+
+```php
+// profile() runs only once, for the first active user
+$users->asSequence()
+    ->filter(fn($u) => $u->isActive())
+    ->map(fn($u) => $api->profile($u))
+    ->first();
+
+// readLines() is your own generator, reading stops after 10 errors
+sequenceOf(fn() => readLines('app.log'))
+    ->filter(fn($line) => str_contains($line, 'ERROR'))
+    ->takeFirst(10)
+    ->toList();
+
+// Infinite, but only the first 10 elements are ever computed
+generateSequence(1, fn($n) => $n * 2)->takeFirst(10)->toList();
+```
+
+A sequence stores nothing, so each terminal operation (`first()`, `toList()`, ...) runs the chain from the source again. A closure source is called again, but a `Generator` can be iterated only once.
+
+## Extending
+
+Every type you work with is an interface, `MapEntry` included, and the logic lives in traits, so any class can become a collection. Custom stores and database-backed collections are covered in the [Extending guide](https://noctud.dev/collection/extending).
+
+## Performance
+
+Type safety and correct keys come first. Lists and Sets add little over native arrays, but the generic `mapOf()` keeps two arrays so that any key type survives, which costs memory and time. When keys are only strings or only integers, use the specialized maps, which keep a single array, skip key hashing, check key types at runtime and use about 50% less memory.
+
 ```php
 $users = stringMapOf(['alice' => 28, 'bob' => 35]); // or mutableStringMapOf()
 $scores = intMapOf([1 => 100, 2 => 85, 3 => 92]); // or mutableIntMapOf()
 ```
-These use single-array storage, skip key hashing entirely, and use ~50% less memory than `mapOf()`.
 
-Converting between mutable and immutable via `toMutable()`/`toImmutable()` uses copy-on-write — the data is shared until either side is modified, making variant switching virtually free.
+`toMutable()` and `toImmutable()` share the data until either side is modified, so switching between the variants is nearly free.
 
-### 🔎 Static analysis
+## Static analysis
 
-Generics are fully supported by PHPStan and Psalm. PhpStorm has known limitations with generics inference.
+The generics are written for PHPStan, and `tests/Type` asserts the types it infers. Psalm reads the same annotations but isn't tested here. PhpStorm has known limitations with generics inference.
 
-## 📚 Documentation
+## Documentation
 
-- [Getting started](https://noctud.dev/collection/getting-started) — Installation, architecture, basic usage
-- [List](https://noctud.dev/collection/list) / [Set](https://noctud.dev/collection/set) / [Map](https://noctud.dev/collection/map) — Type guides with examples
-- [Mutability](https://noctud.dev/collection/mutability) — Mutable vs immutable, change tracking, copy-on-write
-- [Sorting](https://noctud.dev/collection/sorting) — Full sorting reference with quick-reference table
-- [Lazy initialization](https://noctud.dev/collection/lazy-init) — Deferred initialization
-- [Sequence](https://noctud.dev/collection/sequence) — Lazy, element-by-element pipelines
-- [Extending](https://noctud.dev/collection/extending) — Custom implementations, stores, traits
-- [API reference](https://noctud.dev/collection/api/collection) — All method signatures
-- [Versioning](https://noctud.dev/collection/versioning) — Release rules, backward compatibility, supported versions
+- [Getting started](https://noctud.dev/collection/getting-started): installation, architecture, basic usage
+- [List](https://noctud.dev/collection/list), [Set](https://noctud.dev/collection/set) and [Map](https://noctud.dev/collection/map): type guides with examples
+- [Mutability](https://noctud.dev/collection/mutability): mutable vs immutable, change tracking, copy-on-write
+- [Sorting](https://noctud.dev/collection/sorting): full sorting reference with a quick-reference table
+- [Lazy initialization](https://noctud.dev/collection/lazy-init): deferred initialization
+- [Sequence](https://noctud.dev/collection/sequence): lazy, element-by-element pipelines
+- [Extending](https://noctud.dev/collection/extending): custom implementations, stores, traits
+- [API reference](https://noctud.dev/collection/api/collection): all method signatures
+- [Versioning](https://noctud.dev/collection/versioning): release rules, backward compatibility, supported versions
