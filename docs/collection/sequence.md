@@ -244,6 +244,8 @@ $sequence->first(); // fine
 $sequence->first(); // throws NonReplayableSourceException
 ```
 
+The pass rewinds its source the way `foreach` does, so an iterator you already advanced restarts from its first element, and a generator you already advanced throws `NonReplayableSourceException`. Wrap either in a `NoRewindIterator` to continue from where it stands.
+
 Wrap the call in a closure (`sequenceOf(fn() => $repository->streamAll())`) when the sequence needs to replay.
 
 A producer (a closure or an `IteratorAggregate`) must return a **fresh** iterable on every call. One that keeps returning the same generator, like `fn() => $generator`, is detected and throws on the second pass too.

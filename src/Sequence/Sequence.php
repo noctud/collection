@@ -38,7 +38,10 @@ use NoDiscard;
  *   around, for instance) throws NonReplayableSourceException, and a Closure handing
  *   back something that is not an iterable throws InvalidSequenceSourceException;
  * - a raw Iterator/Generator: the sequence is single-pass and any further iteration
- *   throws NonReplayableSourceException (a partial pass counts as consumed).
+ *   throws NonReplayableSourceException (a partial pass counts as consumed). The pass
+ *   rewinds it as foreach does, so an advanced Iterator restarts from its first element
+ *   and an advanced Generator throws NonReplayableSourceException; wrap it in a
+ *   NoRewindIterator to continue from where it stands.
  *
  * Any source can be narrowed to a single pass with sequenceOf($source, constrainOnce: true):
  * the second pass then throws NonReplayableSourceException instead of replaying an array

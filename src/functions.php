@@ -208,7 +208,10 @@ if (!function_exists('Noctud\Collection\listOf')) {
      * - an array: replayable;
      * - a Closure or an IteratorAggregate (e.g. a Collection): a producer, asked for an
      *   iterable on every pass; it must hand back a fresh iterator each time;
-     * - a raw Iterator/Generator: single-pass, yields its remaining elements.
+     * - a raw Iterator/Generator: single-pass. The pass rewinds it as foreach does, so an
+     *   advanced Iterator restarts from its first element and an advanced Generator throws
+     *   NonReplayableSourceException; wrap it in a NoRewindIterator to continue from where
+     *   it stands.
      *
      * Pass constrainOnce to force a single pass whatever the source is: the second pass
      * throws instead of replaying an array or re-invoking a producer, which is what you
