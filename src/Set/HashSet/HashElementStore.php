@@ -68,31 +68,47 @@ final class HashElementStore extends AbstractElementStore implements ReadWriteEl
         return $this->elements;
     }
 
+    /**
+     * Keeps the first element of each hash: the one already stored, or the earliest one given.
+     */
     public function addAll(iterable $source): void
     {
         foreach ($source as $element) {
-            $this->elements[KeyHasher::hashSetKey($element)] = $element;
+            $hash = KeyHasher::hashSetKey($element);
+            if (!array_key_exists($hash, $this->elements)) {
+                $this->elements[$hash] = $element;
+            }
         }
     }
 
     /**
+     * Keeps the stored element when one with the same hash is already present,
+     * so a Hashable copy carrying different data does not replace it.
+     *
      * @param E $element
      */
     public function add(mixed $element): void
     {
-        $this->elements[KeyHasher::hashSetKey($element)] = $element;
+        $hash = KeyHasher::hashSetKey($element);
+        if (!array_key_exists($hash, $this->elements)) {
+            $this->elements[$hash] = $element;
+        }
     }
 
     /**
      * Adds the element to the beginning of the store.
-     * If the element already exists, it is moved to the first position.
+     * An element already stored under the same hash is moved there instead.
      *
      * @param E $element
      */
     public function addFirst(mixed $element): void
     {
         $hash = KeyHasher::hashSetKey($element);
-        unset($this->elements[$hash]);
+        if (array_key_exists($hash, $this->elements)) {
+            $element = $this->elements[$hash];
+            unset($this->elements[$hash]);
+        }
+
         $this->elements = [$hash => $element] + $this->elements;
     }
 
