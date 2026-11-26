@@ -15,6 +15,8 @@ use Noctud\Collection\Store\AbstractElementStore;
 use Noctud\Collection\Store\ReadWriteElementStore;
 use Traversable;
 use function array_key_exists;
+use function array_diff_key;
+use function array_intersect_key;
 use function array_key_first;
 use function uasort;
 use function asort;
@@ -108,6 +110,26 @@ final class HashElementStore extends AbstractElementStore implements ReadWriteEl
     public function contains(mixed $element): bool
     {
         return array_key_exists(KeyHasher::hashSetKey($element), $this->elements);
+    }
+
+    /**
+     * Removes the elements whose hash is a key of the given array.
+     *
+     * @param array<int|string,mixed> $hashed
+     */
+    public function removeHashed(array $hashed): void
+    {
+        $this->elements = array_diff_key($this->elements, $hashed);
+    }
+
+    /**
+     * Keeps only the elements whose hash is a key of the given array.
+     *
+     * @param array<int|string,mixed> $hashed
+     */
+    public function retainHashed(array $hashed): void
+    {
+        $this->elements = array_intersect_key($this->elements, $hashed);
     }
 
     public function removeFirst(): void

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Noctud\Collection\Tests\Collection\Set\Extending;
 
 use Noctud\Collection\Set\ImmutableSet;
+use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -75,6 +76,21 @@ final class SetExtendingTest extends TestCase
         self::assertInstanceOf(TraitItemCollection::class, $common);
         self::assertCount(1, $common);
         self::assertSame($shared, $common->first());
+    }
+
+    #[Test]
+    public function trait_removeAll_and_retainAll_match_elements_like_contains(): void
+    {
+        $collection = new MixedItemCollection([new HashableUser('1'), 0.1 + 0.2, 'other']);
+
+        $removed = $collection->removeAll([new HashableUser('1'), 0.3]);
+        $retained = $collection->retainAll([new HashableUser('1'), 0.3]);
+
+        self::assertInstanceOf(MixedItemCollection::class, $removed);
+        self::assertInstanceOf(MixedItemCollection::class, $retained);
+        self::assertSame(['other'], $removed->toArray());
+        self::assertCount(2, $retained);
+        self::assertFalse($retained->contains('other'));
     }
 
     #[Test]

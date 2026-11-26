@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Noctud\Collection\Set;
 
 use Closure;
+use Noctud\Collection\Operation\SetOperation;
 use Noctud\Collection\Store\ReadWriteElementStore;
-use Noctud\Collection\StrictElementLookup;
 use Noctud\Collection\TrackedResult;
 
 /**
@@ -130,7 +130,7 @@ trait MutableTrackedSetLogic
     public function removeAll(iterable $elements): MutableTrackedSet&TrackedResult
     {
         $prevCount = $this->store->count();
-        $this->store->removeIf(new StrictElementLookup($elements)->predicate());
+        SetOperation::subtractInPlace($this->store, $elements);
         $this->_changed = $this->store->count() !== $prevCount;
         return $this;
     }
@@ -139,7 +139,7 @@ trait MutableTrackedSetLogic
     public function retainAll(iterable $elements): MutableTrackedSet&TrackedResult
     {
         $prevCount = $this->store->count();
-        $this->store->removeIf(new StrictElementLookup($elements)->predicate(negate: true));
+        SetOperation::intersectInPlace($this->store, $elements);
         $this->_changed = $this->store->count() !== $prevCount;
         return $this;
     }
