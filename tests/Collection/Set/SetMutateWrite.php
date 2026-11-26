@@ -9,11 +9,66 @@ declare(strict_types=1);
 
 namespace Noctud\Collection\Tests\Collection\Set;
 
+use Generator;
 use Noctud\Collection\Set\MutableSet;
+use Noctud\Collection\Tests\Collection\Fixture\HashableUser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 trait SetMutateWrite
 {
+    /**
+     * An element and a different value that hashes the same, which the set treats as that element.
+     *
+     * @return Generator<string, array{mixed, mixed}>
+     */
+    public static function sameHashProvider(): Generator
+    {
+        yield 'Hashable copy' => [new HashableUser('1'), new HashableUser('1')];
+        yield 'float rounded to 12 decimals' => [0.1 + 0.2, 0.3];
+    }
+
+    #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function removeAll_matches_elements_like_contains(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf([$element, 'other']);
+        $this->assertTrue($set->contains($sameHash));
+
+        if ($set instanceof MutableSet) {
+            $tracked = $set->toMutable()->tracked();
+            $this->assertSame($set, $set->removeAll([$sameHash]));
+            $this->assertSame(['other'], $set->toArray());
+
+            $result = $tracked->removeAll([$sameHash]);
+            $this->assertTrue($result->changed);
+            $this->assertSame(['other'], $result->toArray());
+        } else {
+            $this->assertSame(['other'], $set->removeAll([$sameHash])->toArray());
+            $this->assertSame([$element, 'other'], $set->toArray());
+        }
+    }
+
+    #[Test]
+    #[DataProvider('sameHashProvider')]
+    public function retainAll_keeps_elements_that_contains_reports(mixed $element, mixed $sameHash): void
+    {
+        $set = $this->collectionOf([$element, 'other']);
+
+        if ($set instanceof MutableSet) {
+            $tracked = $set->toMutable()->tracked();
+            $this->assertSame($set, $set->retainAll([$sameHash]));
+            $this->assertSame([$element], $set->toArray());
+
+            $result = $tracked->retainAll([$sameHash]);
+            $this->assertTrue($result->changed);
+            $this->assertSame([$element], $result->toArray());
+        } else {
+            $this->assertSame([$element], $set->retainAll([$sameHash])->toArray());
+            $this->assertSame([$element, 'other'], $set->toArray());
+        }
+    }
+
     #[Test]
     public function uniqueness_enforced_on_add(): void
     {

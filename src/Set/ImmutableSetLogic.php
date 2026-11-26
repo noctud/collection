@@ -11,8 +11,8 @@ namespace Noctud\Collection\Set;
 
 use Closure;
 use Noctud\Collection\Operation\FilterOperation;
+use Noctud\Collection\Operation\SetOperation;
 use Noctud\Collection\Store\ReadWriteElementStore;
-use Noctud\Collection\StrictElementLookup;
 
 /**
  * @template E
@@ -65,8 +65,7 @@ trait ImmutableSetLogic
     /** {@inheritDoc} */
     public function removeAll(iterable $elements): ImmutableSet
     {
-        $lookup = new StrictElementLookup($elements);
-        return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate(negate: true)));
+        return $this->newCollectionOf(new SetOperation($this->store)->subtract($elements));
     }
 
     /** {@inheritDoc} */
@@ -96,7 +95,6 @@ trait ImmutableSetLogic
     /** {@inheritDoc} */
     public function retainAll(iterable $elements): ImmutableSet
     {
-        $lookup = new StrictElementLookup($elements);
-        return $this->newCollectionOf(new FilterOperation($this->store->toArray())->byValue($lookup->predicate()));
+        return $this->newCollectionOf(new SetOperation($this->store)->intersect($elements));
     }
 }

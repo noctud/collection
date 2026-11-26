@@ -13,6 +13,7 @@ use Noctud\Collection\KeyHasher;
 use Noctud\Collection\Set\HashSet\HashElementStore;
 use Noctud\Collection\Set\HashSet\ImmutableHashSet;
 use Noctud\Collection\Set\HashSet\MutableHashSet;
+use Noctud\Collection\Store\ReadWriteElementStore;
 use function array_intersect_key;
 use function array_diff_key;
 use function array_key_exists;
@@ -53,6 +54,46 @@ final class SetOperation extends AbstractOperation
     public function subtract(iterable $other): HashElementStore
     {
         return HashElementStore::fromHashed(array_diff_key(self::hashed($this->data), self::hashed($other)));
+    }
+
+    /**
+     * Removes the store's elements that hash like one of the given ones, the way contains() matches
+     * them. A hash store compares the hashes it already holds, any other store hashes each element.
+     *
+     * @template T
+     * @param ReadWriteElementStore<T> $store
+     * @param iterable<mixed> $other
+     */
+    public static function subtractInPlace(ReadWriteElementStore $store, iterable $other): void
+    {
+        $hashed = self::hashed($other);
+        if ($store instanceof HashElementStore) {
+            $store->removeHashed($hashed);
+
+            return;
+        }
+
+        $store->removeIf(static fn (mixed $v): bool => array_key_exists(KeyHasher::hashSetKey($v), $hashed));
+    }
+
+    /**
+     * Keeps only the store's elements that hash like one of the given ones, matched as in
+     * subtractInPlace().
+     *
+     * @template T
+     * @param ReadWriteElementStore<T> $store
+     * @param iterable<mixed> $other
+     */
+    public static function intersectInPlace(ReadWriteElementStore $store, iterable $other): void
+    {
+        $hashed = self::hashed($other);
+        if ($store instanceof HashElementStore) {
+            $store->retainHashed($hashed);
+
+            return;
+        }
+
+        $store->removeIf(static fn (mixed $v): bool => !array_key_exists(KeyHasher::hashSetKey($v), $hashed));
     }
 
     /**
