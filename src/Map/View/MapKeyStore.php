@@ -12,6 +12,8 @@ namespace Noctud\Collection\Map\View;
 use Noctud\Collection\Store\ReadOnlyElementStore;
 use Noctud\Collection\Store\KeyValueStore;
 use Traversable;
+use function is_object;
+use function is_scalar;
 
 /**
  * @template E of string|int|bool|float|object
@@ -61,7 +63,12 @@ final class MapKeyStore implements ReadOnlyElementStore
 
     public function contains(mixed $element): bool
     {
-        return $this->store->containsKey($element); // @phpstan-ignore argument.type
+        // containsKey() only takes key types; null, an array or a resource is never a key.
+        if (!is_scalar($element) && !is_object($element)) {
+            return false;
+        }
+
+        return $this->store->containsKey($element);
     }
 
     public function toArray(): array
